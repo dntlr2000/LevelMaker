@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f8cd5c877014a040a0e84566d646125, type: 3}
+  m_Name: DestructibleDropTable
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.WeightedDropTable
+  entries:
+  - itemId: Gold
+    weight: 45
+    minQuantity: 1
+    maxQuantity: 2
+    representsNoDrop: 0
+    markerColor: {r: 1, g: 0.82, b: 0.15, a: 1}
+  - itemId: CraftMaterial
+    weight: 30
+    minQuantity: 1
+    maxQuantity: 4
+    representsNoDrop: 0
+    markerColor: {r: 0.45, g: 0.9, b: 0.55, a: 1}
+  - itemId: Potion
+    weight: 5
+    minQuantity: 1
+    maxQuantity: 1
+    representsNoDrop: 0
+    markerColor: {r: 0.9, g: 0.2, b: 0.35, a: 1}
+  - itemId: Nothing
+    weight: 20
+    minQuantity: 1
+    maxQuantity: 1
+    representsNoDrop: 1
+    markerColor: {r: 0, g: 0, b: 0, a: 0}
