@@ -276,10 +276,12 @@ namespace RogueDungeonLab
             uv.Add(Vector2.zero); uv.Add(Vector2.right); uv.Add(Vector2.one); uv.Add(Vector2.up);
             t.Add(s); t.Add(s+1); t.Add(s+2); t.Add(s); t.Add(s+2); t.Add(s+3);
         }
+        // 합성 메시 오브젝트에 렌더링 구성과 플레이어 이동용 정적 충돌체를 함께 설정합니다.
         private static void CreateMeshObject(string name, Transform parent, Mesh mesh, Material material)
         {
             GameObject go = new GameObject(name); go.transform.SetParent(parent, false);
             go.AddComponent<MeshFilter>().sharedMesh = mesh; go.AddComponent<MeshRenderer>().sharedMaterial = material;
+            MeshCollider collider = go.AddComponent<MeshCollider>(); collider.sharedMesh = mesh;
         }
     }
 

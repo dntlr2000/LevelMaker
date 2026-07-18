@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f57d21f693698ae45a79e1bc828f800d, type: 3}
   m_Name: DungeonLabSettings
   m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.RogueDungeonSettings
-  seed: 12345
+  seed: -1762663391
   stageWidthCells: 42
   stageDepthCells: 42
   cellSize: 3
