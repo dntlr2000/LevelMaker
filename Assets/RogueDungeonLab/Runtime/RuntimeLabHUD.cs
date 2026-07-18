@@ -26,7 +26,7 @@ namespace RogueDungeonLab
 
             RogueDungeonSettings settings = _generator.settings;
             settings.ClampValues();
-            GUILayout.Label("값을 조절한 뒤 생성 버튼을 누르면 현재 Play 모드 던전에 한 번에 반영됩니다.", _muted);
+            GUILayout.Label("슬라이더와 프리셋 변경은 활성 시드를 유지한 채 자동 재생성되어 드래그 중에도 결과가 갱신됩니다. 시드 입력만 생성 버튼으로 확정합니다.", _muted);
             DrawPresetButtons(settings);
 
             GUILayout.Space(8f);
@@ -46,10 +46,12 @@ namespace RogueDungeonLab
             GUI.enabled = previousEnabled;
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("활성 시드 재생성")) _generator.RegenerateActiveSeed();
+            if (GUILayout.Button("활성 시드 재생성")) RegenerateActiveSeedImmediately();
             if (GUILayout.Button("새 시드로 생성")) GenerateNewSeedAndSync(settings);
             GUILayout.EndHorizontal();
 
+            bool previousGuiChanged = GUI.changed;
+            GUI.changed = false;
             GUILayout.Space(8f);
             GUILayout.Label("스테이지 크기", _header);
             settings.stageWidthCells = DrawIntSlider("가로 셀 수", settings.stageWidthCells, 12, 96);
@@ -83,18 +85,33 @@ namespace RogueDungeonLab
             DrawDensityProfile("적 캐릭터", settings.enemyProfile);
             DrawDensityProfile("파괴 가능 오브젝트", settings.destructibleProfile);
             DrawDensityProfile("지형지물", settings.propProfile);
+            bool liveSettingsChanged = GUI.changed;
+            GUI.changed = previousGuiChanged || liveSettingsChanged;
+            if (liveSettingsChanged) RequestLiveRegeneration();
             GUILayout.Label("입구→출구 진행도 곡선은 Unity 에디터의 분포 탭에서 계속 편집할 수 있습니다.", _muted);
         }
 
         // Compact, Balanced와 Chaos 프리셋을 현재 런타임 설정에 불러옵니다.
-        private static void DrawPresetButtons(RogueDungeonSettings settings)
+        private void DrawPresetButtons(RogueDungeonSettings settings)
         {
             GUILayout.Space(8f);
             GUILayout.Label("프리셋");
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Compact")) settings.ApplyPreset(DungeonPreset.Compact);
-            if (GUILayout.Button("Balanced")) settings.ApplyPreset(DungeonPreset.Balanced);
-            if (GUILayout.Button("Chaos")) settings.ApplyPreset(DungeonPreset.Chaos);
+            if (GUILayout.Button("Compact"))
+            {
+                settings.ApplyPreset(DungeonPreset.Compact);
+                RequestLiveRegeneration();
+            }
+            if (GUILayout.Button("Balanced"))
+            {
+                settings.ApplyPreset(DungeonPreset.Balanced);
+                RequestLiveRegeneration();
+            }
+            if (GUILayout.Button("Chaos"))
+            {
+                settings.ApplyPreset(DungeonPreset.Chaos);
+                RequestLiveRegeneration();
+            }
             GUILayout.EndHorizontal();
         }
 
@@ -105,6 +122,7 @@ namespace RogueDungeonLab
             settings.ClampValues();
             _seedText = settings.seed.ToString();
             _generator.GenerateWithSeed(settings.seed);
+            CompleteImmediateGeneration();
         }
 
         // 새 무작위 시드로 생성한 뒤 해당 값을 설정과 HUD 입력란에 동기화합니다.
@@ -113,6 +131,45 @@ namespace RogueDungeonLab
             _generator.GenerateNewSeed();
             settings.seed = _generator.ActiveSeed;
             _seedText = settings.seed.ToString();
+            CompleteImmediateGeneration();
+        }
+
+        // 수동 버튼으로 현재 활성 시드를 즉시 재생성하고 대기 중인 자동 요청을 정리합니다.
+        private void RegenerateActiveSeedImmediately()
+        {
+            _generator.RegenerateActiveSeed();
+            CompleteImmediateGeneration();
+        }
+
+        // 슬라이더 드래그에서 발생한 여러 변경을 다음 Update의 자동 재생성 요청 하나로 합칩니다.
+        private void RequestLiveRegeneration()
+        {
+            if (_generator == null || _generator.settings == null) return;
+            _liveRegenerationPending = true;
+        }
+
+        // 대기 중인 설정 변경을 짧은 제한 주기로 활성 시드에 적용해 드래그 중 결과를 갱신합니다.
+        private void ProcessLiveRegeneration()
+        {
+            if (!_liveRegenerationPending) return;
+            if (_generator == null || _generator.settings == null)
+            {
+                _liveRegenerationPending = false;
+                return;
+            }
+            if (Time.unscaledTime < _nextLiveRegenerationTime) return;
+
+            _liveRegenerationPending = false;
+            _generator.settings.ClampValues();
+            _generator.RegenerateActiveSeed();
+            _nextLiveRegenerationTime = Time.unscaledTime + LiveRegenerationInterval;
+        }
+
+        // 즉시 생성 후 중복 자동 생성을 막고 다음 실시간 생성 가능 시점을 갱신합니다.
+        private void CompleteImmediateGeneration()
+        {
+            _liveRegenerationPending = false;
+            _nextLiveRegenerationTime = Time.unscaledTime + LiveRegenerationInterval;
         }
 
         // 정수 설정을 현재 값 표시와 함께 반응형 가로 슬라이더로 편집합니다.
@@ -163,7 +220,7 @@ namespace RogueDungeonLab
             }
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("현재 시드 재생성")) _generator.RegenerateActiveSeed();
+            if (GUILayout.Button("현재 시드 재생성")) RegenerateActiveSeedImmediately();
             if (GUILayout.Button("새 시드"))
             {
                 if (_generator.settings != null) GenerateNewSeedAndSync(_generator.settings);

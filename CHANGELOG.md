@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2
+
+- Added live Play HUD regeneration for stage sliders and presets while preserving the active seed
+- Coalesced continuous drag changes into a throttled 0.08-second regeneration cycle
+- Kept typed seed changes explicit so incomplete numeric input does not trigger unwanted generations
+- Added PlayMode coverage for automatic settings application and active-seed preservation
+
 ## 0.2.1
 
 - Expanded free-camera pitch from the downward-only 15°–85° range to -89°–89°

@@ -48,6 +48,7 @@ namespace RogueDungeonLab
     [DisallowMultipleComponent]
     public sealed partial class RuntimeLabHUD : MonoBehaviour
     {
+        private const float LiveRegenerationInterval = 0.08f;
         private static readonly string[] Tabs = { "스테이지 설정", "탐험", "드랍 통계" };
         private RogueDungeonGenerator _generator;
         private DropValidationService _service;
@@ -55,6 +56,8 @@ namespace RogueDungeonLab
         private Vector2 _scroll;
         private int _selectedTab;
         private string _seedText = string.Empty;
+        private bool _liveRegenerationPending;
+        private float _nextLiveRegenerationTime;
         private GUIStyle _title;
         private GUIStyle _muted;
         private GUIStyle _header;
@@ -78,6 +81,7 @@ namespace RogueDungeonLab
         private void Update()
         {
             if (_generator == null || _service == null) FindServices();
+            ProcessLiveRegeneration();
         }
 
         // 해상도와 화면 비율에 맞춘 스케일, 탭과 스크롤 영역으로 런타임 HUD를 그립니다.

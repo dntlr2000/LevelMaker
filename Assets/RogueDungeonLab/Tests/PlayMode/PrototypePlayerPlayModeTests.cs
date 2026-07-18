@@ -14,6 +14,7 @@ namespace RogueDungeonLab.Tests
         private GameObject _cameraObject;
         private RogueDungeonSettings _settings;
         private RogueDungeonGenerator _generator;
+        private RuntimeLabHUD _hud;
         private LabOrbitCamera _orbitCamera;
         private Keyboard _keyboard;
         private Mouse _mouse;
@@ -36,6 +37,7 @@ namespace RogueDungeonLab.Tests
             _generator = _generatorObject.AddComponent<RogueDungeonGenerator>();
             _generator.settings = _settings;
             _generator.GenerateWithSeed(73125);
+            _hud = _generatorObject.AddComponent<RuntimeLabHUD>();
 
             _cameraObject = new GameObject("Prototype Player Test Camera");
             _cameraObject.tag = "MainCamera";
@@ -47,7 +49,7 @@ namespace RogueDungeonLab.Tests
             yield return null;
         }
 
-        // 충돌체, 캐릭터 흐름, 3D 이동, 확장 피치 회전과 반응형 HUD 영역을 검증합니다.
+        // 충돌체, 캐릭터 흐름, 3D 이동, 확장 피치, 반응형 HUD와 설정 자동 재생성을 검증합니다.
         [UnityTest]
         public IEnumerator TemporaryPlayer_SpawnsMovesFollowsAndRecovers()
         {
@@ -162,6 +164,13 @@ namespace RogueDungeonLab.Tests
             AssertPanelFitsScreen(320, 180);
             AssertPanelFitsScreen(360, 800);
             AssertPanelFitsScreen(3840, 1080);
+
+            int activeSeedBeforeLiveRegeneration = _generator.ActiveSeed;
+            _settings.stageWidthCells = 24;
+            InvokeHudMethod("RequestLiveRegeneration");
+            InvokeHudMethod("ProcessLiveRegeneration");
+            Assert.That(_generator.ActiveSeed, Is.EqualTo(activeSeedBeforeLiveRegeneration));
+            Assert.That(_generator.CurrentLayout.Width, Is.EqualTo(24));
         }
 
         // 지정 해상도에서 계산한 HUD 패널이 화면의 네 경계를 벗어나지 않는지 확인합니다.
@@ -174,6 +183,14 @@ namespace RogueDungeonLab.Tests
             Assert.That(panel.yMin, Is.GreaterThanOrEqualTo(0f));
             Assert.That(panel.xMax, Is.LessThanOrEqualTo(width + 0.01f));
             Assert.That(panel.yMax, Is.LessThanOrEqualTo(height + 0.01f));
+        }
+
+        // HUD의 비공개 자동 재생성 단계를 호출해 실제 생성 결과 반영을 검증합니다.
+        private void InvokeHudMethod(string methodName)
+        {
+            MethodInfo method = typeof(RuntimeLabHUD).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null);
+            method.Invoke(_hud, null);
         }
 
         // 현재 레이아웃의 입구 셀을 임시 캐릭터의 예상 월드 위치로 변환합니다.
