@@ -76,8 +76,7 @@ namespace RogueDungeonLab.Tests
             Assert.That(Keyboard.current, Is.SameAs(_keyboard));
             Assert.That(_keyboard.wKey.isPressed, Is.True);
             Assert.That(Time.deltaTime, Is.GreaterThan(0f));
-            player.SendMessage("Update", SendMessageOptions.RequireReceiver);
-            player.SendMessage("Update", SendMessageOptions.RequireReceiver);
+            InvokeCharacterMove(player, Vector2.up, false, false, 0.02f);
             InputSystem.QueueStateEvent(_keyboard, new KeyboardState());
             InputSystem.Update();
             Vector2 horizontalMove = new Vector2(player.transform.position.x - moveStart.x, player.transform.position.z - moveStart.z);
@@ -173,6 +172,107 @@ namespace RogueDungeonLab.Tests
             Assert.That(_generator.CurrentLayout.Width, Is.EqualTo(24));
         }
 
+        // 저장 Blueprint의 cellSize가 현재 settings와 달라도 플레이어가 저장된 입구 좌표에 생성되는지 검사합니다.
+        [UnityTest]
+        public IEnumerator SavedBlueprintPlayer_UsesLoadedBlueprintCellSize()
+        {
+            RogueDungeonSettings sourceSettings = ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            DungeonBlueprintAsset asset = ScriptableObject.CreateInstance<DungeonBlueprintAsset>();
+            DungeonStageDefinition definition = ScriptableObject.CreateInstance<DungeonStageDefinition>();
+            try
+            {
+                sourceSettings.ApplyPreset(DungeonPreset.Compact);
+                sourceSettings.cellSize = 5f;
+                sourceSettings.specialGimmickCount = 0;
+                sourceSettings.enemyProfile.baseDensity = 0f;
+                sourceSettings.destructibleProfile.baseDensity = 0f;
+                sourceSettings.propProfile.baseDensity = 0f;
+                DungeonBlueprint blueprint = DungeonBlueprintGenerator.Generate(
+                    DungeonGenerationRequest.Create(
+                        sourceSettings,
+                        606060,
+                        DungeonGeneratorVersions.LegacyV1,
+                        DungeonBuiltInContentKeys.LegacyCatalogPlanningHash)).Blueprint;
+                asset.Store(blueprint);
+
+                definition.sourceMode = DungeonStageSourceMode.SavedBlueprint;
+                definition.savedBlueprint = asset;
+                _settings.cellSize = 1.5f;
+                _generator.stageDefinition = definition;
+                _generator.LoadStageDefinitionWithSeed(999999);
+
+                Assert.That(_generator.ActiveSeed, Is.EqualTo(606060));
+                Assert.That(_generator.CurrentCellSize, Is.EqualTo(5f));
+                PrototypePlayerController player = PrototypePlayerController.Spawn(_generator);
+                Assert.That(player, Is.Not.Null);
+                DungeonLayout layout = _generator.CurrentLayout;
+                Vector3 localEntrance = layout.CellToLocalPosition(layout.Entrance, 5f) + Vector3.up * 0.08f;
+                Vector3 expected = _generator.transform.TransformPoint(localEntrance);
+                Assert.That(Vector3.Distance(player.transform.position, expected), Is.LessThan(0.001f));
+                yield return null;
+            }
+            finally
+            {
+                PrototypePlayerController.DestroyActive();
+                if (definition != null) Object.Destroy(definition);
+                if (asset != null) Object.Destroy(asset);
+                if (sourceSettings != null) Object.Destroy(sourceSettings);
+            }
+        }
+
+        // 클릭 대상의 1회 파괴가 드랍 추첨·통계 1회를 만들고 중복 호출을 거부하는지 검사합니다.
+        [UnityTest]
+        public IEnumerator DestructibleTarget_DestroyOnceRecordsOneDropSample()
+        {
+            WeightedDropTable table = ScriptableObject.CreateInstance<WeightedDropTable>();
+            GameObject targetObject = null;
+            try
+            {
+                table.name = "PlayMode Deterministic Drop";
+                table.entries.Add(new DropEntry
+                {
+                    itemId = "GuaranteedGold",
+                    weight = 1f,
+                    minQuantity = 2,
+                    maxQuantity = 2,
+                    representsNoDrop = false
+                });
+                DropValidationService service = DropValidationService.Active;
+                Assert.That(service, Is.Not.Null);
+                service.ResetStatistics();
+
+                targetObject = new GameObject("Playable Prefab Root");
+                DungeonSpawnIdentity identity = targetObject.AddComponent<DungeonSpawnIdentity>();
+                identity.Configure(new DungeonSpawnRecord
+                {
+                    spawnId = "playmode-target",
+                    contentKey = "test/destructible",
+                    category = DungeonSpawnCategory.Destructible,
+                    cell = Vector2Int.zero
+                });
+                GameObject targetChild = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                targetChild.transform.SetParent(targetObject.transform, false);
+                DestructibleDropTarget target = targetChild.AddComponent<DestructibleDropTarget>();
+                target.Configure("PlayModeTarget", DropSourceKind.Destructible, table, false);
+
+                Assert.That(target.TryDestroy(targetObject.transform.position), Is.True);
+                Assert.That(target.TryDestroy(targetObject.transform.position), Is.False);
+                var snapshots = service.GetSnapshots();
+                Assert.That(snapshots.Count, Is.EqualTo(1));
+                Assert.That(snapshots[0].Attempts, Is.EqualTo(1));
+                Assert.That(snapshots[0].Entries[0].ItemId, Is.EqualTo("GuaranteedGold"));
+                Assert.That(snapshots[0].Entries[0].Hits, Is.EqualTo(1));
+                Assert.That(snapshots[0].Entries[0].TotalQuantity, Is.EqualTo(2));
+                yield return null;
+                Assert.That(targetObject == null, Is.True);
+            }
+            finally
+            {
+                if (targetObject != null) Object.Destroy(targetObject);
+                if (table != null) Object.Destroy(table);
+            }
+        }
+
         // 지정 해상도에서 계산한 HUD 패널이 화면의 네 경계를 벗어나지 않는지 확인합니다.
         private static void AssertPanelFitsScreen(int width, int height)
         {
@@ -214,11 +314,13 @@ namespace RogueDungeonLab.Tests
         public IEnumerator TearDown()
         {
             PrototypePlayerController.DestroyActive();
+            if (_generator != null) _generator.ClearGenerated();
             if (_keyboard != null && _keyboard.added) InputSystem.RemoveDevice(_keyboard);
             if (_mouse != null && _mouse.added) InputSystem.RemoveDevice(_mouse);
             if (_cameraObject != null) Object.Destroy(_cameraObject);
             if (_generatorObject != null) Object.Destroy(_generatorObject);
             if (_settings != null) Object.Destroy(_settings);
+            yield return null;
             yield return null;
         }
     }

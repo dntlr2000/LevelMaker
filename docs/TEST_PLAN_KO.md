@@ -1,9 +1,59 @@
 # 테스트 계획
 
+## R0·R1·R2·R3·R4 자동 회귀 기준
+
+Unity `6000.5.3f1`에서 compile 성공 후 EditMode 41개와 PlayMode 3개를 자동 실행했습니다.
+
+- Compact `12345`, Balanced `-987654321`, Chaos `20260719`의 방·floor·BFS·콘텐츠 셀 SHA-256 Golden 지문
+- 같은 프리셋·시드 반복 생성 지문 일치
+- 세 프리셋에 분산한 100개 시드의 모든 floor 셀 연결성
+- 기존 `RogueDungeonGenerator` 공개 상태, `CurrentBlueprint`, `GenerationCompleted`, `__RogueDungeonLab_Generated` 유지
+- Recipe 스냅샷 정규화, 원본 설정 비변경, 생성 관련 필드만의 해시 반영
+- GenerationRequest의 시드·생성기 버전·카탈로그 해시·요청 ID 캡처
+- Blueprint JSON round-trip, 깊은 복사, 목록 재정렬에 독립적인 canonical 해시
+- BlueprintAsset의 독립 복사본 저장과 해시 갱신
+- 연결 단절, spawn ID 중복, 저장 해시 불일치의 안정적인 오류 코드
+- LegacyV1 요청에서 생성한 Blueprint의 연결성·참조·해시와 layout·콘텐츠 개수 일치
+- 같은 Blueprint를 두 번 구축한 메시·계층·transform·stable spawn ID 일치
+- 기존 layout 기반 `DungeonContentSpawner.Spawn` wrapper와 Blueprint 기반 구축 결과 일치
+- explicit → run → fixed → random 시드 정책 우선순위와 random provider 호출 조건
+- Procedural StageDefinition의 Blueprint 구축과 재로드 시 generated root 단일 유지
+- SavedBlueprint가 변경된 recipe·명시 시드·run seed·random provider로 재계산되지 않음
+- 누락 source, 미지원 BakedPrefab, 잘못된 generatorVersion과 손상 Blueprint의 코드 기반 차단
+- 한 Generator에서 Saved Definition과 기존 settings-only `GenerateWithSeed` facade를 모두 사용
+- 카탈로그 entry와 tag 재정렬에 독립적인 planning hash, Prefab 참조 제외
+- 카탈로그 중복 key, 잘못된 progression·footprint·간격의 `RDL-CAT-*` 오류
+- StableV2 요청 생성 뒤 원본 catalog를 바꿔도 snapshot과 Blueprint가 변하지 않음
+- 같은 StableV2 설정·시드에서 catalog Inspector 순서가 달라도 같은 planning hash·Blueprint·contentKey 생성
+- Enemy 후보 key 변경이 Destructible·Prop 결과를 밀지 않는 범주별 난수 독립성
+- PCG32 Layout/음수 seed/child stream golden vector와 bounded 정수 범위
+- 기본 Prefab resolver가 built-in key를 교체하고 transform·`DungeonSpawnIdentity`·클릭 대상 계약을 유지
+- 누락 콘텐츠의 `Error`, `BuiltInFallback`, `Skip` 구축 정책
+- Blueprint와 catalog의 progression·footprint 교차 검증
+- StableV2 StageLoader가 catalog를 사용하고 strict 실패 때 기존 generated root를 보존
+- 요청 snapshot 사후 변조·잘못된 planning entry·예약 built-in key/category 차단
+- spawn room ID와 실제 floor cell의 room 소속 일치 및 실제 셀 기준 Room/Corridor 조건 검증
+- Prefab target 설정 우선 보존과 catalog dropTable·gameplayId 자동 보강
+- 비활성 staging root에서 구축 후 교체·활성화하고 명시적으로 소유한 합성 Mesh만 해제
+- 자식 `DestructibleDropTarget` 파괴가 spawn root 전체를 제거하고 드랍 통계를 정확히 1회 누적
+
+R4 구현 시점의 실행 결과는 compile 성공, EditMode `41/41`, PlayMode `3/3` 통과입니다. PlayMode 세 테스트는 기존 임시 플레이어·카메라·HUD 자동 재생성, settings와 cellSize가 다른 저장 Blueprint의 입구 배치, 자식 클릭 대상의 루트 제거와 드랍 통계 1회 누적을 확인합니다. 실제 마우스 포인터 Raycast와 HUD 위 클릭 차단은 수동 검증 항목입니다.
+
+## 전체 기능 검증 목록
+
+아래는 자동 회귀 외에 수동·통합·제품화 단계까지 포함한 전체 체크리스트입니다. 체크리스트에 있다는 사실만으로 이번 R4 자동 실행에서 확인했다는 의미는 아닙니다.
+
 - 신규 Unity 6 프로젝트 import 후 컴파일 오류 0개
 - 장면 자동 구성 3회 후 Generator/Systems/Camera/Light 중복 없음
 - 자동 생성 설정·드랍 테이블을 Unity 재시작 후 다시 로드 가능
 - 동일 설정·시드의 방 수, 셀 수, 콘텐츠 위치 동일
+- Procedural 시드 정책이 explicit → run → fixed → random 우선순위를 따름
+- SavedBlueprint 로드가 현재 recipe와 seed 입력에 영향받지 않고 저장 hash를 유지
+- StageDefinition 재로드 후 `__RogueDungeonLab_Generated` root가 하나만 존재
+- 손상된 저장 Blueprint는 기존 정상 root를 교체하기 전에 로드가 차단됨
+- StableV2는 StageDefinition 또는 `CreateStableV2`에서 명시적으로 선택할 때만 활성화되고 기존 facade는 LegacyV1 유지
+- Content Catalog의 key/category/progression/room 조건/footprint와 Blueprint가 일치
+- custom `IDungeonContentResolver`와 실행별 missing policy override가 프로젝트 생성 경로를 사용
 - 모든 floor cell의 BFS distance가 0 이상
 - 최소 12×12 및 최대 96×96 극단 설정에서 예외 없음
 - 곡선 0 구간에서 해당 콘텐츠 억제

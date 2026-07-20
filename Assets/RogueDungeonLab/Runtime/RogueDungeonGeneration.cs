@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -10,21 +9,52 @@ namespace RogueDungeonLab
     {
         private static readonly Vector2Int[] Directions = { Vector2Int.right, Vector2Int.left, Vector2Int.up, Vector2Int.down };
 
+        // 기존 설정 자산을 정규화한 스냅샷으로 변환해 legacy layout을 생성합니다.
         public static DungeonLayout Generate(RogueDungeonSettings settings, int seed)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             settings.ClampValues();
-            DungeonLayout layout = new DungeonLayout(settings.stageWidthCells, settings.stageDepthCells);
+            return Generate(DungeonRecipeSnapshot.Capture(settings), seed);
+        }
+
+        // GameObject나 ScriptableObject 변경 없이 레시피 스냅샷에서 legacy layout을 생성합니다.
+        public static DungeonLayout Generate(DungeonRecipeSnapshot recipe, int seed)
+        {
+            if (recipe == null) throw new ArgumentNullException(nameof(recipe));
+            DungeonLayout layout = new DungeonLayout(recipe.stageWidthCells, recipe.stageDepthCells);
             System.Random random = new System.Random(seed);
-            PlaceRooms(layout, settings, random);
-            EnsureFallbackRoom(layout, settings);
-            ConnectRooms(layout, settings, random);
+            PlaceRooms(layout, recipe, random);
+            EnsureFallbackRoom(layout, recipe);
+            ConnectRooms(layout, recipe, random);
             CalculateDistances(layout);
             ChooseExit(layout);
             return layout;
         }
 
-        private static void PlaceRooms(DungeonLayout layout, RogueDungeonSettings settings, System.Random random)
+        // 설정을 정규화한 뒤 프로젝트 소유 PCG32 Layout 스트림으로 StableV2 레이아웃을 생성합니다.
+        public static DungeonLayout GenerateStableV2(RogueDungeonSettings settings, int seed)
+        {
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            settings.ClampValues();
+            return GenerateStableV2(DungeonRecipeSnapshot.Capture(settings), seed);
+        }
+
+        // 난수 알고리즘·순회 순서·호출 순서가 모두 StableV2 계약인 GameObject 없는 레이아웃 경로입니다.
+        public static DungeonLayout GenerateStableV2(DungeonRecipeSnapshot recipe, int seed)
+        {
+            if (recipe == null) throw new ArgumentNullException(nameof(recipe));
+            DungeonLayout layout = new DungeonLayout(recipe.stageWidthCells, recipe.stageDepthCells);
+            DungeonStableRandom random = DungeonStableRandomStreams.Create(seed, DungeonStableRandomStreams.Layout);
+            PlaceRoomsStableV2(layout, recipe, random);
+            EnsureFallbackRoom(layout, recipe);
+            ConnectRoomsStableV2(layout, recipe, random);
+            CalculateDistances(layout);
+            ChooseExit(layout);
+            return layout;
+        }
+
+        // 겹치지 않는 사각 방을 목표 개수와 시도 제한 안에서 배치합니다.
+        private static void PlaceRooms(DungeonLayout layout, DungeonRecipeSnapshot settings, System.Random random)
         {
             int attempts = 0;
             int totalAttempts = settings.desiredRoomCount * settings.roomPlacementAttempts;
@@ -45,6 +75,29 @@ namespace RogueDungeonLab
             }
         }
 
+        // Legacy와 같은 배치 규칙을 쓰되 오직 StableV2 Layout 스트림만 소비합니다.
+        private static void PlaceRoomsStableV2(DungeonLayout layout, DungeonRecipeSnapshot settings, DungeonStableRandom random)
+        {
+            int attempts = 0;
+            int totalAttempts = settings.desiredRoomCount * settings.roomPlacementAttempts;
+            while (layout.Rooms.Count < settings.desiredRoomCount && attempts++ < totalAttempts)
+            {
+                int rw = random.NextInt(settings.roomSizeMin.x, settings.roomSizeMax.x + 1);
+                int rd = random.NextInt(settings.roomSizeMin.y, settings.roomSizeMax.y + 1);
+                int maxX = layout.Width - rw - 1;
+                int maxZ = layout.Depth - rd - 1;
+                if (maxX <= 1 || maxZ <= 1) break;
+                RectInt candidate = new RectInt(random.NextInt(1, maxX + 1), random.NextInt(1, maxZ + 1), rw, rd);
+                if (!CanPlace(candidate, layout.Rooms, layout.Width, layout.Depth)) continue;
+                int id = layout.Rooms.Count;
+                layout.AddRoom(candidate);
+                for (int x = candidate.xMin; x < candidate.xMax; x++)
+                for (int z = candidate.yMin; z < candidate.yMax; z++)
+                    layout.SetFloor(new Vector2Int(x, z), id, false);
+            }
+        }
+
+        // 후보 방이 외곽 여백과 기존 방 사이 한 셀 간격을 지키는지 확인합니다.
         private static bool CanPlace(RectInt candidate, IReadOnlyList<RectInt> rooms, int width, int depth)
         {
             RectInt padded = new RectInt(candidate.xMin - 1, candidate.yMin - 1, candidate.width + 2, candidate.height + 2);
@@ -53,7 +106,8 @@ namespace RogueDungeonLab
             return true;
         }
 
-        private static void EnsureFallbackRoom(DungeonLayout layout, RogueDungeonSettings settings)
+        // 모든 무작위 배치가 실패했을 때 중앙에 최소 fallback 방을 만듭니다.
+        private static void EnsureFallbackRoom(DungeonLayout layout, DungeonRecipeSnapshot settings)
         {
             if (layout.Rooms.Count > 0) return;
             int rw = Mathf.Clamp(settings.roomSizeMin.x, 3, layout.Width - 4);
@@ -65,7 +119,8 @@ namespace RogueDungeonLab
                 layout.SetFloor(new Vector2Int(x, z), 0, false);
         }
 
-        private static void ConnectRooms(DungeonLayout layout, RogueDungeonSettings settings, System.Random random)
+        // 가장 가까운 미연결 방 연결과 확률적 추가 루프로 전체 방을 연결합니다.
+        private static void ConnectRooms(DungeonLayout layout, DungeonRecipeSnapshot settings, System.Random random)
         {
             if (layout.Rooms.Count <= 1) return;
             List<int> unconnected = new List<int>();
@@ -96,6 +151,43 @@ namespace RogueDungeonLab
             }
         }
 
+        // Legacy와 같은 연결 규칙을 쓰되 StableV2 Layout 스트림 외의 호출 수와 완전히 분리합니다.
+        private static void ConnectRoomsStableV2(DungeonLayout layout, DungeonRecipeSnapshot settings, DungeonStableRandom random)
+        {
+            if (layout.Rooms.Count <= 1) return;
+            List<int> unconnected = new List<int>();
+            for (int i = 1; i < layout.Rooms.Count; i++) unconnected.Add(i);
+            int current = 0;
+            while (unconnected.Count > 0)
+            {
+                Vector2Int from = Center(layout.Rooms[current]);
+                int nearestListIndex = 0;
+                int nearestDistance = int.MaxValue;
+                for (int i = 0; i < unconnected.Count; i++)
+                {
+                    int distance = Manhattan(from, Center(layout.Rooms[unconnected[i]]));
+                    if (distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearestListIndex = i;
+                    }
+                }
+                int next = unconnected[nearestListIndex];
+                CarveConnection(layout, from, Center(layout.Rooms[next]), settings.corridorWidthCells, random.NextDouble01() < 0.5);
+                current = next;
+                unconnected.RemoveAt(nearestListIndex);
+            }
+
+            for (int i = 0; i < layout.Rooms.Count; i++)
+            {
+                if (random.NextDouble01() > settings.extraConnectionChance) continue;
+                int other = random.NextInt(0, layout.Rooms.Count);
+                if (other == i) other = (other + 1) % layout.Rooms.Count;
+                CarveConnection(layout, Center(layout.Rooms[i]), Center(layout.Rooms[other]), settings.corridorWidthCells, random.NextDouble01() < 0.5);
+            }
+        }
+
+        // 두 지점을 수평 또는 수직 우선 L자 복도로 연결합니다.
         private static void CarveConnection(DungeonLayout layout, Vector2Int from, Vector2Int to, int width, bool horizontalFirst)
         {
             Vector2Int corner = horizontalFirst ? new Vector2Int(to.x, from.y) : new Vector2Int(from.x, to.y);
@@ -103,6 +195,7 @@ namespace RogueDungeonLab
             CarveLine(layout, corner, to, width);
         }
 
+        // 지정 폭의 직선 floor 셀을 두 지점 사이에 새깁니다.
         private static void CarveLine(DungeonLayout layout, Vector2Int from, Vector2Int to, int width)
         {
             int minOffset = -(width / 2);
@@ -119,6 +212,7 @@ namespace RogueDungeonLab
             }
         }
 
+        // 첫 방 중심을 입구로 두고 모든 floor 셀의 BFS 거리를 계산합니다.
         private static void CalculateDistances(DungeonLayout layout)
         {
             layout.Entrance = Center(layout.Rooms[0]);
@@ -142,6 +236,7 @@ namespace RogueDungeonLab
             layout.MaxDistance = max;
         }
 
+        // 입구에서 가장 먼 방 중심을 우선 출구로 선택합니다.
         private static void ChooseExit(DungeonLayout layout)
         {
             Vector2Int farthest = layout.Entrance;
@@ -164,7 +259,9 @@ namespace RogueDungeonLab
             layout.MaxDistance = Mathf.Max(1, layout.GetDistance(layout.Exit));
         }
 
+        // 사각 방의 정수 셀 중심을 반환합니다.
         private static Vector2Int Center(RectInt r) { return new Vector2Int(r.xMin + r.width / 2, r.yMin + r.height / 2); }
+        // 두 셀 사이 Manhattan 거리를 계산합니다.
         private static int Manhattan(Vector2Int a, Vector2Int b) { return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y); }
     }
 
@@ -213,16 +310,39 @@ namespace RogueDungeonLab
 
     public static class DungeonMeshBuilder
     {
+        // 기존 DungeonLayout API를 유지하면서 공통 수치 기반 메시 구축으로 전달합니다.
         public static int Build(Transform parent, DungeonLayout layout, RogueDungeonSettings settings)
         {
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            return Build(parent, layout, settings.cellSize, settings.wallHeight);
+        }
+
+        // Blueprint를 legacy layout projection으로 변환해 동일한 합성 메시를 구축합니다.
+        public static int Build(Transform parent, DungeonBlueprint blueprint)
+        {
+            if (blueprint == null) throw new ArgumentNullException(nameof(blueprint));
+            if (blueprint.grid == null) throw new ArgumentException("Blueprint grid is missing.", nameof(blueprint));
+            DungeonLayout layout = DungeonBlueprintLayoutConverter.ToLayout(blueprint);
+            return Build(parent, layout, blueprint.grid.cellSize, blueprint.grid.wallHeight);
+        }
+
+        // layout 셀과 월드 배율로 floor·wall 메시와 정적 collider를 생성합니다.
+        private static int Build(Transform parent, DungeonLayout layout, float cellSize, float wallHeight)
+        {
+            if (parent == null) throw new ArgumentNullException(nameof(parent));
+            if (layout == null) throw new ArgumentNullException(nameof(layout));
             GameObject root = new GameObject("Geometry"); root.transform.SetParent(parent, false);
-            Mesh floor = BuildFloor(layout, settings.cellSize);
-            Mesh walls = BuildWalls(layout, settings.cellSize, settings.wallHeight);
+            Mesh floor = BuildFloor(layout, cellSize);
+            Mesh walls = BuildWalls(layout, cellSize, wallHeight);
+            DungeonGeneratedMeshOwner owner = root.AddComponent<DungeonGeneratedMeshOwner>();
+            owner.hideFlags = HideFlags.HideInInspector;
+            owner.Initialize(floor, walls);
             CreateMeshObject("Floor", root.transform, floor, PrototypeMaterials.Floor);
             CreateMeshObject("Walls", root.transform, walls, PrototypeMaterials.Wall);
             return (floor.triangles.Length + walls.triangles.Length) / 3;
         }
 
+        // 모든 floor 셀을 기존 x-z 순서의 quad 목록으로 합칩니다.
         private static Mesh BuildFloor(DungeonLayout layout, float cellSize)
         {
             List<Vector3> v = new List<Vector3>(layout.WalkableCellCount * 4);
@@ -243,6 +363,7 @@ namespace RogueDungeonLab
             return mesh;
         }
 
+        // floor-to-void 경계마다 기존 box 벽을 추가해 하나의 메시로 합칩니다.
         private static Mesh BuildWalls(DungeonLayout layout, float cellSize, float wallHeight)
         {
             List<Vector3> v = new List<Vector3>(); List<Vector3> n = new List<Vector3>(); List<Vector2> uv = new List<Vector2>(); List<int> t = new List<int>();
@@ -260,6 +381,7 @@ namespace RogueDungeonLab
             return mesh;
         }
 
+        // 중심과 크기로 정의한 box의 여섯 면을 메시 버퍼에 추가합니다.
         private static void AddBox(List<Vector3> v, List<Vector3> n, List<Vector2> uv, List<int> t, Vector3 c, Vector3 size)
         {
             Vector3 h = size * 0.5f;
@@ -270,6 +392,7 @@ namespace RogueDungeonLab
             AddFace(v,n,uv,t,c+new Vector3(-h.x,h.y,h.z),c+new Vector3(h.x,h.y,h.z),c+new Vector3(h.x,h.y,-h.z),c+new Vector3(-h.x,h.y,-h.z),Vector3.up);
             AddFace(v,n,uv,t,c+new Vector3(-h.x,-h.y,-h.z),c+new Vector3(h.x,-h.y,-h.z),c+new Vector3(h.x,-h.y,h.z),c+new Vector3(-h.x,-h.y,h.z),Vector3.down);
         }
+        // 네 꼭짓점과 법선으로 quad 한 면과 두 삼각형을 추가합니다.
         private static void AddFace(List<Vector3> v, List<Vector3> n, List<Vector2> uv, List<int> t, Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 normal)
         {
             int s = v.Count; v.Add(a); v.Add(b); v.Add(c); v.Add(d); n.Add(normal); n.Add(normal); n.Add(normal); n.Add(normal);
@@ -289,142 +412,213 @@ namespace RogueDungeonLab
 
     public static class DungeonContentSpawner
     {
+        // 기존 layout 기반 API를 보존하면서 데이터 전용 planner와 레코드 기반 builder로 전달합니다.
         public static ContentSpawnCounts Spawn(Transform parent, DungeonLayout layout, RogueDungeonSettings settings, int seed)
         {
-            System.Random random = new System.Random(unchecked(seed * 486187739 + 17));
-            List<Vector2Int> candidates = new List<Vector2Int>();
-            foreach (Vector2Int cell in layout.EnumerateFloorCells()) if (!IsReserved(cell, layout, settings.reservedEntranceRadiusCells)) candidates.Add(cell);
-            Transform contents = NewRoot("Contents", parent), markers = NewRoot("Stage Markers", contents), gimmicks = NewRoot("Special Gimmicks", contents), enemies = NewRoot("Enemies", contents), breakables = NewRoot("Destructibles", contents), props = NewRoot("Terrain Props", contents);
-            CreateMarker("Entrance", layout.Entrance, layout, settings, markers, PrototypeMaterials.Entrance);
-            CreateMarker("Exit", layout.Exit, layout, settings, markers, PrototypeMaterials.Exit);
-            HashSet<Vector2Int> occupied = new HashSet<Vector2Int>();
-            ContentSpawnCounts counts = new ContentSpawnCounts();
-            counts.GimmickCount = SpawnGimmicks(gimmicks, candidates, occupied, layout, settings, random);
-            counts.EnemyCount = SpawnProfile(candidates, occupied, layout, settings, settings.enemyProfile, random, seed + 101, delegate(Vector2Int c, int i) { CreateEnemy(c, i, layout, settings, enemies); });
-            counts.DestructibleCount = SpawnProfile(candidates, occupied, layout, settings, settings.destructibleProfile, random, seed + 211, delegate(Vector2Int c, int i) { CreateBreakable(c, i, layout, settings, breakables, random); });
-            counts.PropCount = SpawnProfile(candidates, occupied, layout, settings, settings.propProfile, random, seed + 307, delegate(Vector2Int c, int i) { CreateProp(c, i, layout, settings, props, random); });
-            return counts;
+            if (parent == null) throw new ArgumentNullException(nameof(parent));
+            if (layout == null) throw new ArgumentNullException(nameof(layout));
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            settings.ClampValues();
+            DungeonRecipeSnapshot recipe = DungeonRecipeSnapshot.Capture(settings);
+            DungeonContentPlan plan = DungeonContentPlanner.Plan(layout, recipe, seed);
+            return DungeonContentSceneBuilder.Build(parent, plan.Spawns, settings);
         }
 
-        private static int SpawnGimmicks(Transform parent, List<Vector2Int> candidates, HashSet<Vector2Int> occupied, DungeonLayout layout, RogueDungeonSettings settings, System.Random random)
+        // Blueprint 기반 호출자가 확정된 spawn 레코드만으로 콘텐츠를 재구축하게 합니다.
+        public static ContentSpawnCounts Spawn(Transform parent, DungeonBlueprint blueprint, RogueDungeonSettings settings)
         {
-            int requested = Mathf.Min(settings.specialGimmickCount, candidates.Count), count = 0;
-            for (int i = 0; i < requested; i++)
-            {
-                float target = (i + 1f) / (requested + 1f), bestScore = float.MaxValue; Vector2Int best = default(Vector2Int); bool found = false;
-                for (int c = 0; c < candidates.Count; c++)
-                {
-                    Vector2Int cell = candidates[c]; if (!CanOccupy(cell, occupied, settings.contentSpacingCells)) continue;
-                    float score = Mathf.Abs(layout.GetProgression(cell) - target) + (layout.GetRoomId(cell) >= 0 ? 0f : 0.18f) + (float)random.NextDouble() * 0.06f;
-                    if (score < bestScore) { bestScore = score; best = cell; found = true; }
-                }
-                if (!found) break;
-                occupied.Add(best); CreateGimmick(best, count++, layout, settings, parent, random);
-            }
-            return count;
+            if (parent == null) throw new ArgumentNullException(nameof(parent));
+            if (blueprint == null) throw new ArgumentNullException(nameof(blueprint));
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            return DungeonContentSceneBuilder.Build(parent, blueprint.spawns, settings);
         }
-
-        private static int SpawnProfile(List<Vector2Int> candidates, HashSet<Vector2Int> occupied, DungeonLayout layout, RogueDungeonSettings settings, DensityProfile profile, System.Random random, int noiseSeed, Action<Vector2Int,int> spawn)
-        {
-            List<Vector2Int> shuffled = new List<Vector2Int>(candidates); Shuffle(shuffled, random); int count = 0;
-            for (int i = 0; i < shuffled.Count; i++)
-            {
-                if (profile.maxCount > 0 && count >= profile.maxCount) break;
-                Vector2Int cell = shuffled[i]; if (!CanOccupy(cell, occupied, settings.contentSpacingCells)) continue;
-                float noise = Mathf.PerlinNoise((cell.x + noiseSeed * 0.013f) * 0.17f, (cell.y - noiseSeed * 0.019f) * 0.17f);
-                float p = profile.EvaluateProbability(layout.GetProgression(cell), layout.GetRoomId(cell) >= 0, noise);
-                if (random.NextDouble() > p) continue;
-                occupied.Add(cell); spawn(cell, count++);
-            }
-            return count;
-        }
-
-        private static bool IsReserved(Vector2Int c, DungeonLayout layout, int entranceRadius)
-        {
-            int a = Mathf.Abs(c.x-layout.Entrance.x)+Mathf.Abs(c.y-layout.Entrance.y), b = Mathf.Abs(c.x-layout.Exit.x)+Mathf.Abs(c.y-layout.Exit.y);
-            return a <= entranceRadius || b <= 1;
-        }
-        private static bool CanOccupy(Vector2Int c, HashSet<Vector2Int> occupied, int spacing)
-        {
-            if (occupied.Contains(c)) return false;
-            for (int x=-spacing;x<=spacing;x++) for(int z=-spacing;z<=spacing;z++) if(occupied.Contains(new Vector2Int(c.x+x,c.y+z))) return false;
-            return true;
-        }
-        private static void CreateEnemy(Vector2Int cell, int index, DungeonLayout layout, RogueDungeonSettings settings, Transform parent)
-        {
-            GameObject go=GameObject.CreatePrimitive(PrimitiveType.Capsule); go.name=string.Format("Enemy_{0:000}",index); go.transform.SetParent(parent,false);
-            float scale=Mathf.Clamp(settings.cellSize*0.32f,0.65f,1.25f); go.transform.localScale=Vector3.one*scale; go.transform.localPosition=layout.CellToLocalPosition(cell,settings.cellSize)+Vector3.up*scale; go.GetComponent<Renderer>().sharedMaterial=PrototypeMaterials.Enemy;
-            go.AddComponent<DestructibleDropTarget>().Configure(go.name,DropSourceKind.Enemy,settings.EffectiveEnemyDropTable,settings.spawnDropMarkers);
-        }
-        private static void CreateBreakable(Vector2Int cell,int index,DungeonLayout layout,RogueDungeonSettings settings,Transform parent,System.Random random)
-        {
-            GameObject go=GameObject.CreatePrimitive(PrimitiveType.Cube); go.name=string.Format("Breakable_{0:000}",index); go.transform.SetParent(parent,false);
-            Vector3 scale=new Vector3(Mathf.Clamp(settings.cellSize*0.32f,0.65f,1.3f),Mathf.Clamp(settings.cellSize*0.4f,0.75f,1.5f),Mathf.Clamp(settings.cellSize*0.32f,0.65f,1.3f)); go.transform.localScale=scale; go.transform.localPosition=layout.CellToLocalPosition(cell,settings.cellSize)+Vector3.up*(scale.y*0.5f); go.transform.localRotation=Quaternion.Euler(0,(float)random.NextDouble()*360f,0); go.GetComponent<Renderer>().sharedMaterial=PrototypeMaterials.Breakable;
-            go.AddComponent<DestructibleDropTarget>().Configure(go.name,DropSourceKind.Destructible,settings.EffectiveDestructibleDropTable,settings.spawnDropMarkers);
-        }
-        private static void CreateProp(Vector2Int cell,int index,DungeonLayout layout,RogueDungeonSettings settings,Transform parent,System.Random random)
-        {
-            PrimitiveType type=random.NextDouble()<0.5?PrimitiveType.Cylinder:PrimitiveType.Cube; GameObject go=GameObject.CreatePrimitive(type); go.name=string.Format("TerrainProp_{0:000}",index); go.transform.SetParent(parent,false);
-            float b=Mathf.Clamp(settings.cellSize*(0.14f+(float)random.NextDouble()*0.12f),0.3f,1.2f), h=b*(0.8f+(float)random.NextDouble()*1.2f); go.transform.localScale=new Vector3(b,h,b); go.transform.localPosition=layout.CellToLocalPosition(cell,settings.cellSize)+Vector3.up*(type==PrimitiveType.Cylinder?h:h*0.5f); go.transform.localRotation=Quaternion.Euler((float)random.NextDouble()*8f,(float)random.NextDouble()*360f,(float)random.NextDouble()*8f); go.GetComponent<Renderer>().sharedMaterial=PrototypeMaterials.Prop; Collider col=go.GetComponent<Collider>(); if(col!=null)col.enabled=false;
-        }
-        private static void CreateGimmick(Vector2Int cell,int index,DungeonLayout layout,RogueDungeonSettings settings,Transform parent,System.Random random)
-        {
-            GameObject root=new GameObject(string.Format("SpecialGimmick_{0:00}",index)); root.transform.SetParent(parent,false); root.transform.localPosition=layout.CellToLocalPosition(cell,settings.cellSize); root.transform.localRotation=Quaternion.Euler(0,(float)random.NextDouble()*360f,0);
-            GameObject b=GameObject.CreatePrimitive(PrimitiveType.Cylinder); b.transform.SetParent(root.transform,false); b.transform.localPosition=Vector3.up*0.12f; b.transform.localScale=new Vector3(0.85f,0.12f,0.85f); b.GetComponent<Renderer>().sharedMaterial=PrototypeMaterials.Gimmick; DisableCollider(b);
-            GameObject core=GameObject.CreatePrimitive(PrimitiveType.Sphere); core.transform.SetParent(root.transform,false); core.transform.localPosition=Vector3.up*0.9f; core.transform.localScale=Vector3.one*0.65f; core.GetComponent<Renderer>().sharedMaterial=PrototypeMaterials.Gimmick; DisableCollider(core);
-        }
-        private static void CreateMarker(string name,Vector2Int cell,DungeonLayout layout,RogueDungeonSettings settings,Transform parent,Material material)
-        {
-            GameObject go=GameObject.CreatePrimitive(PrimitiveType.Cylinder); go.name=name; go.transform.SetParent(parent,false); go.transform.localPosition=layout.CellToLocalPosition(cell,settings.cellSize)+Vector3.up*0.08f; go.transform.localScale=new Vector3(1.15f,0.08f,1.15f); go.GetComponent<Renderer>().sharedMaterial=material; DisableCollider(go);
-        }
-        private static void DisableCollider(GameObject go){Collider c=go.GetComponent<Collider>();if(c!=null)c.enabled=false;}
-        private static Transform NewRoot(string name,Transform parent){GameObject go=new GameObject(name);go.transform.SetParent(parent,false);return go.transform;}
-        private static void Shuffle<T>(IList<T> list,System.Random random){for(int i=list.Count-1;i>0;i--){int j=random.Next(0,i+1);T x=list[i];list[i]=list[j];list[j]=x;}}
     }
 
     [DisallowMultipleComponent]
     public sealed partial class RogueDungeonGenerator : MonoBehaviour
     {
-        private const string GeneratedRootName = "__RogueDungeonLab_Generated";
+        private const string GeneratedRootName = DungeonStageLoader.GeneratedRootName;
         public RogueDungeonSettings settings;
-        private DungeonLayout _layout; private GenerationReport _report; private int _activeSeed; private bool _hasGenerated;
+        public DungeonStageDefinition stageDefinition;
+        private DungeonLayout _layout;
+        private DungeonBlueprint _blueprint;
+        private DungeonStageInstance _stageInstance;
+        private RogueDungeonSettings _activeRuntimeSettings;
+        private GenerationReport _report;
+        private int _activeSeed;
+        private bool _hasGenerated;
         public event Action<GenerationReport> GenerationCompleted;
         public DungeonLayout CurrentLayout { get { return _layout; } }
+        public DungeonBlueprint CurrentBlueprint { get { return _blueprint; } }
+        public DungeonStageInstance CurrentStageInstance { get { return _stageInstance; } }
         public GenerationReport LastReport { get { return _report; } }
         public int ActiveSeed { get { return _activeSeed; } }
+        public float CurrentCellSize
+        {
+            get
+            {
+                if (_blueprint != null && _blueprint.grid != null) return _blueprint.grid.cellSize;
+                return settings != null ? settings.cellSize : 3f;
+            }
+        }
         public Bounds GeneratedBounds { get { return _report != null ? _report.worldBounds : CalculateBounds(); } }
 
-        private void Start(){if(Application.isPlaying&&settings!=null&&settings.generateOnPlay)GenerateWithSeed(settings.seed);}
-        [ContextMenu("Generate From Settings Seed")] public void GenerateFromSettings(){if(settings!=null)GenerateWithSeed(settings.seed);else UnityEngine.Debug.LogWarning("Assign RogueDungeonSettings first.",this);}
-        [ContextMenu("Regenerate Active Seed")] public void RegenerateActiveSeed(){if(settings!=null)GenerateWithSeed(_hasGenerated?_activeSeed:settings.seed);}
-        [ContextMenu("Generate New Random Seed")] public void GenerateNewSeed(){GenerateWithSeed(unchecked(Environment.TickCount*397^Guid.NewGuid().GetHashCode()));}
-
-        // 지정 시드로 레이아웃, 메시, 콘텐츠와 드랍 검증 서비스를 생성합니다.
-        public void GenerateWithSeed(int seed)
+        // Play 진입 시 StageDefinition을 우선하고, 없으면 기존 settings 자동 생성 계약을 유지합니다.
+        private void Start()
         {
-            if(settings==null){UnityEngine.Debug.LogWarning("Assign RogueDungeonSettings first.",this);return;}
-            settings.ClampValues(); Stopwatch sw=Stopwatch.StartNew(); ClearGenerated(); _activeSeed=seed; _layout=DungeonLayoutGenerator.Generate(settings,seed);
-            GameObject root=new GameObject(GeneratedRootName);root.transform.SetParent(transform,false);if(!Application.isPlaying)root.hideFlags=HideFlags.DontSaveInBuild|HideFlags.DontSaveInEditor;
-            int triangles=DungeonMeshBuilder.Build(root.transform,_layout,settings);ContentSpawnCounts counts=DungeonContentSpawner.Spawn(root.transform,_layout,settings,seed);
-            DropValidationService service=DropValidationService.Active;if(service==null)service=FindAnyObjectByType<DropValidationService>();if(service==null)service=gameObject.AddComponent<DropValidationService>();service.SetRandomSeed(unchecked(seed^0x5F3759DF));if(settings.resetDropStatsOnGenerate)service.ResetStatistics();
-            sw.Stop();_report=BuildReport(seed,triangles,counts,sw.Elapsed.TotalMilliseconds);_hasGenerated=true;Action<GenerationReport> h=GenerationCompleted;if(h!=null)h(_report);
+            if (!Application.isPlaying) return;
+            if (stageDefinition != null && stageDefinition.loadOnPlay)
+            {
+                LoadStageDefinition();
+                return;
+            }
+            if (settings != null && settings.generateOnPlay) GenerateWithSeed(settings.seed);
         }
 
+        // 기존 settings 자산에 기록된 시드로 절차 던전을 생성합니다.
+        [ContextMenu("Generate From Settings Seed")]
+        public void GenerateFromSettings()
+        {
+            if (settings != null) GenerateWithSeed(settings.seed);
+            else UnityEngine.Debug.LogWarning("Assign RogueDungeonSettings first.", this);
+        }
+
+        // 현재 출처와 활성 시드를 유지해 절차 맵 또는 저장 맵을 다시 구축합니다.
+        [ContextMenu("Regenerate Active Seed")]
+        public void RegenerateActiveSeed()
+        {
+            if (IsStageDefinitionActive())
+            {
+                if (stageDefinition.sourceMode == DungeonStageSourceMode.SavedBlueprint) LoadStageDefinition();
+                else LoadStageDefinitionWithSeed(_activeSeed);
+                return;
+            }
+            if (settings != null) GenerateWithSeed(_hasGenerated ? _activeSeed : settings.seed);
+        }
+
+        // 절차 출처에는 새 임의 시드를 적용하고 저장 출처에는 저장된 Blueprint를 다시 구축합니다.
+        [ContextMenu("Generate New Random Seed")]
+        public void GenerateNewSeed()
+        {
+            if (stageDefinition != null && (IsStageDefinitionActive() || settings == null))
+            {
+                if (stageDefinition.sourceMode == DungeonStageSourceMode.SavedBlueprint) LoadStageDefinition();
+                else LoadStageDefinitionWithSeed(DungeonStageSeedResolver.CreateRandomSeed());
+                return;
+            }
+            if (settings != null) GenerateWithSeed(DungeonStageSeedResolver.CreateRandomSeed());
+            else UnityEngine.Debug.LogWarning("Assign RogueDungeonSettings or DungeonStageDefinition first.", this);
+        }
+
+        // 지정 시드와 LegacyV1 요청을 Blueprint로 확정한 뒤 메시·콘텐츠와 드랍 검증 서비스를 생성합니다.
+        public void GenerateWithSeed(int seed)
+        {
+            if (settings == null)
+            {
+                UnityEngine.Debug.LogWarning("Assign RogueDungeonSettings first.", this);
+                return;
+            }
+            settings.ClampValues();
+            DungeonStageInstance instance = DungeonStageLoader.LoadProcedural(transform, settings, seed, settings);
+            ApplyStageInstance(instance);
+        }
+
+        // 할당된 StageDefinition의 seed policy 또는 저장 Blueprint를 사용해 스테이지를 로드합니다.
+        [ContextMenu("Load Stage Definition")]
+        public void LoadStageDefinition()
+        {
+            LoadStageDefinitionInternal(null);
+        }
+
+        // Procedural StageDefinition에는 명시 시드를 우선 적용하고 SavedBlueprint에는 저장 시드를 유지합니다.
+        public void LoadStageDefinitionWithSeed(int seed)
+        {
+            LoadStageDefinitionInternal(seed);
+        }
+
+        // Loader가 소유한 generated root 정리 경로로 기존 공개 API를 유지합니다.
         [ContextMenu("Clear Generated Dungeon")]
         public void ClearGenerated()
         {
-            Transform existing=transform.Find(GeneratedRootName);if(existing==null)return;existing.gameObject.SetActive(false);
-            MeshFilter[] filters=existing.GetComponentsInChildren<MeshFilter>(true);for(int i=0;i<filters.Length;i++){Mesh mesh=filters[i].sharedMesh;if(mesh==null||!mesh.name.StartsWith("Generated Dungeon",StringComparison.Ordinal))continue;filters[i].sharedMesh=null;if(Application.isPlaying)Destroy(mesh);else DestroyImmediate(mesh);}
-            if(Application.isPlaying){existing.name=GeneratedRootName+"_PendingDestroy";Destroy(existing.gameObject);}else DestroyImmediate(existing.gameObject);
+            DungeonStageLoader.ClearGenerated(transform);
         }
 
-        public WeightedDropTable GetEffectiveDropTable(DropSourceKind kind){if(settings==null)return kind==DropSourceKind.Enemy?RuntimeDropTables.Enemy:RuntimeDropTables.Destructible;return kind==DropSourceKind.Enemy?settings.EffectiveEnemyDropTable:settings.EffectiveDestructibleDropTable;}
-        private GenerationReport BuildReport(int seed,int triangles,ContentSpawnCounts c,double ms)
+        // 현재 구축에 사용한 설정 또는 기본 테이블에서 드랍 검증용 테이블을 반환합니다.
+        public WeightedDropTable GetEffectiveDropTable(DropSourceKind kind)
         {
-            GenerationReport r=new GenerationReport{activeSeed=seed,roomCount=_layout.Rooms.Count,floorCellCount=_layout.WalkableCellCount,enemyCount=c.EnemyCount,destructibleCount=c.DestructibleCount,propCount=c.PropCount,gimmickCount=c.GimmickCount,meshTriangleCount=triangles,generationMilliseconds=ms,worldBounds=CalculateBounds()};
-            if(_layout.Rooms.Count<settings.desiredRoomCount)r.warnings.Add(string.Format("Requested {0} rooms but placed {1}.",settings.desiredRoomCount,_layout.Rooms.Count));int disconnected=0;foreach(Vector2Int cell in _layout.EnumerateFloorCells())if(_layout.GetDistance(cell)<0)disconnected++;if(disconnected>0)r.warnings.Add(disconnected+" floor cells are disconnected.");if(_layout.GetDistance(_layout.Exit)<=0)r.warnings.Add("Exit is not meaningfully separated from the entrance.");if(c.GimmickCount<settings.specialGimmickCount)r.warnings.Add(string.Format("Requested {0} gimmicks but placed {1} due to spacing.",settings.specialGimmickCount,c.GimmickCount));return r;
+            RogueDungeonSettings active = _activeRuntimeSettings != null ? _activeRuntimeSettings : settings;
+            if (active == null) return kind == DropSourceKind.Enemy ? RuntimeDropTables.Enemy : RuntimeDropTables.Destructible;
+            return kind == DropSourceKind.Enemy ? active.EffectiveEnemyDropTable : active.EffectiveDestructibleDropTable;
         }
-        private Bounds CalculateBounds(){if(settings==null)return new Bounds(transform.position,Vector3.one*10f);Vector3 size=new Vector3(settings.stageWidthCells*settings.cellSize,settings.wallHeight,settings.stageDepthCells*settings.cellSize);return new Bounds(transform.position+Vector3.up*(settings.wallHeight*0.5f),size);}
-        private void OnDrawGizmosSelected(){if(settings==null)return;Gizmos.color=new Color(0.2f,0.8f,1f,0.65f);Gizmos.DrawWireCube(GeneratedBounds.center,GeneratedBounds.size);}
+
+        // StageDefinition 로드 문맥을 만들고 선택적 명시 시드와 함께 Loader를 실행합니다.
+        private void LoadStageDefinitionInternal(int? explicitSeed)
+        {
+            if (stageDefinition == null)
+            {
+                UnityEngine.Debug.LogWarning("Assign DungeonStageDefinition first.", this);
+                return;
+            }
+            RogueDungeonSettings runtimeSettings = settings != null
+                ? settings
+                : stageDefinition.sourceMode == DungeonStageSourceMode.Procedural ? stageDefinition.recipe : null;
+            DungeonLoadContext context = new DungeonLoadContext(stageDefinition, transform, runtimeSettings)
+            {
+                ExplicitSeed = explicitSeed
+            };
+            ApplyStageInstance(DungeonStageLoader.Load(context));
+        }
+
+        // 새 StageInstance를 기존 공개 상태와 드랍 서비스·완료 이벤트에 반영합니다.
+        private void ApplyStageInstance(DungeonStageInstance instance)
+        {
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
+            _stageInstance = instance;
+            _layout = instance.Layout;
+            _blueprint = instance.Blueprint;
+            _report = instance.Report;
+            _activeSeed = instance.ActiveSeed;
+            _activeRuntimeSettings = instance.RuntimeSettings;
+            _hasGenerated = true;
+            ConfigureDropValidation(instance.ActiveSeed, instance.RuntimeSettings);
+            Action<GenerationReport> handler = GenerationCompleted;
+            if (handler != null) handler(_report);
+        }
+
+        // 생성과 별도인 드랍 난수 스트림을 활성 시드로 초기화하고 선택적으로 통계를 지웁니다.
+        private void ConfigureDropValidation(int seed, RogueDungeonSettings runtimeSettings)
+        {
+            DropValidationService service = DropValidationService.Active;
+            if (service == null) service = FindAnyObjectByType<DropValidationService>();
+            if (service == null) service = gameObject.AddComponent<DropValidationService>();
+            service.SetRandomSeed(unchecked(seed ^ 0x5F3759DF));
+            if (runtimeSettings != null && runtimeSettings.resetDropStatsOnGenerate) service.ResetStatistics();
+        }
+
+        // 현재 인스턴스가 이 컴포넌트에 할당된 StageDefinition에서 로드되었는지 확인합니다.
+        private bool IsStageDefinitionActive()
+        {
+            return stageDefinition != null && _stageInstance != null && _stageInstance.Definition == stageDefinition;
+        }
+
+        // 생성 전 Gizmo에도 사용할 설정 또는 저장 Blueprint 크기에서 예상 Bounds를 계산합니다.
+        private Bounds CalculateBounds()
+        {
+            DungeonGridRecord grid = _blueprint != null ? _blueprint.grid : null;
+            if (grid == null && stageDefinition != null && stageDefinition.savedBlueprint != null && stageDefinition.savedBlueprint.blueprint != null)
+                grid = stageDefinition.savedBlueprint.blueprint.grid;
+            float width = grid != null ? grid.width * grid.cellSize : settings != null ? settings.stageWidthCells * settings.cellSize : 10f;
+            float depth = grid != null ? grid.depth * grid.cellSize : settings != null ? settings.stageDepthCells * settings.cellSize : 10f;
+            float height = grid != null ? grid.wallHeight : settings != null ? settings.wallHeight : 10f;
+            return new Bounds(transform.position + Vector3.up * (height * 0.5f), new Vector3(width, height, depth));
+        }
+
+        // 선택된 생성기에서 현재 또는 예상 던전 Bounds를 Scene Gizmo로 표시합니다.
+        private void OnDrawGizmosSelected()
+        {
+            if (settings == null && stageDefinition == null && _blueprint == null) return;
+            Gizmos.color = new Color(0.2f, 0.8f, 1f, 0.65f);
+            Gizmos.DrawWireCube(GeneratedBounds.center, GeneratedBounds.size);
+        }
     }
 }

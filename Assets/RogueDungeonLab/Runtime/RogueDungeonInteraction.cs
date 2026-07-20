@@ -77,12 +77,15 @@ namespace RogueDungeonLab
     {
         [SerializeField] private string targetId;[SerializeField] private DropSourceKind sourceKind;[SerializeField] private WeightedDropTable dropTable;[SerializeField] private bool spawnMarker=true;
         private bool _destroyed,_hovered;private Vector3 _baseScale;
+        public string TargetId{get{return targetId;}}public DropSourceKind SourceKind{get{return sourceKind;}}public WeightedDropTable DropTable{get{return dropTable;}}
         public void Configure(string id,DropSourceKind kind,WeightedDropTable table,bool marker){targetId=id;sourceKind=kind;dropTable=table;spawnMarker=marker;_baseScale=transform.localScale;}
+        // Prefab에 작성된 ID·드랍 테이블·마커 선택은 유지하고 비어 있는 값과 실제 범주만 보강합니다.
+        public void ConfigureFallback(string id,DropSourceKind kind,WeightedDropTable table){if(string.IsNullOrWhiteSpace(targetId))targetId=id;sourceKind=kind;if(dropTable==null)dropTable=table;_baseScale=transform.localScale;}
         public void SetHovered(bool value){if(_destroyed||_hovered==value)return;_hovered=value;if(_baseScale==Vector3.zero)_baseScale=transform.localScale;transform.localScale=value?_baseScale*1.1f:_baseScale;}
         // 대상을 한 번만 파괴하고 드랍 추첨과 마커 생성을 처리합니다.
         public bool TryDestroy(Vector3 hitPoint)
         {
-            if(_destroyed)return false;SetHovered(false);_destroyed=true;WeightedDropTable table=dropTable!=null?dropTable:(sourceKind==DropSourceKind.Enemy?RuntimeDropTables.Enemy:RuntimeDropTables.Destructible);DropValidationService service=DropValidationService.Active;if(service==null)service=FindAnyObjectByType<DropValidationService>();DropRoll roll=service!=null?service.RollAndRecord(sourceKind,table):table.Roll(new System.Random(unchecked(Environment.TickCount^GetEntityId().GetHashCode())));if(spawnMarker&&!roll.IsNoDrop)DropMarkerBehaviour.Spawn(roll,hitPoint+Vector3.up*0.35f);Destroy(gameObject);return true;
+            if(_destroyed)return false;SetHovered(false);_destroyed=true;WeightedDropTable table=dropTable!=null?dropTable:(sourceKind==DropSourceKind.Enemy?RuntimeDropTables.Enemy:RuntimeDropTables.Destructible);DropValidationService service=DropValidationService.Active;if(service==null)service=FindAnyObjectByType<DropValidationService>();DropRoll roll=service!=null?service.RollAndRecord(sourceKind,table):table.Roll(new System.Random(unchecked(Environment.TickCount^GetEntityId().GetHashCode())));if(spawnMarker&&!roll.IsNoDrop)DropMarkerBehaviour.Spawn(roll,hitPoint+Vector3.up*0.35f);DungeonSpawnIdentity identity=GetComponentInParent<DungeonSpawnIdentity>();Destroy(identity!=null?identity.gameObject:gameObject);return true;
         }
     }
 

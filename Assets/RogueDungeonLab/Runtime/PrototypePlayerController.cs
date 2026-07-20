@@ -111,10 +111,10 @@ namespace RogueDungeonLab
         // 현재 던전 입구의 월드 위치로 플레이어를 안전하게 순간이동합니다.
         public bool TeleportToEntrance()
         {
-            if (generator == null || generator.settings == null || generator.CurrentLayout == null) return false;
+            if (generator == null || generator.CurrentLayout == null) return false;
             if (_characterController == null) _characterController = GetComponent<CharacterController>();
             DungeonLayout layout = generator.CurrentLayout;
-            Vector3 local = layout.CellToLocalPosition(layout.Entrance, generator.settings.cellSize);
+            Vector3 local = layout.CellToLocalPosition(layout.Entrance, generator.CurrentCellSize);
             Vector3 world = generator.transform.TransformPoint(local + Vector3.up * 0.08f);
             bool wasEnabled = _characterController != null && _characterController.enabled;
             if (_characterController != null) _characterController.enabled = false;

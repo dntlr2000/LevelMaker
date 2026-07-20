@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f57d21f693698ae45a79e1bc828f800d, type: 3}
   m_Name: DungeonLabSettings
   m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.RogueDungeonSettings
-  seed: -1762663391
+  seed: -1032933423
   stageWidthCells: 42
   stageDepthCells: 42
-  cellSize: 3
-  wallHeight: 3.2
+  cellSize: 3.109619
+  wallHeight: 3.5166771
   desiredRoomCount: 14
   roomSizeMin: {x: 4, y: 4}
   roomSizeMax: {x: 9, y: 9}
   roomPlacementAttempts: 35
   corridorWidthCells: 1
   extraConnectionChance: 0.2
-  specialGimmickCount: 18
+  specialGimmickCount: 4
   contentSpacingCells: 1
   reservedEntranceRadiusCells: 3
   enemyProfile:
@@ -65,7 +65,7 @@ MonoBehaviour:
     clustering: 0.2
     maxCount: 80
   destructibleProfile:
-    baseDensity: 0.198
+    baseDensity: 0.055
     overProgression:
       serializedVersion: 2
       m_Curve:
