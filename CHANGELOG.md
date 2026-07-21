@@ -10,6 +10,7 @@
 - `DungeonStageDefinition`의 content catalog·누락 정책과 `DungeonLoadContext`의 custom resolver·정책 override를 RuntimeBuild에 연결
 - catalog/Blueprint 교차 검증, strict 실패 전 기존 root 보존, resolver 결과와 stable identity 검증을 추가
 - Prefab 드랍 설정 우선순위, 자식 클릭 대상의 루트 제거, 비활성 staging root 교체, 명시적 합성 Mesh 소유권과 요청 snapshot 무결성 검증을 보강
+- Play만으로 R4를 확인할 수 있는 전용 Prefab·DropTable·Catalog·Stage Definition·Scene과 반복 생성 Editor 메뉴를 추가
 - Unity `6000.5.3f1` compile 성공, EditMode `41/41`, PlayMode `3/3` 통과; 직접 파괴·드랍 통계 1회 누적은 자동 검증했고 실제 화면 포인터 Raycast는 수동 범위로 유지
 
 ## 0.5.0

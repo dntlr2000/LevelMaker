@@ -56,6 +56,10 @@ DungeonStageInstance instance = DungeonStageLoader.Load(context);
 
 Unity `6000.5.3f1` batchmode compile과 EditMode `41/41`, PlayMode `3/3`이 통과했습니다. PlayMode 자동 검증은 임시 플레이어 흐름, 저장 Blueprint의 cell size 입구 배치, 자식 클릭 대상의 루트 제거와 드랍 통계 1회 누적을 포함합니다. 실제 화면 포인터 Raycast와 HUD 입력 차단은 수동 확인 범위입니다.
 
+### R4 수동 검증 장면
+
+[`Assets/R4ManualVerification/Scenes/R4_ManualVerification.unity`](../R4ManualVerification/Scenes/R4_ManualVerification.unity)를 열고 Play를 누르면 StableV2, Catalog Prefab, 클릭 파괴와 드랍 통계를 바로 확인할 수 있습니다. 전체 자산과 장면을 기준 상태로 다시 만들려면 `Tools > Rogue Dungeon Lab > R4 수동 검증 환경 생성`을 실행합니다. Stage Definition 교체 순서는 [R4 수동 검증 안내](../R4ManualVerification/README_KO.md)를 참고합니다.
+
 ## Play 모드 조작
 
 - 자유 시점: 카메라의 실제 3차원 시선 기준 `WASD` 이동, `Space` 월드 상승, `Ctrl` 월드 하강, `Shift` 가속, 우클릭 드래그 제자리 회전, 마우스 휠 줌, 중클릭 드래그 이동. 상하 회전 범위는 거의 수직인 `-89°~89°`입니다.
