@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.7.1
+
+- `DungeonBlueprintAsset`에 Blueprint 논리 hash와 분리된 선택적 authoring recipe snapshot을 추가하고 기존 snapshot 없는 R5 자산 호환 유지
+- `DungeonRecipeSnapshot`의 깊은 복사, AnimationCurve·밀도 프로필 복원과 생성 필드 역적용 API 추가
+- 새 Blueprint 저장·덮어쓰기 시 현재 결과의 `recipeHash`와 일치하는 설정을 함께 보존하고 snapshot 버전·hash·정규화 검증 추가
+- `스테이지 자산` 탭에 현재 시드를 유지하는 설정 복원과 저장 시드·generatorVersion·catalog로 정확히 재생성하는 두 동작 추가
+- 설정 적용에 확인, `SerializedObject`, 전체 Undo와 dirty/save 처리를 사용하고 드랍 테이블·런타임 옵션 보존
+- `절차 원본으로 복귀`를 `현재 절차 설정으로 재생성`으로 변경해 시드만 복원하는 기존 동작을 명확화
+- StageDefinition 없이 명시 버전·catalog로 절차 구축하는 Runtime loader와 Generator facade 추가
+- Unity `6000.5.3f1` batchmode compile 성공, EditMode `51/51`, PlayMode `3/3` 통과
+
+## 0.7.0
+
+- 에디터 실험실에 `스테이지 자산` 탭을 추가해 현재 결과 새 Blueprint 저장, 선택 자산 덮어쓰기와 제작 메모를 연결
+- `DungeonStageAuthoringService`에 코드 기반 저장 검증, 전체 중첩 데이터 Undo, AssetDatabase 저장과 StageDefinition `SerializedObject` 생성을 추가
+- 절차 원본과 저장본의 seed·generatorVersion·recipe/catalog/blueprint hash 비교 및 `Identical`·`DifferentSeed`·`StaleInputs`·`Diverged` 상태 표시 추가
+- 저장 Blueprint를 recipe·seed 재계산 없이 구축하는 `DungeonStageLoader.LoadSavedBlueprint`와 Generator facade 추가
+- 저장본 미리보기, 이전 절차 시드 복귀와 SavedBlueprint RuntimeBuild StageDefinition 생성·Generator 연결 추가
+- Blueprint·StageDefinition 강제 재임포트, 덮어쓰기 Undo, stale 분류와 무재계산 미리보기 회귀 테스트 추가
+- Unity `6000.5.3f1` compile 성공, EditMode `48/48`, PlayMode `3/3` 통과; 실제 Unity 프로세스 완전 재시작과 화면 포인터 Raycast는 수동 검증 범위로 유지
+
 ## 0.6.0
 
 - `DungeonContentCatalog` entry에 content key, category, Prefab, weight, progression, 방/복도 조건, room tag, footprint·간격, yaw·scale 변형과 선택적 drop/gameplay 연계 필드를 추가

@@ -523,6 +523,30 @@ namespace RogueDungeonLab
             ApplyStageInstance(instance);
         }
 
+        // 지정 레시피·생성기 버전·catalog로 절차 결과를 만들고 현재 Generator 상태에 반영합니다.
+        public void GenerateProcedural(
+            RogueDungeonSettings recipe,
+            int seed,
+            int generatorVersion,
+            DungeonContentCatalog contentCatalog = null,
+            DungeonMissingContentPolicy missingContentPolicy = DungeonMissingContentPolicy.BuiltInFallback,
+            string requestId = "")
+        {
+            if (recipe == null) throw new ArgumentNullException(nameof(recipe));
+            recipe.ClampValues();
+            DungeonStageInstance instance = DungeonStageLoader.LoadProcedural(
+                transform,
+                recipe,
+                seed,
+                generatorVersion,
+                recipe,
+                contentCatalog,
+                missingContentPolicy,
+                null,
+                requestId);
+            ApplyStageInstance(instance);
+        }
+
         // 할당된 StageDefinition의 seed policy 또는 저장 Blueprint를 사용해 스테이지를 로드합니다.
         [ContextMenu("Load Stage Definition")]
         public void LoadStageDefinition()
@@ -534,6 +558,24 @@ namespace RogueDungeonLab
         public void LoadStageDefinitionWithSeed(int seed)
         {
             LoadStageDefinitionInternal(seed);
+        }
+
+        // 저장 Blueprint를 현재 설정의 드랍 환경과 선택적 catalog로 재계산 없이 미리보기·구축합니다.
+        public void LoadSavedBlueprint(
+            DungeonBlueprintAsset blueprintAsset,
+            DungeonContentCatalog contentCatalog = null,
+            DungeonMissingContentPolicy missingContentPolicy = DungeonMissingContentPolicy.BuiltInFallback,
+            string requestId = "")
+        {
+            DungeonStageInstance instance = DungeonStageLoader.LoadSavedBlueprint(
+                transform,
+                blueprintAsset,
+                settings,
+                contentCatalog,
+                missingContentPolicy,
+                null,
+                requestId);
+            ApplyStageInstance(instance);
         }
 
         // Loader가 소유한 generated root 정리 경로로 기존 공개 API를 유지합니다.

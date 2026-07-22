@@ -8,7 +8,7 @@
 - [제품화 확장 가이드](docs/EXTENSION_GUIDE_KO.md)
 - [테스트 계획](docs/TEST_PLAN_KO.md)
 
-현재 통합 로드맵의 R0·R1·R2·R3·R4가 완료되었고 R5가 다음 단계입니다. 기존 생성 결과를 유지한 채 `DungeonStageDefinition` 하나로 절차 생성과 저장 Blueprint RuntimeBuild를 선택하고, `DungeonContentCatalog` 또는 프로젝트별 resolver로 실제 콘텐츠를 연결할 수 있습니다. R5에서는 현재 결과를 Blueprint 자산으로 저장·선택하는 에디터 제작 UI를 추가합니다.
+현재 통합 로드맵의 R0·R1·R2·R3·R4·R5와 R5.1 보완이 완료되었고 R6 Bake가 다음 단계입니다. 기존 생성 결과를 유지한 채 현재 결과와 저장 당시 레시피를 `DungeonBlueprintAsset`으로 보존하고, `DungeonStageDefinition` 하나로 절차 생성과 저장 Blueprint RuntimeBuild를 선택할 수 있습니다. `DungeonContentCatalog` 또는 프로젝트별 resolver로 실제 콘텐츠를 연결합니다.
 
 ## Stage Definition과 콘텐츠 카탈로그 (R3·R4)
 
@@ -50,11 +50,27 @@ DungeonLoadContext context = new DungeonLoadContext(stageDefinition, parent)
 DungeonStageInstance instance = DungeonStageLoader.Load(context);
 ```
 
-`BakedPrefab` 모드는 R6 범위이므로 현재 validator가 명시적으로 차단합니다. 현재 결과를 에디터 버튼으로 저장·선택하는 제작 UI는 R5에서 추가됩니다.
+`BakedPrefab` 모드는 R6 범위이므로 현재 validator가 명시적으로 차단합니다.
 
-## R4 검증 상태
+## 스테이지 자산 제작 (R5·R5.1)
 
-Unity `6000.5.3f1` batchmode compile과 EditMode `41/41`, PlayMode `3/3`이 통과했습니다. PlayMode 자동 검증은 임시 플레이어 흐름, 저장 Blueprint의 cell size 입구 배치, 자식 클릭 대상의 루트 제거와 드랍 통계 1회 누적을 포함합니다. 실제 화면 포인터 Raycast와 HUD 입력 차단은 수동 확인 범위입니다.
+`Tools > Rogue Dungeon Lab > 실험실 열기`의 `스테이지 자산` 탭에서 다음 흐름을 사용합니다.
+
+1. 생성 또는 분포 탭에서 원하는 결과를 확정합니다.
+2. 실제 Prefab을 쓴다면 저장본과 함께 사용할 콘텐츠 카탈로그와 누락 정책을 지정합니다.
+3. 제작 메모를 입력하고 `현재 결과를 새 Blueprint로 저장`을 누릅니다. 현재 결과의 `recipeHash`와 연결 설정이 같으면 정규화 레시피도 함께 저장됩니다.
+4. 기존 자산을 갱신할 때는 Blueprint를 선택하고 `선택 Blueprint 덮어쓰기`의 hash·경로·설정 복원 정보 포함 여부를 확인합니다. 덮어쓰기는 Unity Undo를 지원합니다.
+5. `저장본 미리보기`는 레시피나 새 시드 계산 없이 저장 데이터를 RuntimeBuild합니다. `현재 절차 설정으로 재생성`은 미리보기 전 시드를 사용하지만 설정값 자체를 되돌리지는 않습니다.
+6. `레시피 설정만 불러오기 (현재 시드 유지)`로 현재 설정 자산의 생성 필드와 밀도 곡선만 복원할 수 있습니다. 시드·드랍 테이블·런타임 옵션은 유지되며 Unity Undo를 지원합니다.
+7. `레시피 + 저장 시드 적용 후 절차 생성`은 저장 당시 generatorVersion과 catalog hash까지 맞을 때 입력을 적용하고 원 Blueprint hash를 재현합니다.
+8. 비교 영역에서 seed, generatorVersion, recipe/catalog/blueprint hash와 stale 상태를 확인합니다.
+9. `SavedBlueprint StageDefinition 생성`으로 새 씬에서 Play 진입 시 로드할 자산을 만듭니다. 선택하면 현재 Generator에도 즉시 연결됩니다.
+
+검증 오류가 있는 현재 결과나 저장본은 저장·미리보기·StageDefinition 생성을 진행할 수 없습니다. 저장 레시피 버전·hash·정규화가 맞지 않으면 설정 복원을 별도로 차단합니다. 설정 스냅샷이 없는 기존 R5 자산은 맵 미리보기와 로드는 그대로 가능하고 설정 복원 버튼만 비활성화됩니다. 저장 시각·제작 메모·선택적 제작 레시피는 논리 Blueprint hash에 영향을 주지 않습니다. 생성된 `__RogueDungeonLab_Generated` 계층은 계속 미리보기 산출물이므로 직접 수정하지 않습니다.
+
+## R5.1 검증 상태
+
+Unity `6000.5.3f1` batchmode compile과 EditMode `51/51`, PlayMode `3/3`이 통과했습니다. R5.1 EditMode 검증은 새 Blueprint의 레시피 저장·재임포트, Blueprint와 레시피를 함께 되돌리는 덮어쓰기 Undo, 곡선·생성 필드 복원과 비생성 옵션 보존, 기존 snapshot 없는 자산 호환, 손상 hash 차단과 StableV2 동일 hash 재생성을 포함합니다. 기존 R5 저장본 무재계산 미리보기·StageDefinition·stale 분류도 함께 통과했습니다. PlayMode는 임시 플레이어 흐름, 저장 Blueprint 입구 배치와 자식 클릭 대상의 드랍 통계 1회 누적을 확인합니다. Unity 프로세스를 완전히 종료한 실제 재시작과 화면 포인터 Raycast는 수동 확인 범위입니다.
 
 ### R4 수동 검증 장면
 

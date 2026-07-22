@@ -1,0 +1,3219 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e867abbd74d8e64ca4fa66e6808db08, type: 3}
+  m_Name: R5_UserSaved_Seed12345
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.DungeonBlueprintAsset
+  blueprint:
+    formatVersion: 1
+    generatorVersion: 2
+    seed: 12345
+    recipeHash: ff6995a20303966300414d4dbaa70f4312b1674bd3dc6316443953385c97aef0
+    catalogPlanningHash: builtin-stable-v2
+    blueprintHash: fe2794c5492a4645f45058684a52c51703995488adebdcd9f29f58995dfb96d9
+    createdUtcTicks: 639202433374461836
+    authoringNote: 
+    grid:
+      width: 43
+      depth: 42
+      cellSize: 3
+      wallHeight: 3.7583444
+    cells:
+    - coordinate: {x: 3, y: 16}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 39
+    - coordinate: {x: 3, y: 17}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 38
+    - coordinate: {x: 3, y: 18}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 37
+    - coordinate: {x: 3, y: 19}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 36
+    - coordinate: {x: 3, y: 20}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 37
+    - coordinate: {x: 3, y: 21}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 38
+    - coordinate: {x: 4, y: 16}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 38
+    - coordinate: {x: 4, y: 17}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 37
+    - coordinate: {x: 4, y: 18}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 36
+    - coordinate: {x: 4, y: 19}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 4, y: 20}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 36
+    - coordinate: {x: 4, y: 21}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 37
+    - coordinate: {x: 5, y: 16}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 37
+    - coordinate: {x: 5, y: 17}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 36
+    - coordinate: {x: 5, y: 18}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 5, y: 19}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 5, y: 20}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 5, y: 21}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 36
+    - coordinate: {x: 5, y: 23}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 40
+    - coordinate: {x: 5, y: 24}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 39
+    - coordinate: {x: 5, y: 25}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 40
+    - coordinate: {x: 5, y: 26}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 41
+    - coordinate: {x: 5, y: 27}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 42
+    - coordinate: {x: 5, y: 28}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 43
+    - coordinate: {x: 5, y: 29}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 44
+    - coordinate: {x: 5, y: 30}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 45
+    - coordinate: {x: 6, y: 16}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 36
+    - coordinate: {x: 6, y: 17}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 6, y: 18}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 6, y: 19}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 6, y: 20}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 6, y: 21}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 6, y: 23}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 39
+    - coordinate: {x: 6, y: 24}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 38
+    - coordinate: {x: 6, y: 25}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 39
+    - coordinate: {x: 6, y: 26}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 40
+    - coordinate: {x: 6, y: 27}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 41
+    - coordinate: {x: 6, y: 28}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 42
+    - coordinate: {x: 6, y: 29}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 43
+    - coordinate: {x: 6, y: 30}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 44
+    - coordinate: {x: 7, y: 2}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 49
+    - coordinate: {x: 7, y: 3}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 48
+    - coordinate: {x: 7, y: 4}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 47
+    - coordinate: {x: 7, y: 5}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 46
+    - coordinate: {x: 7, y: 6}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 45
+    - coordinate: {x: 7, y: 16}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 7, y: 17}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 7, y: 18}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 7, y: 19}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 7, y: 20}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 7, y: 21}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 7, y: 23}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 38
+    - coordinate: {x: 7, y: 24}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 37
+    - coordinate: {x: 7, y: 25}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 38
+    - coordinate: {x: 7, y: 26}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 39
+    - coordinate: {x: 7, y: 27}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 40
+    - coordinate: {x: 7, y: 28}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 41
+    - coordinate: {x: 7, y: 29}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 42
+    - coordinate: {x: 7, y: 30}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 43
+    - coordinate: {x: 7, y: 33}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 46
+    - coordinate: {x: 7, y: 34}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 47
+    - coordinate: {x: 7, y: 35}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 48
+    - coordinate: {x: 7, y: 36}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 49
+    - coordinate: {x: 7, y: 37}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 50
+    - coordinate: {x: 7, y: 38}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 51
+    - coordinate: {x: 7, y: 39}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 52
+    - coordinate: {x: 8, y: 2}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 48
+    - coordinate: {x: 8, y: 3}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 47
+    - coordinate: {x: 8, y: 4}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 46
+    - coordinate: {x: 8, y: 5}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 45
+    - coordinate: {x: 8, y: 6}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 44
+    - coordinate: {x: 8, y: 16}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 8, y: 17}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 8, y: 18}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 8, y: 19}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 31
+    - coordinate: {x: 8, y: 20}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 8, y: 21}
+      flags: 1
+      roomId: stable-v2:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 8, y: 23}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 37
+    - coordinate: {x: 8, y: 24}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 36
+    - coordinate: {x: 8, y: 25}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 37
+    - coordinate: {x: 8, y: 26}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 38
+    - coordinate: {x: 8, y: 27}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 39
+    - coordinate: {x: 8, y: 28}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 40
+    - coordinate: {x: 8, y: 29}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 41
+    - coordinate: {x: 8, y: 30}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 42
+    - coordinate: {x: 8, y: 33}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 45
+    - coordinate: {x: 8, y: 34}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 46
+    - coordinate: {x: 8, y: 35}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 47
+    - coordinate: {x: 8, y: 36}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 48
+    - coordinate: {x: 8, y: 37}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 49
+    - coordinate: {x: 8, y: 38}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 50
+    - coordinate: {x: 8, y: 39}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 51
+    - coordinate: {x: 9, y: 2}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 47
+    - coordinate: {x: 9, y: 3}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 46
+    - coordinate: {x: 9, y: 4}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 45
+    - coordinate: {x: 9, y: 5}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 44
+    - coordinate: {x: 9, y: 6}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 43
+    - coordinate: {x: 9, y: 7}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 42
+    - coordinate: {x: 9, y: 8}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 41
+    - coordinate: {x: 9, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 40
+    - coordinate: {x: 9, y: 10}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 39
+    - coordinate: {x: 9, y: 11}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 38
+    - coordinate: {x: 9, y: 12}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 37
+    - coordinate: {x: 9, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 36
+    - coordinate: {x: 9, y: 14}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 35
+    - coordinate: {x: 9, y: 15}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 34
+    - coordinate: {x: 9, y: 16}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 33
+    - coordinate: {x: 9, y: 17}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 32
+    - coordinate: {x: 9, y: 18}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 31
+    - coordinate: {x: 9, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 30
+    - coordinate: {x: 9, y: 23}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 36
+    - coordinate: {x: 9, y: 24}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 35
+    - coordinate: {x: 9, y: 25}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 36
+    - coordinate: {x: 9, y: 26}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 37
+    - coordinate: {x: 9, y: 27}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 38
+    - coordinate: {x: 9, y: 28}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 39
+    - coordinate: {x: 9, y: 29}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 40
+    - coordinate: {x: 9, y: 30}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 41
+    - coordinate: {x: 9, y: 31}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 42
+    - coordinate: {x: 9, y: 32}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 43
+    - coordinate: {x: 9, y: 33}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 44
+    - coordinate: {x: 9, y: 34}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 45
+    - coordinate: {x: 9, y: 35}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 46
+    - coordinate: {x: 9, y: 36}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 47
+    - coordinate: {x: 9, y: 37}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 48
+    - coordinate: {x: 9, y: 38}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 49
+    - coordinate: {x: 9, y: 39}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 50
+    - coordinate: {x: 10, y: 2}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 48
+    - coordinate: {x: 10, y: 3}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 47
+    - coordinate: {x: 10, y: 4}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 46
+    - coordinate: {x: 10, y: 5}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 45
+    - coordinate: {x: 10, y: 6}
+      flags: 1
+      roomId: stable-v2:room:11
+      distanceFromEntrance: 44
+    - coordinate: {x: 10, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 29
+    - coordinate: {x: 10, y: 23}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 35
+    - coordinate: {x: 10, y: 24}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 34
+    - coordinate: {x: 10, y: 25}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 35
+    - coordinate: {x: 10, y: 26}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 36
+    - coordinate: {x: 10, y: 27}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 37
+    - coordinate: {x: 10, y: 28}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 38
+    - coordinate: {x: 10, y: 29}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 39
+    - coordinate: {x: 10, y: 30}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 40
+    - coordinate: {x: 10, y: 33}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 45
+    - coordinate: {x: 10, y: 34}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 46
+    - coordinate: {x: 10, y: 35}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 47
+    - coordinate: {x: 10, y: 36}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 48
+    - coordinate: {x: 10, y: 37}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 49
+    - coordinate: {x: 10, y: 38}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 50
+    - coordinate: {x: 10, y: 39}
+      flags: 1
+      roomId: stable-v2:room:3
+      distanceFromEntrance: 51
+    - coordinate: {x: 11, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 28
+    - coordinate: {x: 11, y: 23}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 34
+    - coordinate: {x: 11, y: 24}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 33
+    - coordinate: {x: 11, y: 25}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 34
+    - coordinate: {x: 11, y: 26}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 35
+    - coordinate: {x: 11, y: 27}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 36
+    - coordinate: {x: 11, y: 28}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 37
+    - coordinate: {x: 11, y: 29}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 38
+    - coordinate: {x: 11, y: 30}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 39
+    - coordinate: {x: 11, y: 34}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 47
+    - coordinate: {x: 12, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 27
+    - coordinate: {x: 12, y: 23}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 33
+    - coordinate: {x: 12, y: 24}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 32
+    - coordinate: {x: 12, y: 25}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 33
+    - coordinate: {x: 12, y: 26}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 34
+    - coordinate: {x: 12, y: 27}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 35
+    - coordinate: {x: 12, y: 28}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 36
+    - coordinate: {x: 12, y: 29}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 37
+    - coordinate: {x: 12, y: 30}
+      flags: 1
+      roomId: stable-v2:room:12
+      distanceFromEntrance: 38
+    - coordinate: {x: 12, y: 34}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 48
+    - coordinate: {x: 13, y: 11}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 18
+    - coordinate: {x: 13, y: 12}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 19
+    - coordinate: {x: 13, y: 13}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 20
+    - coordinate: {x: 13, y: 14}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 21
+    - coordinate: {x: 13, y: 15}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 22
+    - coordinate: {x: 13, y: 16}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 23
+    - coordinate: {x: 13, y: 17}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 24
+    - coordinate: {x: 13, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 26
+    - coordinate: {x: 13, y: 24}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 31
+    - coordinate: {x: 13, y: 34}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 49
+    - coordinate: {x: 14, y: 11}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 17
+    - coordinate: {x: 14, y: 12}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 18
+    - coordinate: {x: 14, y: 13}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 19
+    - coordinate: {x: 14, y: 14}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 20
+    - coordinate: {x: 14, y: 15}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 21
+    - coordinate: {x: 14, y: 16}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 22
+    - coordinate: {x: 14, y: 17}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 23
+    - coordinate: {x: 14, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 25
+    - coordinate: {x: 14, y: 21}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 27
+    - coordinate: {x: 14, y: 22}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 28
+    - coordinate: {x: 14, y: 23}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 29
+    - coordinate: {x: 14, y: 24}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 30
+    - coordinate: {x: 14, y: 25}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 31
+    - coordinate: {x: 14, y: 26}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 32
+    - coordinate: {x: 14, y: 27}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 33
+    - coordinate: {x: 14, y: 34}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 50
+    - coordinate: {x: 15, y: 11}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 16
+    - coordinate: {x: 15, y: 12}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 17
+    - coordinate: {x: 15, y: 13}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 18
+    - coordinate: {x: 15, y: 14}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 19
+    - coordinate: {x: 15, y: 15}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 20
+    - coordinate: {x: 15, y: 16}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 21
+    - coordinate: {x: 15, y: 17}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 22
+    - coordinate: {x: 15, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 24
+    - coordinate: {x: 15, y: 21}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 26
+    - coordinate: {x: 15, y: 22}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 27
+    - coordinate: {x: 15, y: 23}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 28
+    - coordinate: {x: 15, y: 24}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 29
+    - coordinate: {x: 15, y: 25}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 30
+    - coordinate: {x: 15, y: 26}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 31
+    - coordinate: {x: 15, y: 27}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 32
+    - coordinate: {x: 15, y: 30}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 55
+    - coordinate: {x: 15, y: 31}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 54
+    - coordinate: {x: 15, y: 32}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 53
+    - coordinate: {x: 15, y: 33}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 52
+    - coordinate: {x: 15, y: 34}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 51
+    - coordinate: {x: 15, y: 35}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 52
+    - coordinate: {x: 15, y: 36}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 53
+    - coordinate: {x: 15, y: 37}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 54
+    - coordinate: {x: 15, y: 38}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 55
+    - coordinate: {x: 16, y: 11}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 15
+    - coordinate: {x: 16, y: 12}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 16
+    - coordinate: {x: 16, y: 13}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 17
+    - coordinate: {x: 16, y: 14}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 18
+    - coordinate: {x: 16, y: 15}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 19
+    - coordinate: {x: 16, y: 16}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 20
+    - coordinate: {x: 16, y: 17}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 21
+    - coordinate: {x: 16, y: 18}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 22
+    - coordinate: {x: 16, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 23
+    - coordinate: {x: 16, y: 20}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 24
+    - coordinate: {x: 16, y: 21}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 25
+    - coordinate: {x: 16, y: 22}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 26
+    - coordinate: {x: 16, y: 23}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 27
+    - coordinate: {x: 16, y: 24}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 28
+    - coordinate: {x: 16, y: 25}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 29
+    - coordinate: {x: 16, y: 26}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 30
+    - coordinate: {x: 16, y: 27}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 31
+    - coordinate: {x: 16, y: 30}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 56
+    - coordinate: {x: 16, y: 31}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 55
+    - coordinate: {x: 16, y: 32}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 54
+    - coordinate: {x: 16, y: 33}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 53
+    - coordinate: {x: 16, y: 34}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 52
+    - coordinate: {x: 16, y: 35}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 53
+    - coordinate: {x: 16, y: 36}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 54
+    - coordinate: {x: 16, y: 37}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 55
+    - coordinate: {x: 16, y: 38}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 56
+    - coordinate: {x: 17, y: 11}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 14
+    - coordinate: {x: 17, y: 12}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 15
+    - coordinate: {x: 17, y: 13}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 16
+    - coordinate: {x: 17, y: 14}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 17
+    - coordinate: {x: 17, y: 15}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 18
+    - coordinate: {x: 17, y: 16}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 19
+    - coordinate: {x: 17, y: 17}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 20
+    - coordinate: {x: 17, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 24
+    - coordinate: {x: 17, y: 21}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 26
+    - coordinate: {x: 17, y: 22}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 27
+    - coordinate: {x: 17, y: 23}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 28
+    - coordinate: {x: 17, y: 24}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 29
+    - coordinate: {x: 17, y: 25}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 30
+    - coordinate: {x: 17, y: 26}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 31
+    - coordinate: {x: 17, y: 27}
+      flags: 1
+      roomId: stable-v2:room:1
+      distanceFromEntrance: 32
+    - coordinate: {x: 17, y: 30}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 57
+    - coordinate: {x: 17, y: 31}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 56
+    - coordinate: {x: 17, y: 32}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 55
+    - coordinate: {x: 17, y: 33}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 54
+    - coordinate: {x: 17, y: 34}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 53
+    - coordinate: {x: 17, y: 35}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 54
+    - coordinate: {x: 17, y: 36}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 55
+    - coordinate: {x: 17, y: 37}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 56
+    - coordinate: {x: 17, y: 38}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 57
+    - coordinate: {x: 18, y: 11}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 13
+    - coordinate: {x: 18, y: 12}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 14
+    - coordinate: {x: 18, y: 13}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 15
+    - coordinate: {x: 18, y: 14}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 16
+    - coordinate: {x: 18, y: 15}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 17
+    - coordinate: {x: 18, y: 16}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 18
+    - coordinate: {x: 18, y: 17}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 19
+    - coordinate: {x: 18, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 25
+    - coordinate: {x: 18, y: 30}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 58
+    - coordinate: {x: 18, y: 31}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 57
+    - coordinate: {x: 18, y: 32}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 56
+    - coordinate: {x: 18, y: 33}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 55
+    - coordinate: {x: 18, y: 34}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 54
+    - coordinate: {x: 18, y: 35}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 55
+    - coordinate: {x: 18, y: 36}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 56
+    - coordinate: {x: 18, y: 37}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 57
+    - coordinate: {x: 18, y: 38}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 58
+    - coordinate: {x: 19, y: 11}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 12
+    - coordinate: {x: 19, y: 12}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 13
+    - coordinate: {x: 19, y: 13}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 14
+    - coordinate: {x: 19, y: 14}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 15
+    - coordinate: {x: 19, y: 15}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 16
+    - coordinate: {x: 19, y: 16}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 17
+    - coordinate: {x: 19, y: 17}
+      flags: 1
+      roomId: stable-v2:room:4
+      distanceFromEntrance: 18
+    - coordinate: {x: 19, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 26
+    - coordinate: {x: 19, y: 30}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 59
+    - coordinate: {x: 19, y: 31}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 58
+    - coordinate: {x: 19, y: 32}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 57
+    - coordinate: {x: 19, y: 33}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 56
+    - coordinate: {x: 19, y: 34}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 55
+    - coordinate: {x: 19, y: 35}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 56
+    - coordinate: {x: 19, y: 36}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 57
+    - coordinate: {x: 19, y: 37}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 58
+    - coordinate: {x: 19, y: 38}
+      flags: 1
+      roomId: stable-v2:room:10
+      distanceFromEntrance: 59
+    - coordinate: {x: 20, y: 11}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 11
+    - coordinate: {x: 20, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 27
+    - coordinate: {x: 20, y: 38}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 60
+    - coordinate: {x: 21, y: 11}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 10
+    - coordinate: {x: 21, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 28
+    - coordinate: {x: 21, y: 38}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 61
+    - coordinate: {x: 22, y: 9}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 11
+    - coordinate: {x: 22, y: 10}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 10
+    - coordinate: {x: 22, y: 11}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 9
+    - coordinate: {x: 22, y: 12}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 10
+    - coordinate: {x: 22, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 29
+    - coordinate: {x: 22, y: 38}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 62
+    - coordinate: {x: 23, y: 9}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 10
+    - coordinate: {x: 23, y: 10}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 9
+    - coordinate: {x: 23, y: 11}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 8
+    - coordinate: {x: 23, y: 12}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 9
+    - coordinate: {x: 23, y: 19}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 30
+    - coordinate: {x: 23, y: 20}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 31
+    - coordinate: {x: 23, y: 21}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 32
+    - coordinate: {x: 23, y: 22}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 33
+    - coordinate: {x: 23, y: 23}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 34
+    - coordinate: {x: 23, y: 38}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 63
+    - coordinate: {x: 24, y: 9}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 9
+    - coordinate: {x: 24, y: 10}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 8
+    - coordinate: {x: 24, y: 11}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 7
+    - coordinate: {x: 24, y: 12}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 8
+    - coordinate: {x: 24, y: 19}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 31
+    - coordinate: {x: 24, y: 20}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 32
+    - coordinate: {x: 24, y: 21}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 33
+    - coordinate: {x: 24, y: 22}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 34
+    - coordinate: {x: 24, y: 23}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 35
+    - coordinate: {x: 24, y: 38}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 64
+    - coordinate: {x: 25, y: 9}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 8
+    - coordinate: {x: 25, y: 10}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 7
+    - coordinate: {x: 25, y: 11}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 6
+    - coordinate: {x: 25, y: 12}
+      flags: 1
+      roomId: stable-v2:room:13
+      distanceFromEntrance: 7
+    - coordinate: {x: 25, y: 19}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 32
+    - coordinate: {x: 25, y: 20}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 33
+    - coordinate: {x: 25, y: 21}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 34
+    - coordinate: {x: 25, y: 22}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 35
+    - coordinate: {x: 25, y: 23}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 36
+    - coordinate: {x: 25, y: 38}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 65
+    - coordinate: {x: 26, y: 11}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 5
+    - coordinate: {x: 26, y: 19}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 33
+    - coordinate: {x: 26, y: 20}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 34
+    - coordinate: {x: 26, y: 21}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 35
+    - coordinate: {x: 26, y: 22}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 36
+    - coordinate: {x: 26, y: 23}
+      flags: 1
+      roomId: stable-v2:room:9
+      distanceFromEntrance: 37
+    - coordinate: {x: 26, y: 38}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 64
+    - coordinate: {x: 27, y: 7}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 6
+    - coordinate: {x: 27, y: 8}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 5
+    - coordinate: {x: 27, y: 9}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 27, y: 10}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 27, y: 11}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 27, y: 12}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 5
+    - coordinate: {x: 27, y: 13}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 6
+    - coordinate: {x: 27, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 36
+    - coordinate: {x: 27, y: 38}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 63
+    - coordinate: {x: 28, y: 7}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 5
+    - coordinate: {x: 28, y: 8}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 28, y: 9}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 28, y: 10}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 28, y: 11}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 28, y: 12}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 28, y: 13}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 5
+    - coordinate: {x: 28, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 37
+    - coordinate: {x: 28, y: 36}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 60
+    - coordinate: {x: 28, y: 37}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 61
+    - coordinate: {x: 28, y: 38}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 62
+    - coordinate: {x: 28, y: 39}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 63
+    - coordinate: {x: 29, y: 7}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 29, y: 8}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 29, y: 9}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 29, y: 10}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 1
+    - coordinate: {x: 29, y: 11}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 29, y: 12}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 29, y: 13}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 29, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 38
+    - coordinate: {x: 29, y: 36}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 59
+    - coordinate: {x: 29, y: 37}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 60
+    - coordinate: {x: 29, y: 38}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 61
+    - coordinate: {x: 29, y: 39}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 62
+    - coordinate: {x: 30, y: 7}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 30, y: 8}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 30, y: 9}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 1
+    - coordinate: {x: 30, y: 10}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 0
+    - coordinate: {x: 30, y: 11}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 1
+    - coordinate: {x: 30, y: 12}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 30, y: 13}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 30, y: 16}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 44
+    - coordinate: {x: 30, y: 17}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 43
+    - coordinate: {x: 30, y: 18}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 42
+    - coordinate: {x: 30, y: 19}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 41
+    - coordinate: {x: 30, y: 20}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 40
+    - coordinate: {x: 30, y: 21}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 39
+    - coordinate: {x: 30, y: 36}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 58
+    - coordinate: {x: 30, y: 37}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 59
+    - coordinate: {x: 30, y: 38}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 60
+    - coordinate: {x: 30, y: 39}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 61
+    - coordinate: {x: 31, y: 7}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 31, y: 8}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 31, y: 9}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 31, y: 10}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 1
+    - coordinate: {x: 31, y: 11}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 31, y: 12}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 31, y: 13}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 31, y: 16}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 45
+    - coordinate: {x: 31, y: 17}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 44
+    - coordinate: {x: 31, y: 18}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 43
+    - coordinate: {x: 31, y: 19}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 42
+    - coordinate: {x: 31, y: 20}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 41
+    - coordinate: {x: 31, y: 21}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 40
+    - coordinate: {x: 31, y: 25}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 46
+    - coordinate: {x: 31, y: 26}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 47
+    - coordinate: {x: 31, y: 27}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 48
+    - coordinate: {x: 31, y: 28}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 49
+    - coordinate: {x: 31, y: 29}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 50
+    - coordinate: {x: 31, y: 30}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 51
+    - coordinate: {x: 31, y: 31}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 52
+    - coordinate: {x: 31, y: 32}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 53
+    - coordinate: {x: 31, y: 33}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 54
+    - coordinate: {x: 31, y: 34}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 55
+    - coordinate: {x: 31, y: 35}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 56
+    - coordinate: {x: 31, y: 36}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 57
+    - coordinate: {x: 31, y: 37}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 58
+    - coordinate: {x: 31, y: 38}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 59
+    - coordinate: {x: 31, y: 39}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 60
+    - coordinate: {x: 32, y: 7}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 5
+    - coordinate: {x: 32, y: 8}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 32, y: 9}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 32, y: 10}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 32, y: 11}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 32, y: 12}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 32, y: 13}
+      flags: 1
+      roomId: stable-v2:room:0
+      distanceFromEntrance: 5
+    - coordinate: {x: 32, y: 16}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 46
+    - coordinate: {x: 32, y: 17}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 45
+    - coordinate: {x: 32, y: 18}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 44
+    - coordinate: {x: 32, y: 19}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 43
+    - coordinate: {x: 32, y: 20}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 42
+    - coordinate: {x: 32, y: 21}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 41
+    - coordinate: {x: 32, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 42
+    - coordinate: {x: 32, y: 23}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 43
+    - coordinate: {x: 32, y: 24}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 44
+    - coordinate: {x: 32, y: 25}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 45
+    - coordinate: {x: 32, y: 26}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 46
+    - coordinate: {x: 32, y: 27}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 47
+    - coordinate: {x: 32, y: 28}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 48
+    - coordinate: {x: 32, y: 29}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 49
+    - coordinate: {x: 32, y: 30}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 50
+    - coordinate: {x: 32, y: 31}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 51
+    - coordinate: {x: 32, y: 36}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 58
+    - coordinate: {x: 32, y: 37}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 59
+    - coordinate: {x: 32, y: 38}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 60
+    - coordinate: {x: 32, y: 39}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 61
+    - coordinate: {x: 33, y: 16}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 47
+    - coordinate: {x: 33, y: 17}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 46
+    - coordinate: {x: 33, y: 18}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 45
+    - coordinate: {x: 33, y: 19}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 44
+    - coordinate: {x: 33, y: 20}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 43
+    - coordinate: {x: 33, y: 21}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 42
+    - coordinate: {x: 33, y: 25}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 46
+    - coordinate: {x: 33, y: 26}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 47
+    - coordinate: {x: 33, y: 27}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 48
+    - coordinate: {x: 33, y: 28}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 49
+    - coordinate: {x: 33, y: 29}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 50
+    - coordinate: {x: 33, y: 30}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 51
+    - coordinate: {x: 33, y: 31}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 52
+    - coordinate: {x: 33, y: 36}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 59
+    - coordinate: {x: 33, y: 37}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 60
+    - coordinate: {x: 33, y: 38}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 61
+    - coordinate: {x: 33, y: 39}
+      flags: 1
+      roomId: stable-v2:room:8
+      distanceFromEntrance: 62
+    - coordinate: {x: 34, y: 16}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 48
+    - coordinate: {x: 34, y: 17}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 47
+    - coordinate: {x: 34, y: 18}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 46
+    - coordinate: {x: 34, y: 19}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 45
+    - coordinate: {x: 34, y: 20}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 44
+    - coordinate: {x: 34, y: 21}
+      flags: 1
+      roomId: stable-v2:room:7
+      distanceFromEntrance: 43
+    - coordinate: {x: 34, y: 25}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 47
+    - coordinate: {x: 34, y: 26}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 48
+    - coordinate: {x: 34, y: 27}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 49
+    - coordinate: {x: 34, y: 28}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 50
+    - coordinate: {x: 34, y: 29}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 51
+    - coordinate: {x: 34, y: 30}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 52
+    - coordinate: {x: 34, y: 31}
+      flags: 1
+      roomId: stable-v2:room:5
+      distanceFromEntrance: 53
+    - coordinate: {x: 35, y: 16}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 49
+    - coordinate: {x: 35, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 44
+    - coordinate: {x: 36, y: 13}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 53
+    - coordinate: {x: 36, y: 14}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 52
+    - coordinate: {x: 36, y: 15}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 51
+    - coordinate: {x: 36, y: 16}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 50
+    - coordinate: {x: 36, y: 17}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 51
+    - coordinate: {x: 36, y: 18}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 52
+    - coordinate: {x: 36, y: 19}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 51
+    - coordinate: {x: 36, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 45
+    - coordinate: {x: 37, y: 13}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 54
+    - coordinate: {x: 37, y: 14}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 53
+    - coordinate: {x: 37, y: 15}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 52
+    - coordinate: {x: 37, y: 16}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 51
+    - coordinate: {x: 37, y: 17}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 52
+    - coordinate: {x: 37, y: 18}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 51
+    - coordinate: {x: 37, y: 19}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 50
+    - coordinate: {x: 37, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 46
+    - coordinate: {x: 38, y: 13}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 55
+    - coordinate: {x: 38, y: 14}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 54
+    - coordinate: {x: 38, y: 15}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 53
+    - coordinate: {x: 38, y: 16}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 52
+    - coordinate: {x: 38, y: 17}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 51
+    - coordinate: {x: 38, y: 18}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 50
+    - coordinate: {x: 38, y: 19}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 49
+    - coordinate: {x: 38, y: 20}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 48
+    - coordinate: {x: 38, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 47
+    - coordinate: {x: 39, y: 13}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 56
+    - coordinate: {x: 39, y: 14}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 55
+    - coordinate: {x: 39, y: 15}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 54
+    - coordinate: {x: 39, y: 16}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 53
+    - coordinate: {x: 39, y: 17}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 52
+    - coordinate: {x: 39, y: 18}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 51
+    - coordinate: {x: 39, y: 19}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 50
+    - coordinate: {x: 40, y: 13}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 57
+    - coordinate: {x: 40, y: 14}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 56
+    - coordinate: {x: 40, y: 15}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 55
+    - coordinate: {x: 40, y: 16}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 54
+    - coordinate: {x: 40, y: 17}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 53
+    - coordinate: {x: 40, y: 18}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 52
+    - coordinate: {x: 40, y: 19}
+      flags: 1
+      roomId: stable-v2:room:6
+      distanceFromEntrance: 51
+    rooms:
+    - roomId: stable-v2:room:0
+      bounds:
+        x: 27
+        y: 7
+        width: 6
+        height: 7
+      tags: []
+    - roomId: stable-v2:room:1
+      bounds:
+        x: 14
+        y: 21
+        width: 4
+        height: 7
+      tags: []
+    - roomId: stable-v2:room:2
+      bounds:
+        x: 3
+        y: 16
+        width: 6
+        height: 6
+      tags: []
+    - roomId: stable-v2:room:3
+      bounds:
+        x: 7
+        y: 33
+        width: 4
+        height: 7
+      tags: []
+    - roomId: stable-v2:room:4
+      bounds:
+        x: 13
+        y: 11
+        width: 7
+        height: 7
+      tags: []
+    - roomId: stable-v2:room:5
+      bounds:
+        x: 31
+        y: 25
+        width: 4
+        height: 7
+      tags: []
+    - roomId: stable-v2:room:6
+      bounds:
+        x: 36
+        y: 13
+        width: 5
+        height: 7
+      tags: []
+    - roomId: stable-v2:room:7
+      bounds:
+        x: 30
+        y: 16
+        width: 5
+        height: 6
+      tags: []
+    - roomId: stable-v2:room:8
+      bounds:
+        x: 28
+        y: 36
+        width: 6
+        height: 4
+      tags: []
+    - roomId: stable-v2:room:9
+      bounds:
+        x: 23
+        y: 19
+        width: 4
+        height: 5
+      tags: []
+    - roomId: stable-v2:room:10
+      bounds:
+        x: 15
+        y: 30
+        width: 5
+        height: 9
+      tags: []
+    - roomId: stable-v2:room:11
+      bounds:
+        x: 7
+        y: 2
+        width: 4
+        height: 5
+      tags: []
+    - roomId: stable-v2:room:12
+      bounds:
+        x: 5
+        y: 23
+        width: 8
+        height: 8
+      tags: []
+    - roomId: stable-v2:room:13
+      bounds:
+        x: 22
+        y: 9
+        width: 4
+        height: 4
+      tags: []
+    entrance: {x: 30, y: 10}
+    exit: {x: 31, y: 38}
+    spawns:
+    - spawnId: stable-v2:marker:30:10:0
+      category: 0
+      contentKey: builtin/marker/entrance
+      instanceName: Entrance
+      cell: {x: 30, y: 10}
+      localPosition: {x: 27, y: 0.08, z: -31.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 1.15, y: 0.08, z: 1.15}
+      roomId: stable-v2:room:0
+      progression: 0
+      tags: []
+      variantSeed: 0
+    - spawnId: stable-v2:marker:31:38:1
+      category: 0
+      contentKey: builtin/marker/exit
+      instanceName: Exit
+      cell: {x: 31, y: 38}
+      localPosition: {x: 30, y: 0.08, z: 52.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 1.15, y: 0.08, z: 1.15}
+      roomId: stable-v2:room:8
+      progression: 1
+      tags: []
+      variantSeed: 0
+    - spawnId: stable-v2:gimmick:19:11:0
+      category: 1
+      contentKey: builtin/gimmick
+      instanceName: SpecialGimmick_00
+      cell: {x: 19, y: 11}
+      localPosition: {x: -6, y: 0, z: -28.5}
+      pitchDegrees: 0
+      yawDegrees: 359.08987
+      rollDegrees: 0
+      localScale: {x: 1, y: 1, z: 1}
+      roomId: stable-v2:room:4
+      progression: 0.20338982
+      tags: []
+      variantSeed: -1226164991
+    - spawnId: stable-v2:gimmick:13:17:1
+      category: 1
+      contentKey: builtin/gimmick
+      instanceName: SpecialGimmick_01
+      cell: {x: 13, y: 17}
+      localPosition: {x: -24, y: 0, z: -10.5}
+      pitchDegrees: 0
+      yawDegrees: 214.07997
+      rollDegrees: 0
+      localScale: {x: 1, y: 1, z: 1}
+      roomId: stable-v2:room:4
+      progression: 0.40677965
+      tags: []
+      variantSeed: 914179728
+    - spawnId: stable-v2:gimmick:12:27:2
+      category: 1
+      contentKey: builtin/gimmick
+      instanceName: SpecialGimmick_02
+      cell: {x: 12, y: 27}
+      localPosition: {x: -27, y: 0, z: 19.5}
+      pitchDegrees: 0
+      yawDegrees: 55.255714
+      rollDegrees: 0
+      localScale: {x: 1, y: 1, z: 1}
+      roomId: stable-v2:room:12
+      progression: 0.59322035
+      tags: []
+      variantSeed: 996022042
+    - spawnId: stable-v2:gimmick:8:3:3
+      category: 1
+      contentKey: builtin/gimmick
+      instanceName: SpecialGimmick_03
+      cell: {x: 8, y: 3}
+      localPosition: {x: -39, y: 0, z: -52.5}
+      pitchDegrees: 0
+      yawDegrees: 112.339264
+      rollDegrees: 0
+      localScale: {x: 1, y: 1, z: 1}
+      roomId: stable-v2:room:11
+      progression: 0.7966102
+      tags: []
+      variantSeed: -1992700639
+    - spawnId: stable-v2:enemy:32:19:0
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_000
+      cell: {x: 32, y: 19}
+      localPosition: {x: 33, y: 0.96, z: -4.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:7
+      progression: 0.7288136
+      tags: []
+      variantSeed: 1703248285
+    - spawnId: stable-v2:enemy:10:5:1
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_001
+      cell: {x: 10, y: 5}
+      localPosition: {x: -33, y: 0.96, z: -46.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:11
+      progression: 0.7627119
+      tags: []
+      variantSeed: -2005214041
+    - spawnId: stable-v2:enemy:39:16:2
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_002
+      cell: {x: 39, y: 16}
+      localPosition: {x: 54, y: 0.96, z: -13.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:6
+      progression: 0.89830506
+      tags: []
+      variantSeed: -368204770
+    - spawnId: stable-v2:enemy:23:23:3
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_003
+      cell: {x: 23, y: 23}
+      localPosition: {x: 6, y: 0.96, z: 7.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:9
+      progression: 0.5762712
+      tags: []
+      variantSeed: 1702416234
+    - spawnId: stable-v2:enemy:17:25:4
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_004
+      cell: {x: 17, y: 25}
+      localPosition: {x: -12, y: 0.96, z: 13.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:1
+      progression: 0.5084746
+      tags: []
+      variantSeed: -1640446016
+    - spawnId: stable-v2:enemy:36:14:5
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_005
+      cell: {x: 36, y: 14}
+      localPosition: {x: 45, y: 0.96, z: -19.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:6
+      progression: 0.88135594
+      tags: []
+      variantSeed: -1692311885
+    - spawnId: stable-v2:enemy:26:21:6
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_006
+      cell: {x: 26, y: 21}
+      localPosition: {x: 15, y: 0.96, z: 1.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:9
+      progression: 0.59322035
+      tags: []
+      variantSeed: -991726856
+    - spawnId: stable-v2:enemy:27:7:7
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_007
+      cell: {x: 27, y: 7}
+      localPosition: {x: 18, y: 0.96, z: -40.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:0
+      progression: 0.10169491
+      tags: []
+      variantSeed: 1848957671
+    - spawnId: stable-v2:enemy:14:26:8
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_008
+      cell: {x: 14, y: 26}
+      localPosition: {x: -21, y: 0.96, z: 16.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:1
+      progression: 0.5423729
+      tags: []
+      variantSeed: 1843410690
+    - spawnId: stable-v2:enemy:9:25:9
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_009
+      cell: {x: 9, y: 25}
+      localPosition: {x: -36, y: 0.96, z: 13.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:12
+      progression: 0.6101695
+      tags: []
+      variantSeed: 11663398
+    - spawnId: stable-v2:enemy:18:34:10
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_010
+      cell: {x: 18, y: 34}
+      localPosition: {x: -9, y: 0.96, z: 40.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:10
+      progression: 0.91525424
+      tags: []
+      variantSeed: -1310670179
+    - spawnId: stable-v2:enemy:25:23:11
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_011
+      cell: {x: 25, y: 23}
+      localPosition: {x: 12, y: 0.96, z: 7.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:9
+      progression: 0.6101695
+      tags: []
+      variantSeed: -145740364
+    - spawnId: stable-v2:enemy:15:35:12
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_012
+      cell: {x: 15, y: 35}
+      localPosition: {x: -18, y: 0.96, z: 43.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:10
+      progression: 0.88135594
+      tags: []
+      variantSeed: 448365997
+    - spawnId: stable-v2:enemy:28:12:13
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_013
+      cell: {x: 28, y: 12}
+      localPosition: {x: 21, y: 0.96, z: -25.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:0
+      progression: 0.06779661
+      tags: []
+      variantSeed: 81583220
+    - spawnId: stable-v2:enemy:34:25:14
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_014
+      cell: {x: 34, y: 25}
+      localPosition: {x: 39, y: 0.96, z: 13.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:5
+      progression: 0.7966102
+      tags: []
+      variantSeed: -2089886306
+    - spawnId: stable-v2:enemy:33:29:15
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_015
+      cell: {x: 33, y: 29}
+      localPosition: {x: 36, y: 0.96, z: 25.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:5
+      progression: 0.84745765
+      tags: []
+      variantSeed: 778360846
+    - spawnId: stable-v2:enemy:13:12:16
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_016
+      cell: {x: 13, y: 12}
+      localPosition: {x: -24, y: 0.96, z: -25.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:4
+      progression: 0.3220339
+      tags: []
+      variantSeed: 774046260
+    - spawnId: stable-v2:enemy:7:24:17
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_017
+      cell: {x: 7, y: 24}
+      localPosition: {x: -42, y: 0.96, z: 10.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:12
+      progression: 0.62711865
+      tags: []
+      variantSeed: -972060984
+    - spawnId: stable-v2:enemy:5:18:18
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_018
+      cell: {x: 5, y: 18}
+      localPosition: {x: -48, y: 0.96, z: -7.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:2
+      progression: 0.59322035
+      tags: []
+      variantSeed: 1473215869
+    - spawnId: stable-v2:enemy:17:31:19
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_019
+      cell: {x: 17, y: 31}
+      localPosition: {x: -12, y: 0.96, z: 31.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:10
+      progression: 0.9491525
+      tags: []
+      variantSeed: -1781077220
+    - spawnId: stable-v2:enemy:3:20:20
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_020
+      cell: {x: 3, y: 20}
+      localPosition: {x: -54, y: 0.96, z: -1.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:2
+      progression: 0.62711865
+      tags: []
+      variantSeed: -1034530583
+    - spawnId: stable-v2:enemy:16:12:21
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_021
+      cell: {x: 16, y: 12}
+      localPosition: {x: -15, y: 0.96, z: -25.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: stable-v2:room:4
+      progression: 0.27118644
+      tags: []
+      variantSeed: 633458200
+    - spawnId: stable-v2:destructible:8:16:0
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_000
+      cell: {x: 8, y: 16}
+      localPosition: {x: -39, y: 0.6, z: -13.5}
+      pitchDegrees: 0
+      yawDegrees: 168.61868
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:2
+      progression: 0.5762712
+      tags: []
+      variantSeed: -1510721635
+    - spawnId: stable-v2:destructible:9:27:1
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_001
+      cell: {x: 9, y: 27}
+      localPosition: {x: -36, y: 0.6, z: 19.5}
+      pitchDegrees: 0
+      yawDegrees: 281.78244
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:12
+      progression: 0.6440678
+      tags: []
+      variantSeed: 94740676
+    - spawnId: stable-v2:destructible:39:13:2
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_002
+      cell: {x: 39, y: 13}
+      localPosition: {x: 54, y: 0.6, z: -22.5}
+      pitchDegrees: 0
+      yawDegrees: 234.24796
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:6
+      progression: 0.9491525
+      tags: []
+      variantSeed: -1301560325
+    - spawnId: stable-v2:destructible:6:21:3
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_003
+      cell: {x: 6, y: 21}
+      localPosition: {x: -45, y: 0.6, z: 1.5}
+      pitchDegrees: 0
+      yawDegrees: 103.6165
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:2
+      progression: 0.59322035
+      tags: []
+      variantSeed: 584944401
+    - spawnId: stable-v2:destructible:29:38:4
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_004
+      cell: {x: 29, y: 38}
+      localPosition: {x: 24, y: 0.6, z: 52.5}
+      pitchDegrees: 0
+      yawDegrees: 190.59743
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:8
+      progression: 1
+      tags: []
+      variantSeed: 346289181
+    - spawnId: stable-v2:destructible:22:9:5
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_005
+      cell: {x: 22, y: 9}
+      localPosition: {x: 3, y: 0.6, z: -34.5}
+      pitchDegrees: 0
+      yawDegrees: 230.22282
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:13
+      progression: 0.18644068
+      tags: []
+      variantSeed: -1868306790
+    - spawnId: stable-v2:destructible:10:38:6
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_006
+      cell: {x: 10, y: 38}
+      localPosition: {x: -33, y: 0.6, z: 52.5}
+      pitchDegrees: 0
+      yawDegrees: 42.989822
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:3
+      progression: 0.84745765
+      tags: []
+      variantSeed: 552527918
+    - spawnId: stable-v2:destructible:34:20:7
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_007
+      cell: {x: 34, y: 20}
+      localPosition: {x: 39, y: 0.6, z: -1.5}
+      pitchDegrees: 0
+      yawDegrees: 355.18484
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:7
+      progression: 0.7457627
+      tags: []
+      variantSeed: 4806379
+    - spawnId: stable-v2:destructible:3:18:8
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_008
+      cell: {x: 3, y: 18}
+      localPosition: {x: -54, y: 0.6, z: -7.5}
+      pitchDegrees: 0
+      yawDegrees: 351.51007
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:2
+      progression: 0.62711865
+      tags: []
+      variantSeed: -952507100
+    - spawnId: stable-v2:destructible:10:35:9
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_009
+      cell: {x: 10, y: 35}
+      localPosition: {x: -33, y: 0.6, z: 43.5}
+      pitchDegrees: 0
+      yawDegrees: 288.96597
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:3
+      progression: 0.7966102
+      tags: []
+      variantSeed: -1441445707
+    - spawnId: stable-v2:destructible:17:37:10
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_010
+      cell: {x: 17, y: 37}
+      localPosition: {x: -12, y: 0.6, z: 49.5}
+      pitchDegrees: 0
+      yawDegrees: 12.813728
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:10
+      progression: 0.9491525
+      tags: []
+      variantSeed: -419059494
+    - spawnId: stable-v2:destructible:7:39:11
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_011
+      cell: {x: 7, y: 39}
+      localPosition: {x: -42, y: 0.6, z: 55.5}
+      pitchDegrees: 0
+      yawDegrees: 122.37003
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:3
+      progression: 0.88135594
+      tags: []
+      variantSeed: -165547115
+    - spawnId: stable-v2:destructible:19:37:12
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_012
+      cell: {x: 19, y: 37}
+      localPosition: {x: -6, y: 0.6, z: 49.5}
+      pitchDegrees: 0
+      yawDegrees: 225.64148
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:10
+      progression: 0.9830508
+      tags: []
+      variantSeed: 1422252682
+    - spawnId: stable-v2:destructible:23:19:13
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_013
+      cell: {x: 23, y: 19}
+      localPosition: {x: 6, y: 0.6, z: -4.5}
+      pitchDegrees: 0
+      yawDegrees: 336.29788
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:9
+      progression: 0.5084746
+      tags: []
+      variantSeed: 569893338
+    - spawnId: stable-v2:destructible:19:30:14
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_014
+      cell: {x: 19, y: 30}
+      localPosition: {x: -6, y: 0.6, z: 28.5}
+      pitchDegrees: 0
+      yawDegrees: 296.0343
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:10
+      progression: 1
+      tags: []
+      variantSeed: -849650975
+    - spawnId: stable-v2:destructible:31:34:15
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_015
+      cell: {x: 31, y: 34}
+      localPosition: {x: 30, y: 0.6, z: 40.5}
+      pitchDegrees: 0
+      yawDegrees: 10.90863
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: 
+      progression: 0.9322034
+      tags: []
+      variantSeed: 1703355460
+    - spawnId: stable-v2:destructible:5:28:16
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_016
+      cell: {x: 5, y: 28}
+      localPosition: {x: -48, y: 0.6, z: 22.5}
+      pitchDegrees: 0
+      yawDegrees: 0.38372755
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:12
+      progression: 0.7288136
+      tags: []
+      variantSeed: -21019087
+    - spawnId: stable-v2:destructible:30:36:17
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_017
+      cell: {x: 30, y: 36}
+      localPosition: {x: 27, y: 0.6, z: 46.5}
+      pitchDegrees: 0
+      yawDegrees: 44.759697
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:8
+      progression: 0.9830508
+      tags: []
+      variantSeed: 263674335
+    - spawnId: stable-v2:destructible:24:21:18
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_018
+      cell: {x: 24, y: 21}
+      localPosition: {x: 9, y: 0.6, z: 1.5}
+      pitchDegrees: 0
+      yawDegrees: 186.97844
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:9
+      progression: 0.55932206
+      tags: []
+      variantSeed: -778272574
+    - spawnId: stable-v2:destructible:16:22:19
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_019
+      cell: {x: 16, y: 22}
+      localPosition: {x: -15, y: 0.6, z: 4.5}
+      pitchDegrees: 0
+      yawDegrees: 346.58633
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:1
+      progression: 0.44067797
+      tags: []
+      variantSeed: 1255744972
+    - spawnId: stable-v2:destructible:14:22:20
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_020
+      cell: {x: 14, y: 22}
+      localPosition: {x: -21, y: 0.6, z: 4.5}
+      pitchDegrees: 0
+      yawDegrees: 291.08072
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:1
+      progression: 0.47457626
+      tags: []
+      variantSeed: -1984186488
+    - spawnId: stable-v2:destructible:14:14:21
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_021
+      cell: {x: 14, y: 14}
+      localPosition: {x: -21, y: 0.6, z: -19.5}
+      pitchDegrees: 0
+      yawDegrees: 255.65794
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:4
+      progression: 0.33898306
+      tags: []
+      variantSeed: -904164537
+    - spawnId: stable-v2:destructible:7:6:22
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_022
+      cell: {x: 7, y: 6}
+      localPosition: {x: -42, y: 0.6, z: -43.5}
+      pitchDegrees: 0
+      yawDegrees: 350.9525
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:11
+      progression: 0.7627119
+      tags: []
+      variantSeed: -1174137627
+    - spawnId: stable-v2:destructible:19:15:23
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_023
+      cell: {x: 19, y: 15}
+      localPosition: {x: -6, y: 0.6, z: -16.5}
+      pitchDegrees: 0
+      yawDegrees: 150.92632
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: stable-v2:room:4
+      progression: 0.27118644
+      tags: []
+      variantSeed: 757227600
+    - spawnId: stable-v2:prop:9:9:0
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_000
+      cell: {x: 9, y: 9}
+      localPosition: {x: -36, y: 0.30525914, z: -34.5}
+      pitchDegrees: 7.9817743
+      yawDegrees: 3.1725597
+      rollDegrees: 2.6616602
+      localScale: {x: 0.5630163, y: 0.6105183, z: 0.5630163}
+      roomId: 
+      progression: 0.6779661
+      tags: []
+      variantSeed: 25411150
+    - spawnId: stable-v2:prop:39:19:1
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_001
+      cell: {x: 39, y: 19}
+      localPosition: {x: 54, y: 1.1571406, z: -4.5}
+      pitchDegrees: 5.5068216
+      yawDegrees: 139.67847
+      rollDegrees: 4.789182
+      localScale: {x: 0.69138694, y: 1.1571406, z: 0.69138694}
+      roomId: stable-v2:room:6
+      progression: 0.84745765
+      tags: []
+      variantSeed: -887847196
+    - spawnId: stable-v2:prop:25:19:2
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_002
+      cell: {x: 25, y: 19}
+      localPosition: {x: 12, y: 1.02292, z: -4.5}
+      pitchDegrees: 7.1275086
+      yawDegrees: 325.16943
+      rollDegrees: 1.9892187
+      localScale: {x: 0.5405519, y: 1.02292, z: 0.5405519}
+      roomId: stable-v2:room:9
+      progression: 0.5423729
+      tags: []
+      variantSeed: -2010180505
+    - spawnId: stable-v2:prop:12:29:3
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_003
+      cell: {x: 12, y: 29}
+      localPosition: {x: -27, y: 0.6156972, z: 25.5}
+      pitchDegrees: 6.994156
+      yawDegrees: 88.0374
+      rollDegrees: 3.3096948
+      localScale: {x: 0.7623765, y: 1.2313944, z: 0.7623765}
+      roomId: stable-v2:room:12
+      progression: 0.62711865
+      tags: []
+      variantSeed: -1855838916
+    - spawnId: stable-v2:prop:19:17:4
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_004
+      cell: {x: 19, y: 17}
+      localPosition: {x: -6, y: 0.26963797, z: -10.5}
+      pitchDegrees: 6.8817863
+      yawDegrees: 205.48943
+      rollDegrees: 5.9313707
+      localScale: {x: 0.44001994, y: 0.53927594, z: 0.44001994}
+      roomId: stable-v2:room:4
+      progression: 0.30508474
+      tags: []
+      variantSeed: 157337237
+    - spawnId: stable-v2:prop:22:11:5
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_005
+      cell: {x: 22, y: 11}
+      localPosition: {x: 3, y: 0.4933853, z: -28.5}
+      pitchDegrees: 2.6450043
+      yawDegrees: 336.6309
+      rollDegrees: 4.345954
+      localScale: {x: 0.6579803, y: 0.9867706, z: 0.6579803}
+      roomId: stable-v2:room:13
+      progression: 0.15254237
+      tags: []
+      variantSeed: -2101450000
+    - spawnId: stable-v2:prop:32:36:6
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_006
+      cell: {x: 32, y: 36}
+      localPosition: {x: 33, y: 0.5895588, z: 46.5}
+      pitchDegrees: 3.6664715
+      yawDegrees: 355.90936
+      rollDegrees: 5.522056
+      localScale: {x: 0.60711783, y: 0.5895588, z: 0.60711783}
+      roomId: stable-v2:room:8
+      progression: 0.9830508
+      tags: []
+      variantSeed: 1830144941
+    - spawnId: stable-v2:prop:33:16:7
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_007
+      cell: {x: 33, y: 16}
+      localPosition: {x: 36, y: 0.31862673, z: -13.5}
+      pitchDegrees: 4.8524632
+      yawDegrees: 304.15292
+      rollDegrees: 6.051326
+      localScale: {x: 0.54602325, y: 0.63725346, z: 0.54602325}
+      roomId: stable-v2:room:7
+      progression: 0.7966102
+      tags: []
+      variantSeed: 545164713
+    - spawnId: stable-v2:prop:32:27:8
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_008
+      cell: {x: 32, y: 27}
+      localPosition: {x: 33, y: 0.885693, z: 19.5}
+      pitchDegrees: 4.326821
+      yawDegrees: 203.83844
+      rollDegrees: 5.659987
+      localScale: {x: 0.6848548, y: 0.885693, z: 0.6848548}
+      roomId: stable-v2:room:5
+      progression: 0.7966102
+      tags: []
+      variantSeed: -1780575411
+    - spawnId: stable-v2:prop:30:21:9
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_009
+      cell: {x: 30, y: 21}
+      localPosition: {x: 27, y: 0.26038295, z: 1.5}
+      pitchDegrees: 6.1754446
+      yawDegrees: 210.58641
+      rollDegrees: 4.6145434
+      localScale: {x: 0.62455404, y: 0.5207659, z: 0.62455404}
+      roomId: stable-v2:room:7
+      progression: 0.66101694
+      tags: []
+      variantSeed: -574445611
+    - spawnId: stable-v2:prop:4:16:10
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_010
+      cell: {x: 4, y: 16}
+      localPosition: {x: -51, y: 0.55732876, z: -13.5}
+      pitchDegrees: 6.7485757
+      yawDegrees: 118.84952
+      rollDegrees: 3.4195552
+      localScale: {x: 0.77038413, y: 1.1146575, z: 0.77038413}
+      roomId: stable-v2:room:2
+      progression: 0.6440678
+      tags: []
+      variantSeed: 1626977929
+    - spawnId: stable-v2:prop:8:21:11
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_011
+      cell: {x: 8, y: 21}
+      localPosition: {x: -39, y: 0.4541075, z: 1.5}
+      pitchDegrees: 0.77493095
+      yawDegrees: 105.259514
+      rollDegrees: 2.0796885
+      localScale: {x: 0.6777537, y: 0.908215, z: 0.6777537}
+      roomId: stable-v2:room:2
+      progression: 0.55932206
+      tags: []
+      variantSeed: 538204841
+    - spawnId: stable-v2:prop:7:29:12
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_012
+      cell: {x: 7, y: 29}
+      localPosition: {x: -42, y: 0.5400567, z: 25.5}
+      pitchDegrees: 6.0224614
+      yawDegrees: 302.82675
+      rollDegrees: 0.27521896
+      localScale: {x: 0.69686794, y: 1.0801134, z: 0.69686794}
+      roomId: stable-v2:room:12
+      progression: 0.7118644
+      tags: []
+      variantSeed: -656422414
+    - spawnId: stable-v2:prop:14:24:13
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_013
+      cell: {x: 14, y: 24}
+      localPosition: {x: -21, y: 0.65827245, z: 10.5}
+      pitchDegrees: 6.008165
+      yawDegrees: 127.03901
+      rollDegrees: 4.168486
+      localScale: {x: 0.6737749, y: 0.65827245, z: 0.6737749}
+      roomId: stable-v2:room:1
+      progression: 0.5084746
+      tags: []
+      variantSeed: 1839774059
+    - spawnId: stable-v2:prop:7:19:14
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_014
+      cell: {x: 7, y: 19}
+      localPosition: {x: -42, y: 0.86730033, z: -4.5}
+      pitchDegrees: 5.4648857
+      yawDegrees: 202.14687
+      rollDegrees: 1.0899515
+      localScale: {x: 0.5962889, y: 0.86730033, z: 0.5962889}
+      roomId: stable-v2:room:2
+      progression: 0.5423729
+      tags: []
+      variantSeed: -2458875
+    - spawnId: stable-v2:prop:30:17:15
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_015
+      cell: {x: 30, y: 17}
+      localPosition: {x: 27, y: 1.0589445, z: -10.5}
+      pitchDegrees: 7.5819645
+      yawDegrees: 65.919945
+      rollDegrees: 3.4922233
+      localScale: {x: 0.58306, y: 1.0589445, z: 0.58306}
+      roomId: stable-v2:room:7
+      progression: 0.7288136
+      tags: []
+      variantSeed: 1211037497
+    - spawnId: stable-v2:prop:28:21:16
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_016
+      cell: {x: 28, y: 21}
+      localPosition: {x: 21, y: 0.40926164, z: 1.5}
+      pitchDegrees: 0.94824266
+      yawDegrees: 86.51762
+      rollDegrees: 0.81536007
+      localScale: {x: 0.6298313, y: 0.8185233, z: 0.6298313}
+      roomId: 
+      progression: 0.62711865
+      tags: []
+      variantSeed: 1032167337
+    - spawnId: stable-v2:prop:16:15:17
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_017
+      cell: {x: 16, y: 15}
+      localPosition: {x: -15, y: 1.0893124, z: -16.5}
+      pitchDegrees: 4.1603613
+      yawDegrees: 153.03532
+      rollDegrees: 2.0366907
+      localScale: {x: 0.56673986, y: 1.0893124, z: 0.56673986}
+      roomId: stable-v2:room:4
+      progression: 0.3220339
+      tags: []
+      variantSeed: 1519898983

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1c183bfd677a534b811fb9abf0e1d7b, type: 3}
+  m_Name: R5_Procedural_Seed12345
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.DungeonStageDefinition
+  sourceMode: 0
+  buildMode: 0
+  recipe: {fileID: 11400000, guid: 32adc0e878efbfa44a1b903ab46b0628, type: 2}
+  savedBlueprint: {fileID: 0}
+  seedPolicy: 2
+  fixedSeed: 12345
+  generatorVersion: 2
+  contentCatalog: {fileID: 0}
+  missingContentPolicy: 0
+  loadOnPlay: 1

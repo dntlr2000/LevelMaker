@@ -1,8 +1,8 @@
 # 테스트 계획
 
-## R0·R1·R2·R3·R4 자동 회귀 기준
+## R0·R1·R2·R3·R4·R5·R5.1 자동 회귀 기준
 
-Unity `6000.5.3f1`에서 compile 성공 후 EditMode 41개와 PlayMode 3개를 자동 실행했습니다.
+Unity `6000.5.3f1`에서 compile 성공 후 EditMode 51개와 PlayMode 3개를 자동 실행했습니다.
 
 - Compact `12345`, Balanced `-987654321`, Chaos `20260719`의 방·floor·BFS·콘텐츠 셀 SHA-256 Golden 지문
 - 같은 프리셋·시드 반복 생성 지문 일치
@@ -36,12 +36,24 @@ Unity `6000.5.3f1`에서 compile 성공 후 EditMode 41개와 PlayMode 3개를 �
 - Prefab target 설정 우선 보존과 catalog dropTable·gameplayId 자동 보강
 - 비활성 staging root에서 구축 후 교체·활성화하고 명시적으로 소유한 합성 Mesh만 해제
 - 자식 `DestructibleDropTarget` 파괴가 spawn root 전체를 제거하고 드랍 통계를 정확히 1회 누적
+- 현재 Blueprint를 새 자산에 deep copy하고 제작 메모·저장 시각·논리 hash를 재임포트 후 유지
+- 선택 Blueprint 덮어쓰기 후 Unity Undo가 중첩 cells·rooms·spawns 전체를 이전 상태로 복구
+- 동일 결과, 다른 시드, stale 입력, 동일 provenance 결과 분기와 손상 저장본 비교 상태 분류
+- 저장 Blueprint 미리보기가 recipe·시드를 재계산하지 않고 저장 hash를 구축한 뒤 절차 시드로 복귀
+- SerializedObject로 생성한 SavedBlueprint StageDefinition과 Generator 연결이 AssetDatabase 재임포트 후 유지
+- 검증 오류가 있는 현재 결과를 프로젝트 자산으로 만들기 전에 차단
+- 현재 Blueprint와 일치하는 authoring recipe snapshot을 깊은 복사해 저장하고 재임포트 후 hash 유지
+- Blueprint 덮어쓰기 Undo가 중첩 맵 데이터와 저장 레시피를 함께 이전 상태로 복구
+- 저장 레시피 적용 시 구조·밀도·AnimationCurve가 복원되고 시드·드랍·런타임 옵션은 선택 정책대로 보존
+- snapshot 없는 기존 R5 자산은 저장 맵 로드가 유지되고 설정 복원만 차단
+- 변조된 snapshot의 recipe hash 불일치를 설정 자산 변경 전에 차단
+- 저장 recipe·seed·StableV2·catalog 입력으로 절차 재생성한 Blueprint hash가 저장본과 일치
 
-R4 구현 시점의 실행 결과는 compile 성공, EditMode `41/41`, PlayMode `3/3` 통과입니다. PlayMode 세 테스트는 기존 임시 플레이어·카메라·HUD 자동 재생성, settings와 cellSize가 다른 저장 Blueprint의 입구 배치, 자식 클릭 대상의 루트 제거와 드랍 통계 1회 누적을 확인합니다. 실제 마우스 포인터 Raycast와 HUD 위 클릭 차단은 수동 검증 항목입니다.
+R5.1 구현 시점의 실행 결과는 compile 성공, EditMode `51/51`, PlayMode `3/3` 통과입니다. EditMode는 R5 자산 생성·덮어쓰기 Undo·재임포트·stale 비교·미리보기·StageDefinition 참조와 R5.1 저장 레시피 영속성·복원·손상 차단·정확 재생성을 포함합니다. PlayMode 세 테스트는 기존 임시 플레이어·카메라·HUD 자동 재생성, settings와 cellSize가 다른 저장 Blueprint의 입구 배치, 자식 클릭 대상의 루트 제거와 드랍 통계 1회 누적을 확인합니다. 실제 Unity 프로세스 종료 후 재시작, 마우스 포인터 Raycast와 HUD 위 클릭 차단은 수동 검증 항목입니다.
 
 ## 전체 기능 검증 목록
 
-아래는 자동 회귀 외에 수동·통합·제품화 단계까지 포함한 전체 체크리스트입니다. 체크리스트에 있다는 사실만으로 이번 R4 자동 실행에서 확인했다는 의미는 아닙니다.
+아래는 자동 회귀 외에 수동·통합·제품화 단계까지 포함한 전체 체크리스트입니다. 체크리스트에 있다는 사실만으로 이번 R5.1 자동 실행에서 확인했다는 의미는 아닙니다.
 
 - 신규 Unity 6 프로젝트 import 후 컴파일 오류 0개
 - 장면 자동 구성 3회 후 Generator/Systems/Camera/Light 중복 없음
@@ -54,6 +66,10 @@ R4 구현 시점의 실행 결과는 compile 성공, EditMode `41/41`, PlayMode 
 - StableV2는 StageDefinition 또는 `CreateStableV2`에서 명시적으로 선택할 때만 활성화되고 기존 facade는 LegacyV1 유지
 - Content Catalog의 key/category/progression/room 조건/footprint와 Blueprint가 일치
 - custom `IDungeonContentResolver`와 실행별 missing policy override가 프로젝트 생성 경로를 사용
+- 스테이지 자산 탭에서 새 Blueprint 저장, 확인 후 덮어쓰기, 저장본 미리보기와 현재 절차 설정 재생성이 동작
+- 저장 레시피 설정만 불러오기와 설정·저장 시드 절차 재생성이 확인·Undo·catalog hash 정책을 따름
+- recipe/catalog/generatorVersion 변경 시 저장본 stale 경고가 표시되고 동일 provenance 결과 분기는 오류로 구분
+- 생성한 SavedBlueprint StageDefinition을 빈 씬 Generator에 연결해 Play 진입 시 동일 blueprintHash를 로드
 - 모든 floor cell의 BFS distance가 0 이상
 - 최소 12×12 및 최대 96×96 극단 설정에서 예외 없음
 - 곡선 0 구간에서 해당 콘텐츠 억제

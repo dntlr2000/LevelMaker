@@ -1,0 +1,3525 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e867abbd74d8e64ca4fa66e6808db08, type: 3}
+  m_Name: R5_Reference_Seed12345
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.DungeonBlueprintAsset
+  blueprint:
+    formatVersion: 1
+    generatorVersion: 1
+    seed: 12345
+    recipeHash: 5c863f6f636aef575273141cce04f50bbdc6a32f58d74bb878d2634610a1754e
+    catalogPlanningHash: builtin-legacy-v1
+    blueprintHash: 5c15f0bd113fd27eba140940839ac2841d089a47aed6793d2a9c2aa2d49b9bf5
+    createdUtcTicks: 639203230469625535
+    authoringNote: "R5 \uAE30\uC900: \uC6D0\uBCF8 recipe, StableV2, seed 12345"
+    grid:
+      width: 49
+      depth: 42
+      cellSize: 3
+      wallHeight: 3.2
+    cells:
+    - coordinate: {x: 4, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 45
+    - coordinate: {x: 4, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 44
+    - coordinate: {x: 4, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 43
+    - coordinate: {x: 4, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 44
+    - coordinate: {x: 5, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 44
+    - coordinate: {x: 5, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 43
+    - coordinate: {x: 5, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 42
+    - coordinate: {x: 5, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 43
+    - coordinate: {x: 6, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 43
+    - coordinate: {x: 6, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 42
+    - coordinate: {x: 6, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 41
+    - coordinate: {x: 6, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 42
+    - coordinate: {x: 7, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 42
+    - coordinate: {x: 7, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 41
+    - coordinate: {x: 7, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 40
+    - coordinate: {x: 7, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 41
+    - coordinate: {x: 7, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 44
+    - coordinate: {x: 7, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 45
+    - coordinate: {x: 7, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 46
+    - coordinate: {x: 7, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 47
+    - coordinate: {x: 7, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 48
+    - coordinate: {x: 7, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 49
+    - coordinate: {x: 7, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 50
+    - coordinate: {x: 7, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 51
+    - coordinate: {x: 8, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 41
+    - coordinate: {x: 8, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 40
+    - coordinate: {x: 8, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 39
+    - coordinate: {x: 8, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:9
+      distanceFromEntrance: 40
+    - coordinate: {x: 8, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 8, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 44
+    - coordinate: {x: 8, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 45
+    - coordinate: {x: 8, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 46
+    - coordinate: {x: 8, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 47
+    - coordinate: {x: 8, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 48
+    - coordinate: {x: 8, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 49
+    - coordinate: {x: 8, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 50
+    - coordinate: {x: 9, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 38
+    - coordinate: {x: 9, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 9, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 9, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 44
+    - coordinate: {x: 9, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 45
+    - coordinate: {x: 9, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 46
+    - coordinate: {x: 9, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 47
+    - coordinate: {x: 9, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 48
+    - coordinate: {x: 9, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 49
+    - coordinate: {x: 10, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 37
+    - coordinate: {x: 10, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 36
+    - coordinate: {x: 10, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 10, y: 16}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 10, y: 17}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 10, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 10, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 10, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 36
+    - coordinate: {x: 10, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 41
+    - coordinate: {x: 10, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 10, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 10, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 44
+    - coordinate: {x: 10, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 45
+    - coordinate: {x: 10, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 46
+    - coordinate: {x: 10, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 47
+    - coordinate: {x: 10, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 48
+    - coordinate: {x: 11, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 36
+    - coordinate: {x: 11, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 11, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 11, y: 16}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 11, y: 17}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 11, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 11, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 11, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 35
+    - coordinate: {x: 11, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 36
+    - coordinate: {x: 11, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 37
+    - coordinate: {x: 11, y: 23}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 38
+    - coordinate: {x: 11, y: 24}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 39
+    - coordinate: {x: 11, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 40
+    - coordinate: {x: 11, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 41
+    - coordinate: {x: 11, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 11, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 11, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 44
+    - coordinate: {x: 11, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 45
+    - coordinate: {x: 11, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 46
+    - coordinate: {x: 11, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 47
+    - coordinate: {x: 12, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 35
+    - coordinate: {x: 12, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 12, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 12, y: 16}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 12, y: 17}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 31
+    - coordinate: {x: 12, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 12, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 12, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 34
+    - coordinate: {x: 12, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 41
+    - coordinate: {x: 12, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 12, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 12, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 12, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 12, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 44
+    - coordinate: {x: 12, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 45
+    - coordinate: {x: 12, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 46
+    - coordinate: {x: 13, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 34
+    - coordinate: {x: 13, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 13, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 13, y: 16}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 31
+    - coordinate: {x: 13, y: 17}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 30
+    - coordinate: {x: 13, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 31
+    - coordinate: {x: 13, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 13, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 33
+    - coordinate: {x: 13, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 13, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 13, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 13, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 41
+    - coordinate: {x: 13, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 13, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 13, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 44
+    - coordinate: {x: 13, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 45
+    - coordinate: {x: 14, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 33
+    - coordinate: {x: 14, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 14, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 31
+    - coordinate: {x: 14, y: 16}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 30
+    - coordinate: {x: 14, y: 17}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 29
+    - coordinate: {x: 14, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 30
+    - coordinate: {x: 14, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 31
+    - coordinate: {x: 14, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:2
+      distanceFromEntrance: 32
+    - coordinate: {x: 14, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 14, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 14, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 41
+    - coordinate: {x: 14, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 40
+    - coordinate: {x: 14, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 41
+    - coordinate: {x: 14, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 42
+    - coordinate: {x: 14, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 43
+    - coordinate: {x: 14, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:1
+      distanceFromEntrance: 44
+    - coordinate: {x: 15, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 44
+    - coordinate: {x: 15, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 43
+    - coordinate: {x: 15, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 42
+    - coordinate: {x: 15, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 41
+    - coordinate: {x: 15, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 40
+    - coordinate: {x: 15, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 39
+    - coordinate: {x: 15, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 32
+    - coordinate: {x: 15, y: 17}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 28
+    - coordinate: {x: 15, y: 28}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 39
+    - coordinate: {x: 16, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 43
+    - coordinate: {x: 16, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 42
+    - coordinate: {x: 16, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 41
+    - coordinate: {x: 16, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 40
+    - coordinate: {x: 16, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 39
+    - coordinate: {x: 16, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 38
+    - coordinate: {x: 16, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 31
+    - coordinate: {x: 16, y: 17}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 27
+    - coordinate: {x: 16, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 35
+    - coordinate: {x: 16, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 36
+    - coordinate: {x: 16, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 37
+    - coordinate: {x: 16, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 38
+    - coordinate: {x: 16, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 39
+    - coordinate: {x: 16, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 40
+    - coordinate: {x: 16, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 41
+    - coordinate: {x: 17, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 42
+    - coordinate: {x: 17, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 41
+    - coordinate: {x: 17, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 40
+    - coordinate: {x: 17, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 39
+    - coordinate: {x: 17, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 38
+    - coordinate: {x: 17, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 37
+    - coordinate: {x: 17, y: 7}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 36
+    - coordinate: {x: 17, y: 8}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 35
+    - coordinate: {x: 17, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 34
+    - coordinate: {x: 17, y: 10}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 33
+    - coordinate: {x: 17, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 32
+    - coordinate: {x: 17, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 31
+    - coordinate: {x: 17, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 30
+    - coordinate: {x: 17, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 29
+    - coordinate: {x: 17, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 28
+    - coordinate: {x: 17, y: 17}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 26
+    - coordinate: {x: 17, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 34
+    - coordinate: {x: 17, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 35
+    - coordinate: {x: 17, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 36
+    - coordinate: {x: 17, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 37
+    - coordinate: {x: 17, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 38
+    - coordinate: {x: 17, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 39
+    - coordinate: {x: 17, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 40
+    - coordinate: {x: 18, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 43
+    - coordinate: {x: 18, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 42
+    - coordinate: {x: 18, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 41
+    - coordinate: {x: 18, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 40
+    - coordinate: {x: 18, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 39
+    - coordinate: {x: 18, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:8
+      distanceFromEntrance: 38
+    - coordinate: {x: 18, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 33
+    - coordinate: {x: 18, y: 10}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 32
+    - coordinate: {x: 18, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 31
+    - coordinate: {x: 18, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 30
+    - coordinate: {x: 18, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 29
+    - coordinate: {x: 18, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 28
+    - coordinate: {x: 18, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 27
+    - coordinate: {x: 18, y: 16}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 26
+    - coordinate: {x: 18, y: 17}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 25
+    - coordinate: {x: 18, y: 18}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 26
+    - coordinate: {x: 18, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 27
+    - coordinate: {x: 18, y: 20}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 28
+    - coordinate: {x: 18, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 29
+    - coordinate: {x: 18, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 30
+    - coordinate: {x: 18, y: 23}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 31
+    - coordinate: {x: 18, y: 24}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 32
+    - coordinate: {x: 18, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 33
+    - coordinate: {x: 18, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 34
+    - coordinate: {x: 18, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 35
+    - coordinate: {x: 18, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 36
+    - coordinate: {x: 18, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 37
+    - coordinate: {x: 18, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 38
+    - coordinate: {x: 18, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 39
+    - coordinate: {x: 19, y: 4}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 41
+    - coordinate: {x: 19, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 34
+    - coordinate: {x: 19, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 30
+    - coordinate: {x: 19, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 29
+    - coordinate: {x: 19, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 28
+    - coordinate: {x: 19, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 27
+    - coordinate: {x: 19, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 26
+    - coordinate: {x: 19, y: 17}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 24
+    - coordinate: {x: 19, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 34
+    - coordinate: {x: 19, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 35
+    - coordinate: {x: 19, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 36
+    - coordinate: {x: 19, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 37
+    - coordinate: {x: 19, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 38
+    - coordinate: {x: 19, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 39
+    - coordinate: {x: 19, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:3
+      distanceFromEntrance: 40
+    - coordinate: {x: 20, y: 4}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 42
+    - coordinate: {x: 20, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 35
+    - coordinate: {x: 20, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 29
+    - coordinate: {x: 20, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 28
+    - coordinate: {x: 20, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 27
+    - coordinate: {x: 20, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 26
+    - coordinate: {x: 20, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 25
+    - coordinate: {x: 20, y: 16}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 24
+    - coordinate: {x: 20, y: 17}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 23
+    - coordinate: {x: 20, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 22
+    - coordinate: {x: 20, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 21
+    - coordinate: {x: 20, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 20
+    - coordinate: {x: 20, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 19
+    - coordinate: {x: 20, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 20
+    - coordinate: {x: 20, y: 23}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 21
+    - coordinate: {x: 21, y: 4}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 43
+    - coordinate: {x: 21, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 36
+    - coordinate: {x: 21, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 28
+    - coordinate: {x: 21, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 27
+    - coordinate: {x: 21, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 26
+    - coordinate: {x: 21, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 25
+    - coordinate: {x: 21, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 24
+    - coordinate: {x: 21, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 21
+    - coordinate: {x: 21, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 20
+    - coordinate: {x: 21, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 19
+    - coordinate: {x: 21, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 18
+    - coordinate: {x: 21, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 19
+    - coordinate: {x: 21, y: 23}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 20
+    - coordinate: {x: 22, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 47
+    - coordinate: {x: 22, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 46
+    - coordinate: {x: 22, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 45
+    - coordinate: {x: 22, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 44
+    - coordinate: {x: 22, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 45
+    - coordinate: {x: 22, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 46
+    - coordinate: {x: 22, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 37
+    - coordinate: {x: 22, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 27
+    - coordinate: {x: 22, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 26
+    - coordinate: {x: 22, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 25
+    - coordinate: {x: 22, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 24
+    - coordinate: {x: 22, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 23
+    - coordinate: {x: 22, y: 16}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 22
+    - coordinate: {x: 22, y: 17}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 21
+    - coordinate: {x: 22, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 20
+    - coordinate: {x: 22, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 19
+    - coordinate: {x: 22, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 18
+    - coordinate: {x: 22, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 17
+    - coordinate: {x: 22, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 18
+    - coordinate: {x: 22, y: 23}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 19
+    - coordinate: {x: 22, y: 24}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 20
+    - coordinate: {x: 22, y: 25}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 21
+    - coordinate: {x: 22, y: 26}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 22
+    - coordinate: {x: 22, y: 27}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 23
+    - coordinate: {x: 22, y: 28}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 24
+    - coordinate: {x: 22, y: 29}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 23
+    - coordinate: {x: 23, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 46
+    - coordinate: {x: 23, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 45
+    - coordinate: {x: 23, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 44
+    - coordinate: {x: 23, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 45
+    - coordinate: {x: 23, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 46
+    - coordinate: {x: 23, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 47
+    - coordinate: {x: 23, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 38
+    - coordinate: {x: 23, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 28
+    - coordinate: {x: 23, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 27
+    - coordinate: {x: 23, y: 13}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 26
+    - coordinate: {x: 23, y: 14}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 25
+    - coordinate: {x: 23, y: 15}
+      flags: 1
+      roomId: legacy-v1:room:12
+      distanceFromEntrance: 24
+    - coordinate: {x: 23, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 19
+    - coordinate: {x: 23, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 18
+    - coordinate: {x: 23, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 17
+    - coordinate: {x: 23, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 16
+    - coordinate: {x: 23, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 17
+    - coordinate: {x: 23, y: 23}
+      flags: 1
+      roomId: legacy-v1:room:6
+      distanceFromEntrance: 18
+    - coordinate: {x: 23, y: 29}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 22
+    - coordinate: {x: 24, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 45
+    - coordinate: {x: 24, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 44
+    - coordinate: {x: 24, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 43
+    - coordinate: {x: 24, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 44
+    - coordinate: {x: 24, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 45
+    - coordinate: {x: 24, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 46
+    - coordinate: {x: 24, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 37
+    - coordinate: {x: 24, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 15
+    - coordinate: {x: 24, y: 29}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 21
+    - coordinate: {x: 25, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 44
+    - coordinate: {x: 25, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 43
+    - coordinate: {x: 25, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 42
+    - coordinate: {x: 25, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 43
+    - coordinate: {x: 25, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 44
+    - coordinate: {x: 25, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 45
+    - coordinate: {x: 25, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 36
+    - coordinate: {x: 25, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 17
+    - coordinate: {x: 25, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 16
+    - coordinate: {x: 25, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 15
+    - coordinate: {x: 25, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 14
+    - coordinate: {x: 25, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 13
+    - coordinate: {x: 25, y: 23}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 14
+    - coordinate: {x: 25, y: 24}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 15
+    - coordinate: {x: 25, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 16
+    - coordinate: {x: 25, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 17
+    - coordinate: {x: 25, y: 29}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 20
+    - coordinate: {x: 26, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 43
+    - coordinate: {x: 26, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 42
+    - coordinate: {x: 26, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 41
+    - coordinate: {x: 26, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 42
+    - coordinate: {x: 26, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 43
+    - coordinate: {x: 26, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 44
+    - coordinate: {x: 26, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 35
+    - coordinate: {x: 26, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 16
+    - coordinate: {x: 26, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 15
+    - coordinate: {x: 26, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 14
+    - coordinate: {x: 26, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 13
+    - coordinate: {x: 26, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 12
+    - coordinate: {x: 26, y: 23}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 13
+    - coordinate: {x: 26, y: 24}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 14
+    - coordinate: {x: 26, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 15
+    - coordinate: {x: 26, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 16
+    - coordinate: {x: 26, y: 29}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 19
+    - coordinate: {x: 27, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 42
+    - coordinate: {x: 27, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 41
+    - coordinate: {x: 27, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 40
+    - coordinate: {x: 27, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 41
+    - coordinate: {x: 27, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 42
+    - coordinate: {x: 27, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 43
+    - coordinate: {x: 27, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 34
+    - coordinate: {x: 27, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 15
+    - coordinate: {x: 27, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 14
+    - coordinate: {x: 27, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 13
+    - coordinate: {x: 27, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 12
+    - coordinate: {x: 27, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 11
+    - coordinate: {x: 27, y: 23}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 12
+    - coordinate: {x: 27, y: 24}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 13
+    - coordinate: {x: 27, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 14
+    - coordinate: {x: 27, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 15
+    - coordinate: {x: 27, y: 27}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 16
+    - coordinate: {x: 27, y: 28}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 17
+    - coordinate: {x: 27, y: 29}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 18
+    - coordinate: {x: 28, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 41
+    - coordinate: {x: 28, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 40
+    - coordinate: {x: 28, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 39
+    - coordinate: {x: 28, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 40
+    - coordinate: {x: 28, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 41
+    - coordinate: {x: 28, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 42
+    - coordinate: {x: 28, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 33
+    - coordinate: {x: 28, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 14
+    - coordinate: {x: 28, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 13
+    - coordinate: {x: 28, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 12
+    - coordinate: {x: 28, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 11
+    - coordinate: {x: 28, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 10
+    - coordinate: {x: 28, y: 23}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 11
+    - coordinate: {x: 28, y: 24}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 12
+    - coordinate: {x: 28, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 13
+    - coordinate: {x: 28, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 14
+    - coordinate: {x: 28, y: 29}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 17
+    - coordinate: {x: 29, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 40
+    - coordinate: {x: 29, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 39
+    - coordinate: {x: 29, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 38
+    - coordinate: {x: 29, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 39
+    - coordinate: {x: 29, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 40
+    - coordinate: {x: 29, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 41
+    - coordinate: {x: 29, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 33
+    - coordinate: {x: 29, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 32
+    - coordinate: {x: 29, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 31
+    - coordinate: {x: 29, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 32
+    - coordinate: {x: 29, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 33
+    - coordinate: {x: 29, y: 18}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 13
+    - coordinate: {x: 29, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 12
+    - coordinate: {x: 29, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 11
+    - coordinate: {x: 29, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 10
+    - coordinate: {x: 29, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 9
+    - coordinate: {x: 29, y: 23}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 10
+    - coordinate: {x: 29, y: 24}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 11
+    - coordinate: {x: 29, y: 25}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 12
+    - coordinate: {x: 29, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:10
+      distanceFromEntrance: 13
+    - coordinate: {x: 29, y: 29}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 16
+    - coordinate: {x: 30, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 39
+    - coordinate: {x: 30, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 38
+    - coordinate: {x: 30, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 37
+    - coordinate: {x: 30, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 38
+    - coordinate: {x: 30, y: 5}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 39
+    - coordinate: {x: 30, y: 6}
+      flags: 1
+      roomId: legacy-v1:room:13
+      distanceFromEntrance: 40
+    - coordinate: {x: 30, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 32
+    - coordinate: {x: 30, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 31
+    - coordinate: {x: 30, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 30
+    - coordinate: {x: 30, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 31
+    - coordinate: {x: 30, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 32
+    - coordinate: {x: 30, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 8
+    - coordinate: {x: 30, y: 29}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 15
+    - coordinate: {x: 31, y: 3}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 36
+    - coordinate: {x: 31, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 31
+    - coordinate: {x: 31, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 30
+    - coordinate: {x: 31, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 29
+    - coordinate: {x: 31, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 30
+    - coordinate: {x: 31, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 31
+    - coordinate: {x: 31, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 7
+    - coordinate: {x: 31, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 11
+    - coordinate: {x: 31, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 12
+    - coordinate: {x: 31, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 13
+    - coordinate: {x: 31, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 14
+    - coordinate: {x: 31, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 15
+    - coordinate: {x: 31, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 16
+    - coordinate: {x: 31, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 17
+    - coordinate: {x: 32, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 37
+    - coordinate: {x: 32, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 36
+    - coordinate: {x: 32, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 35
+    - coordinate: {x: 32, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 34
+    - coordinate: {x: 32, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 30
+    - coordinate: {x: 32, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 29
+    - coordinate: {x: 32, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 28
+    - coordinate: {x: 32, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 29
+    - coordinate: {x: 32, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 30
+    - coordinate: {x: 32, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 6
+    - coordinate: {x: 32, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 10
+    - coordinate: {x: 32, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 11
+    - coordinate: {x: 32, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 12
+    - coordinate: {x: 32, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 13
+    - coordinate: {x: 32, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 14
+    - coordinate: {x: 32, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 15
+    - coordinate: {x: 32, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 16
+    - coordinate: {x: 33, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 36
+    - coordinate: {x: 33, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 35
+    - coordinate: {x: 33, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 34
+    - coordinate: {x: 33, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 33
+    - coordinate: {x: 33, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 29
+    - coordinate: {x: 33, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 28
+    - coordinate: {x: 33, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 27
+    - coordinate: {x: 33, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 28
+    - coordinate: {x: 33, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 29
+    - coordinate: {x: 33, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 5
+    - coordinate: {x: 33, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 9
+    - coordinate: {x: 33, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 10
+    - coordinate: {x: 33, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 11
+    - coordinate: {x: 33, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 12
+    - coordinate: {x: 33, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 13
+    - coordinate: {x: 33, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 14
+    - coordinate: {x: 33, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 15
+    - coordinate: {x: 34, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 35
+    - coordinate: {x: 34, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 34
+    - coordinate: {x: 34, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 33
+    - coordinate: {x: 34, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 32
+    - coordinate: {x: 34, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 28
+    - coordinate: {x: 34, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 27
+    - coordinate: {x: 34, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 26
+    - coordinate: {x: 34, y: 11}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 27
+    - coordinate: {x: 34, y: 12}
+      flags: 1
+      roomId: legacy-v1:room:5
+      distanceFromEntrance: 28
+    - coordinate: {x: 34, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 4
+    - coordinate: {x: 34, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 8
+    - coordinate: {x: 34, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 9
+    - coordinate: {x: 34, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 10
+    - coordinate: {x: 34, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 11
+    - coordinate: {x: 34, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 12
+    - coordinate: {x: 34, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 13
+    - coordinate: {x: 34, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 14
+    - coordinate: {x: 35, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 34
+    - coordinate: {x: 35, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 33
+    - coordinate: {x: 35, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 32
+    - coordinate: {x: 35, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 31
+    - coordinate: {x: 35, y: 5}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 30
+    - coordinate: {x: 35, y: 6}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 29
+    - coordinate: {x: 35, y: 7}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 28
+    - coordinate: {x: 35, y: 8}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 27
+    - coordinate: {x: 35, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 26
+    - coordinate: {x: 35, y: 10}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 25
+    - coordinate: {x: 35, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 4
+    - coordinate: {x: 35, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 35, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 35, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 35, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 7
+    - coordinate: {x: 35, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 8
+    - coordinate: {x: 35, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 9
+    - coordinate: {x: 35, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 10
+    - coordinate: {x: 35, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 11
+    - coordinate: {x: 35, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 12
+    - coordinate: {x: 35, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 13
+    - coordinate: {x: 36, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 35
+    - coordinate: {x: 36, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 34
+    - coordinate: {x: 36, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 33
+    - coordinate: {x: 36, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 32
+    - coordinate: {x: 36, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 25
+    - coordinate: {x: 36, y: 10}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 24
+    - coordinate: {x: 36, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 36, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 36, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 1
+    - coordinate: {x: 36, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 36, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 6
+    - coordinate: {x: 36, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 7
+    - coordinate: {x: 36, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 8
+    - coordinate: {x: 36, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 9
+    - coordinate: {x: 36, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 10
+    - coordinate: {x: 36, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 11
+    - coordinate: {x: 36, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 12
+    - coordinate: {x: 37, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 36
+    - coordinate: {x: 37, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 35
+    - coordinate: {x: 37, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 34
+    - coordinate: {x: 37, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 33
+    - coordinate: {x: 37, y: 9}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 24
+    - coordinate: {x: 37, y: 10}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 23
+    - coordinate: {x: 37, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 37, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 1
+    - coordinate: {x: 37, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 0
+    - coordinate: {x: 37, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 1
+    - coordinate: {x: 37, y: 23}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 2
+    - coordinate: {x: 37, y: 24}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 3
+    - coordinate: {x: 37, y: 25}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 4
+    - coordinate: {x: 37, y: 26}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 5
+    - coordinate: {x: 37, y: 27}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 6
+    - coordinate: {x: 37, y: 28}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 7
+    - coordinate: {x: 37, y: 29}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 8
+    - coordinate: {x: 37, y: 30}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 9
+    - coordinate: {x: 37, y: 31}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 10
+    - coordinate: {x: 37, y: 32}
+      flags: 1
+      roomId: legacy-v1:room:4
+      distanceFromEntrance: 11
+    - coordinate: {x: 38, y: 1}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 37
+    - coordinate: {x: 38, y: 2}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 36
+    - coordinate: {x: 38, y: 3}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 35
+    - coordinate: {x: 38, y: 4}
+      flags: 1
+      roomId: legacy-v1:room:11
+      distanceFromEntrance: 34
+    - coordinate: {x: 38, y: 7}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 25
+    - coordinate: {x: 38, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 24
+    - coordinate: {x: 38, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 23
+    - coordinate: {x: 38, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 22
+    - coordinate: {x: 38, y: 19}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 3
+    - coordinate: {x: 38, y: 20}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 38, y: 21}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 1
+    - coordinate: {x: 38, y: 22}
+      flags: 1
+      roomId: legacy-v1:room:0
+      distanceFromEntrance: 2
+    - coordinate: {x: 39, y: 7}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 24
+    - coordinate: {x: 39, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 23
+    - coordinate: {x: 39, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 22
+    - coordinate: {x: 39, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 21
+    - coordinate: {x: 39, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 3
+    - coordinate: {x: 40, y: 7}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 23
+    - coordinate: {x: 40, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 22
+    - coordinate: {x: 40, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 21
+    - coordinate: {x: 40, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 20
+    - coordinate: {x: 40, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 4
+    - coordinate: {x: 41, y: 7}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 22
+    - coordinate: {x: 41, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 21
+    - coordinate: {x: 41, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 20
+    - coordinate: {x: 41, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 19
+    - coordinate: {x: 41, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 5
+    - coordinate: {x: 42, y: 7}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 21
+    - coordinate: {x: 42, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 20
+    - coordinate: {x: 42, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 19
+    - coordinate: {x: 42, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 18
+    - coordinate: {x: 42, y: 11}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 17
+    - coordinate: {x: 42, y: 12}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 16
+    - coordinate: {x: 42, y: 13}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 15
+    - coordinate: {x: 42, y: 14}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 14
+    - coordinate: {x: 42, y: 15}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 13
+    - coordinate: {x: 42, y: 16}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 12
+    - coordinate: {x: 42, y: 17}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 11
+    - coordinate: {x: 42, y: 18}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 10
+    - coordinate: {x: 42, y: 19}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 9
+    - coordinate: {x: 42, y: 20}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 8
+    - coordinate: {x: 42, y: 21}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 7
+    - coordinate: {x: 42, y: 22}
+      flags: 1
+      roomId: 
+      distanceFromEntrance: 6
+    - coordinate: {x: 43, y: 7}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 22
+    - coordinate: {x: 43, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 21
+    - coordinate: {x: 43, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 20
+    - coordinate: {x: 43, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 19
+    - coordinate: {x: 44, y: 7}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 23
+    - coordinate: {x: 44, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 22
+    - coordinate: {x: 44, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 21
+    - coordinate: {x: 44, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 20
+    - coordinate: {x: 45, y: 7}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 24
+    - coordinate: {x: 45, y: 8}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 23
+    - coordinate: {x: 45, y: 9}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 22
+    - coordinate: {x: 45, y: 10}
+      flags: 1
+      roomId: legacy-v1:room:7
+      distanceFromEntrance: 21
+    rooms:
+    - roomId: legacy-v1:room:0
+      bounds:
+        x: 35
+        y: 19
+        width: 4
+        height: 4
+      tags: []
+    - roomId: legacy-v1:room:1
+      bounds:
+        x: 7
+        y: 25
+        width: 8
+        height: 8
+      tags: []
+    - roomId: legacy-v1:room:2
+      bounds:
+        x: 10
+        y: 14
+        width: 5
+        height: 7
+      tags: []
+    - roomId: legacy-v1:room:3
+      bounds:
+        x: 16
+        y: 25
+        width: 4
+        height: 7
+      tags: []
+    - roomId: legacy-v1:room:4
+      bounds:
+        x: 31
+        y: 26
+        width: 7
+        height: 7
+      tags: []
+    - roomId: legacy-v1:room:5
+      bounds:
+        x: 29
+        y: 8
+        width: 6
+        height: 5
+      tags: []
+    - roomId: legacy-v1:room:6
+      bounds:
+        x: 20
+        y: 18
+        width: 4
+        height: 6
+      tags: []
+    - roomId: legacy-v1:room:7
+      bounds:
+        x: 38
+        y: 7
+        width: 8
+        height: 4
+      tags: []
+    - roomId: legacy-v1:room:8
+      bounds:
+        x: 15
+        y: 1
+        width: 4
+        height: 6
+      tags: []
+    - roomId: legacy-v1:room:9
+      bounds:
+        x: 4
+        y: 11
+        width: 5
+        height: 4
+      tags: []
+    - roomId: legacy-v1:room:10
+      bounds:
+        x: 25
+        y: 18
+        width: 5
+        height: 9
+      tags: []
+    - roomId: legacy-v1:room:11
+      bounds:
+        x: 32
+        y: 1
+        width: 7
+        height: 4
+      tags: []
+    - roomId: legacy-v1:room:12
+      bounds:
+        x: 17
+        y: 11
+        width: 7
+        height: 5
+      tags: []
+    - roomId: legacy-v1:room:13
+      bounds:
+        x: 22
+        y: 1
+        width: 9
+        height: 6
+      tags: []
+    entrance: {x: 37, y: 21}
+    exit: {x: 11, y: 29}
+    spawns:
+    - spawnId: legacy-v1:marker:37:21:0
+      category: 0
+      contentKey: builtin/marker/entrance
+      instanceName: Entrance
+      cell: {x: 37, y: 21}
+      localPosition: {x: 39, y: 0.08, z: 1.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 1.15, y: 0.08, z: 1.15}
+      roomId: legacy-v1:room:0
+      progression: 0
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:marker:11:29:1
+      category: 0
+      contentKey: builtin/marker/exit
+      instanceName: Exit
+      cell: {x: 11, y: 29}
+      localPosition: {x: -39, y: 0.08, z: 25.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 1.15, y: 0.08, z: 1.15}
+      roomId: legacy-v1:room:1
+      progression: 1
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:gimmick:29:22:0
+      category: 1
+      contentKey: builtin/gimmick
+      instanceName: SpecialGimmick_00
+      cell: {x: 29, y: 22}
+      localPosition: {x: 15, y: 0, z: 4.5}
+      pitchDegrees: 0
+      yawDegrees: 248.09534
+      rollDegrees: 0
+      localScale: {x: 1, y: 1, z: 1}
+      roomId: legacy-v1:room:10
+      progression: 0.20454545
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:gimmick:31:32:1
+      category: 1
+      contentKey: builtin/gimmick
+      instanceName: SpecialGimmick_01
+      cell: {x: 31, y: 32}
+      localPosition: {x: 21, y: 0, z: 34.5}
+      pitchDegrees: 0
+      yawDegrees: 43.4988
+      rollDegrees: 0
+      localScale: {x: 1, y: 1, z: 1}
+      roomId: legacy-v1:room:4
+      progression: 0.38636363
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:gimmick:22:12:2
+      category: 1
+      contentKey: builtin/gimmick
+      instanceName: SpecialGimmick_02
+      cell: {x: 22, y: 12}
+      localPosition: {x: -6, y: 0, z: -25.5}
+      pitchDegrees: 0
+      yawDegrees: 280.81067
+      rollDegrees: 0
+      localScale: {x: 1, y: 1, z: 1}
+      roomId: legacy-v1:room:12
+      progression: 0.59090906
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:gimmick:11:20:3
+      category: 1
+      contentKey: builtin/gimmick
+      instanceName: SpecialGimmick_03
+      cell: {x: 11, y: 20}
+      localPosition: {x: -39, y: 0, z: -1.5}
+      pitchDegrees: 0
+      yawDegrees: 108.05637
+      rollDegrees: 0
+      localScale: {x: 1, y: 1, z: 1}
+      roomId: legacy-v1:room:2
+      progression: 0.79545456
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:19:14:0
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_000
+      cell: {x: 19, y: 14}
+      localPosition: {x: -15, y: 0.96, z: -19.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:12
+      progression: 0.6136364
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:13:14:1
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_001
+      cell: {x: 13, y: 14}
+      localPosition: {x: -33, y: 0.96, z: -19.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:2
+      progression: 0.75
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:34:11:2
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_002
+      cell: {x: 34, y: 11}
+      localPosition: {x: 30, y: 0.96, z: -28.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:5
+      progression: 0.6136364
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:34:1:3
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_003
+      cell: {x: 34, y: 1}
+      localPosition: {x: 30, y: 0.96, z: -58.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:11
+      progression: 0.79545456
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:5:12:4
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_004
+      cell: {x: 5, y: 12}
+      localPosition: {x: -57, y: 0.96, z: -25.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:9
+      progression: 0.97727275
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:10:32:5
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_005
+      cell: {x: 10, y: 32}
+      localPosition: {x: -42, y: 0.96, z: 34.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:1
+      progression: 1
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:29:9:6
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_006
+      cell: {x: 29, y: 9}
+      localPosition: {x: 15, y: 0.96, z: -34.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:5
+      progression: 0.72727275
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:34:26:7
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_007
+      cell: {x: 34, y: 26}
+      localPosition: {x: 30, y: 0.96, z: 16.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:4
+      progression: 0.18181819
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:17:14:8
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_008
+      cell: {x: 17, y: 14}
+      localPosition: {x: -21, y: 0.96, z: -19.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:12
+      progression: 0.65909094
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:26:9:9
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_009
+      cell: {x: 26, y: 9}
+      localPosition: {x: 6, y: 0.96, z: -34.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: 
+      progression: 0.79545456
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:19:25:10
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_010
+      cell: {x: 19, y: 25}
+      localPosition: {x: -15, y: 0.96, z: 13.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:3
+      progression: 0.77272725
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:28:5:11
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_011
+      cell: {x: 28, y: 5}
+      localPosition: {x: 12, y: 0.96, z: -46.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:13
+      progression: 0.9318182
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:16:3:12
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_012
+      cell: {x: 16, y: 3}
+      localPosition: {x: -24, y: 0.96, z: -52.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:8
+      progression: 0.9318182
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:9:29:13
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_013
+      cell: {x: 9, y: 29}
+      localPosition: {x: -45, y: 0.96, z: 25.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:1
+      progression: 1
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:13:28:14
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_014
+      cell: {x: 13, y: 28}
+      localPosition: {x: -33, y: 0.96, z: 22.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:1
+      progression: 0.9318182
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:26:2:15
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_015
+      cell: {x: 26, y: 2}
+      localPosition: {x: 6, y: 0.96, z: -55.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:13
+      progression: 0.95454544
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:33:32:16
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_016
+      cell: {x: 33, y: 32}
+      localPosition: {x: 27, y: 0.96, z: 34.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:4
+      progression: 0.3409091
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:23:1:17
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_017
+      cell: {x: 23, y: 1}
+      localPosition: {x: -3, y: 0.96, z: -58.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:13
+      progression: 1
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:enemy:38:10:18
+      category: 2
+      contentKey: builtin/enemy
+      instanceName: Enemy_018
+      cell: {x: 38, y: 10}
+      localPosition: {x: 42, y: 0.96, z: -31.5}
+      pitchDegrees: 0
+      yawDegrees: 0
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 0.96, z: 0.96}
+      roomId: legacy-v1:room:7
+      progression: 0.5
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:29:19:0
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_000
+      cell: {x: 29, y: 19}
+      localPosition: {x: 15, y: 0.6, z: -4.5}
+      pitchDegrees: 0
+      yawDegrees: 266.56732
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:10
+      progression: 0.27272728
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:35:9:1
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_001
+      cell: {x: 35, y: 9}
+      localPosition: {x: 33, y: 0.6, z: -34.5}
+      pitchDegrees: 0
+      yawDegrees: 333.4134
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: 
+      progression: 0.59090906
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:39:8:2
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_002
+      cell: {x: 39, y: 8}
+      localPosition: {x: 45, y: 0.6, z: -37.5}
+      pitchDegrees: 0
+      yawDegrees: 186.58257
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:7
+      progression: 0.52272725
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:23:4:3
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_003
+      cell: {x: 23, y: 4}
+      localPosition: {x: -3, y: 0.6, z: -49.5}
+      pitchDegrees: 0
+      yawDegrees: 330.5648
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:13
+      progression: 1
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:32:12:4
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_004
+      cell: {x: 32, y: 12}
+      localPosition: {x: 24, y: 0.6, z: -25.5}
+      pitchDegrees: 0
+      yawDegrees: 226.5579
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:5
+      progression: 0.6818182
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:25:19:5
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_005
+      cell: {x: 25, y: 19}
+      localPosition: {x: 3, y: 0.6, z: -4.5}
+      pitchDegrees: 0
+      yawDegrees: 332.0996
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:10
+      progression: 0.36363637
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:21:23:6
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_006
+      cell: {x: 21, y: 23}
+      localPosition: {x: -9, y: 0.6, z: 7.5}
+      pitchDegrees: 0
+      yawDegrees: 157.65419
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:6
+      progression: 0.45454547
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:32:3:7
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_007
+      cell: {x: 32, y: 3}
+      localPosition: {x: 24, y: 0.6, z: -52.5}
+      pitchDegrees: 0
+      yawDegrees: 279.1528
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:11
+      progression: 0.79545456
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:13:16:8
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_008
+      cell: {x: 13, y: 16}
+      localPosition: {x: -33, y: 0.6, z: -13.5}
+      pitchDegrees: 0
+      yawDegrees: 124.121635
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:2
+      progression: 0.70454544
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:7:29:9
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_009
+      cell: {x: 7, y: 29}
+      localPosition: {x: -51, y: 0.6, z: 25.5}
+      pitchDegrees: 0
+      yawDegrees: 94.4127
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:1
+      progression: 1
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:32:8:10
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_010
+      cell: {x: 32, y: 8}
+      localPosition: {x: 24, y: 0.6, z: -37.5}
+      pitchDegrees: 0
+      yawDegrees: 112.91042
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:5
+      progression: 0.6818182
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:11:14:11
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_011
+      cell: {x: 11, y: 14}
+      localPosition: {x: -39, y: 0.6, z: -19.5}
+      pitchDegrees: 0
+      yawDegrees: 347.06387
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:2
+      progression: 0.79545456
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:14:30:12
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_012
+      cell: {x: 14, y: 30}
+      localPosition: {x: -30, y: 0.6, z: 28.5}
+      pitchDegrees: 0
+      yawDegrees: 136.02603
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:1
+      progression: 0.95454544
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:37:24:13
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_013
+      cell: {x: 37, y: 24}
+      localPosition: {x: 39, y: 0.6, z: 10.5}
+      pitchDegrees: 0
+      yawDegrees: 163.45178
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: 
+      progression: 0.06818182
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:27:26:14
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_014
+      cell: {x: 27, y: 26}
+      localPosition: {x: 9, y: 0.6, z: 16.5}
+      pitchDegrees: 0
+      yawDegrees: 61.16259
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:10
+      progression: 0.3409091
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:13:18:15
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_015
+      cell: {x: 13, y: 18}
+      localPosition: {x: -33, y: 0.6, z: -7.5}
+      pitchDegrees: 0
+      yawDegrees: 278.35013
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:2
+      progression: 0.70454544
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:10:16:16
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_016
+      cell: {x: 10, y: 16}
+      localPosition: {x: -42, y: 0.6, z: -13.5}
+      pitchDegrees: 0
+      yawDegrees: 28.377785
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:2
+      progression: 0.77272725
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:19:28:17
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_017
+      cell: {x: 19, y: 28}
+      localPosition: {x: -15, y: 0.6, z: 22.5}
+      pitchDegrees: 0
+      yawDegrees: 205.72449
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:3
+      progression: 0.84090906
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:22:27:18
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_018
+      cell: {x: 22, y: 27}
+      localPosition: {x: -6, y: 0.6, z: 19.5}
+      pitchDegrees: 0
+      yawDegrees: 112.35659
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: 
+      progression: 0.52272725
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:12:26:19
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_019
+      cell: {x: 12, y: 26}
+      localPosition: {x: -36, y: 0.6, z: 16.5}
+      pitchDegrees: 0
+      yawDegrees: 200.1287
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:1
+      progression: 0.95454544
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:20:20:20
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_020
+      cell: {x: 20, y: 20}
+      localPosition: {x: -12, y: 0.6, z: -1.5}
+      pitchDegrees: 0
+      yawDegrees: 307.0334
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: legacy-v1:room:6
+      progression: 0.45454547
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:destructible:18:22:21
+      category: 3
+      contentKey: builtin/destructible
+      instanceName: Breakable_021
+      cell: {x: 18, y: 22}
+      localPosition: {x: -18, y: 0.6, z: 4.5}
+      pitchDegrees: 0
+      yawDegrees: 116.99074
+      rollDegrees: 0
+      localScale: {x: 0.96, y: 1.2, z: 0.96}
+      roomId: 
+      progression: 0.6818182
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:44:9:0
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_000
+      cell: {x: 44, y: 9}
+      localPosition: {x: 60, y: 0.6059675, z: -34.5}
+      pitchDegrees: 6.5392027
+      yawDegrees: 355.44766
+      rollDegrees: 0.21899024
+      localScale: {x: 0.72101235, y: 0.6059675, z: 0.72101235}
+      roomId: legacy-v1:room:7
+      progression: 0.47727272
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:20:4:1
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_001
+      cell: {x: 20, y: 4}
+      localPosition: {x: -12, y: 0.54130584, z: -49.5}
+      pitchDegrees: 4.3669767
+      yawDegrees: 295.64975
+      rollDegrees: 5.702981
+      localScale: {x: 0.611278, y: 1.0826117, z: 0.611278}
+      roomId: 
+      progression: 0.95454544
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:41:8:2
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_002
+      cell: {x: 41, y: 8}
+      localPosition: {x: 51, y: 0.78167534, z: -37.5}
+      pitchDegrees: 2.3322504
+      yawDegrees: 343.18665
+      rollDegrees: 6.6752906
+      localScale: {x: 0.5291041, y: 0.78167534, z: 0.5291041}
+      roomId: legacy-v1:room:7
+      progression: 0.47727272
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:28:24:3
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_003
+      cell: {x: 28, y: 24}
+      localPosition: {x: 12, y: 0.41866934, z: 10.5}
+      pitchDegrees: 2.47368
+      yawDegrees: 256.07623
+      rollDegrees: 7.792645
+      localScale: {x: 0.46205541, y: 0.8373387, z: 0.46205541}
+      roomId: legacy-v1:room:10
+      progression: 0.27272728
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:37:4:4
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_004
+      cell: {x: 37, y: 4}
+      localPosition: {x: 39, y: 1.0668305, z: -49.5}
+      pitchDegrees: 5.632382
+      yawDegrees: 0.4452172
+      rollDegrees: 2.2649565
+      localScale: {x: 0.55147654, y: 1.0668305, z: 0.55147654}
+      roomId: legacy-v1:room:11
+      progression: 0.75
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:22:6:5
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_005
+      cell: {x: 22, y: 6}
+      localPosition: {x: -6, y: 0.38491714, z: -43.5}
+      pitchDegrees: 0.5057198
+      yawDegrees: 309.13544
+      rollDegrees: 6.3945847
+      localScale: {x: 0.75499153, y: 0.7698343, z: 0.75499153}
+      roomId: legacy-v1:room:13
+      progression: 1
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:14:26:6
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_006
+      cell: {x: 14, y: 26}
+      localPosition: {x: -30, y: 0.45161706, z: 16.5}
+      pitchDegrees: 0.8224148
+      yawDegrees: 356.13065
+      rollDegrees: 5.682294
+      localScale: {x: 0.46926442, y: 0.9032341, z: 0.46926442}
+      roomId: legacy-v1:room:1
+      progression: 0.95454544
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:37:1:7
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_007
+      cell: {x: 37, y: 1}
+      localPosition: {x: 39, y: 0.28094575, z: -58.5}
+      pitchDegrees: 0.21908614
+      yawDegrees: 255.82545
+      rollDegrees: 3.8848994
+      localScale: {x: 0.58143103, y: 0.5618915, z: 0.58143103}
+      roomId: legacy-v1:room:11
+      progression: 0.8181818
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:32:27:8
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_008
+      cell: {x: 32, y: 27}
+      localPosition: {x: 24, y: 0.41782686, z: 19.5}
+      pitchDegrees: 3.9528127
+      yawDegrees: 72.482765
+      rollDegrees: 3.541101
+      localScale: {x: 0.7406901, y: 0.8356537, z: 0.7406901}
+      roomId: legacy-v1:room:4
+      progression: 0.25
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:16:29:9
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_009
+      cell: {x: 16, y: 29}
+      localPosition: {x: -24, y: 0.28131303, z: 25.5}
+      pitchDegrees: 3.093492
+      yawDegrees: 207.17563
+      rollDegrees: 4.8515253
+      localScale: {x: 0.48446098, y: 0.56262606, z: 0.48446098}
+      roomId: legacy-v1:room:3
+      progression: 0.8863636
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:27:18:10
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_010
+      cell: {x: 27, y: 18}
+      localPosition: {x: 9, y: 0.89757603, z: -7.5}
+      pitchDegrees: 6.390364
+      yawDegrees: 89.79429
+      rollDegrees: 7.8352733
+      localScale: {x: 0.5167695, y: 0.89757603, z: 0.5167695}
+      roomId: legacy-v1:room:10
+      progression: 0.3409091
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:17:27:11
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_011
+      cell: {x: 17, y: 27}
+      localPosition: {x: -21, y: 0.35537523, z: 19.5}
+      pitchDegrees: 4.752224
+      yawDegrees: 248.87077
+      rollDegrees: 3.061285
+      localScale: {x: 0.4975873, y: 0.71075046, z: 0.4975873}
+      roomId: legacy-v1:room:3
+      progression: 0.8181818
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:42:15:12
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_012
+      cell: {x: 42, y: 15}
+      localPosition: {x: 54, y: 0.17611472, z: -16.5}
+      pitchDegrees: 7.690904
+      yawDegrees: 232.53772
+      rollDegrees: 3.5077171
+      localScale: {x: 0.43079355, y: 0.35222945, z: 0.43079355}
+      roomId: 
+      progression: 0.29545453
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:34:30:13
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_013
+      cell: {x: 34, y: 30}
+      localPosition: {x: 30, y: 1.4772106, z: 28.5}
+      pitchDegrees: 5.680449
+      yawDegrees: 85.79536
+      rollDegrees: 1.3851318
+      localScale: {x: 0.756014, y: 1.4772106, z: 0.756014}
+      roomId: legacy-v1:room:4
+      progression: 0.27272728
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:19:12:14
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_014
+      cell: {x: 19, y: 12}
+      localPosition: {x: -15, y: 0.4739701, z: -25.5}
+      pitchDegrees: 1.2445067
+      yawDegrees: 277.681
+      rollDegrees: 5.1627727
+      localScale: {x: 0.5114966, y: 0.9479402, z: 0.5114966}
+      roomId: legacy-v1:room:12
+      progression: 0.65909094
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:20:16:15
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_015
+      cell: {x: 20, y: 16}
+      localPosition: {x: -12, y: 0.62026983, z: -13.5}
+      pitchDegrees: 0.114306204
+      yawDegrees: 103.23356
+      rollDegrees: 1.2273115
+      localScale: {x: 0.74899966, y: 1.2405397, z: 0.74899966}
+      roomId: 
+      progression: 0.54545456
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:18:6:16
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_016
+      cell: {x: 18, y: 6}
+      localPosition: {x: -18, y: 0.53743106, z: -43.5}
+      pitchDegrees: 1.4648228
+      yawDegrees: 82.32855
+      rollDegrees: 3.3317308
+      localScale: {x: 0.57878613, y: 0.53743106, z: 0.57878613}
+      roomId: legacy-v1:room:8
+      progression: 0.8636364
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:16:1:17
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_017
+      cell: {x: 16, y: 1}
+      localPosition: {x: -24, y: 0.5914852, z: -58.5}
+      pitchDegrees: 3.9252405
+      yawDegrees: 26.653326
+      rollDegrees: 7.607839
+      localScale: {x: 0.4997117, y: 0.5914852, z: 0.4997117}
+      roomId: legacy-v1:room:8
+      progression: 0.97727275
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:24:9:18
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_018
+      cell: {x: 24, y: 9}
+      localPosition: {x: 0, y: 0.5939029, z: -34.5}
+      pitchDegrees: 4.500722
+      yawDegrees: 206.80127
+      rollDegrees: 5.6404843
+      localScale: {x: 0.7129764, y: 1.1878058, z: 0.7129764}
+      roomId: 
+      progression: 0.84090906
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:7:12:19
+      category: 4
+      contentKey: builtin/prop/cube
+      instanceName: TerrainProp_019
+      cell: {x: 7, y: 12}
+      localPosition: {x: -51, y: 0.44446793, z: -25.5}
+      pitchDegrees: 2.2666018
+      yawDegrees: 294.59198
+      rollDegrees: 3.5048733
+      localScale: {x: 0.56999624, y: 0.88893586, z: 0.56999624}
+      roomId: legacy-v1:room:9
+      progression: 0.9318182
+      tags: []
+      variantSeed: 0
+    - spawnId: legacy-v1:prop:22:21:20
+      category: 4
+      contentKey: builtin/prop/cylinder
+      instanceName: TerrainProp_020
+      cell: {x: 22, y: 21}
+      localPosition: {x: -6, y: 1.4571093, z: 1.5}
+      pitchDegrees: 7.2334757
+      yawDegrees: 19.916376
+      rollDegrees: 7.621833
+      localScale: {x: 0.7565921, y: 1.4571093, z: 0.7565921}
+      roomId: legacy-v1:room:6
+      progression: 0.38636363
+      tags: []
+      variantSeed: 0
+  hasAuthoringRecipeSnapshot: 1
+  authoringRecipeSnapshot:
+    formatVersion: 1
+    stageWidthCells: 49
+    stageDepthCells: 42
+    cellSize: 3
+    wallHeight: 3.2
+    desiredRoomCount: 14
+    roomSizeMin: {x: 4, y: 4}
+    roomSizeMax: {x: 9, y: 9}
+    roomPlacementAttempts: 35
+    corridorWidthCells: 1
+    extraConnectionChance: 0.2
+    specialGimmickCount: 4
+    contentSpacingCells: 1
+    reservedEntranceRadiusCells: 2
+    enemyProfile:
+      baseDensity: 0.035
+      overProgression:
+        preWrapMode: 8
+        postWrapMode: 8
+        keys:
+        - time: 0
+          value: 0.45
+          inTangent: 0
+          outTangent: 0
+          inWeight: 0
+          outWeight: 0
+          weightedMode: 0
+        - time: 0.35
+          value: 0.9
+          inTangent: 0
+          outTangent: 0
+          inWeight: 0
+          outWeight: 0
+          weightedMode: 0
+        - time: 1
+          value: 1.55
+          inTangent: 0
+          outTangent: 0
+          inWeight: 0
+          outWeight: 0
+          weightedMode: 0
+      roomBias: 0.78
+      clustering: 0.2
+      maxCount: 80
+    destructibleProfile:
+      baseDensity: 0.055
+      overProgression:
+        preWrapMode: 8
+        postWrapMode: 8
+        keys:
+        - time: 0
+          value: 1.15
+          inTangent: 0
+          outTangent: 0
+          inWeight: 0
+          outWeight: 0
+          weightedMode: 0
+        - time: 0.55
+          value: 1
+          inTangent: 0
+          outTangent: 0
+          inWeight: 0
+          outWeight: 0
+          weightedMode: 0
+        - time: 1
+          value: 0.75
+          inTangent: 0
+          outTangent: 0
+          inWeight: 0
+          outWeight: 0
+          weightedMode: 0
+      roomBias: 0.82
+      clustering: 0.42
+      maxCount: 120
+    propProfile:
+      baseDensity: 0.075
+      overProgression:
+        preWrapMode: 8
+        postWrapMode: 8
+        keys:
+        - time: 0
+          value: 0.8
+          inTangent: 0
+          outTangent: 0
+          inWeight: 0
+          outWeight: 0
+          weightedMode: 0
+        - time: 0.5
+          value: 1.25
+          inTangent: 0
+          outTangent: 0
+          inWeight: 0
+          outWeight: 0
+          weightedMode: 0
+        - time: 1
+          value: 0.95
+          inTangent: 0
+          outTangent: 0
+          inWeight: 0
+          outWeight: 0
+          weightedMode: 0
+      roomBias: 0.35
+      clustering: 0.7
+      maxCount: 180

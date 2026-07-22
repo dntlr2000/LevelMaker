@@ -46,15 +46,55 @@ namespace RogueDungeonLab.Editor
 
     public sealed partial class RogueDungeonLabWindow : EditorWindow
     {
-        private static readonly string[] Tabs={"생성","분포 그래프","드랍 검증","가이드"};private const string AutoKey="RogueDungeonLab.AutoRegenerate";
+        private static readonly string[] Tabs={"생성","분포 그래프","드랍 검증","스테이지 자산","가이드"};private const string AutoKey="RogueDungeonLab.AutoRegenerate";
         private RogueDungeonGenerator _generator;private RogueDungeonSettings _settings;private SerializedObject _serialized;private Vector2 _scroll;private int _tab;private bool _auto,_pending,_enemyFold=true,_breakableFold=true;private double _regenAt;
         [MenuItem("Tools/Rogue Dungeon Lab/실험실 열기",priority=0)]public static void Open(){RogueDungeonLabWindow w=GetWindow<RogueDungeonLabWindow>();w.titleContent=new GUIContent("Dungeon Lab");w.minSize=new Vector2(520,620);w.Show();}
         private void OnEnable(){_auto=EditorPrefs.GetBool(AutoKey,true);FindBindings();EditorApplication.update+=EditorUpdate;EditorApplication.playModeStateChanged+=PlayChanged;}
         private void OnDisable(){EditorPrefs.SetBool(AutoKey,_auto);EditorApplication.update-=EditorUpdate;EditorApplication.playModeStateChanged-=PlayChanged;}
         private void OnHierarchyChange(){FindBindings();Repaint();}
+        // 현재 탭이 설정 자산을 편집하는지 구분해 저장 제작 UI 변경이 자동 재생성을 유발하지 않게 그립니다.
         private void OnGUI()
         {
-            if(_generator==null)FindBindings();Header();if(_generator==null||_settings==null){EditorGUILayout.HelpBox("Generator 또는 설정 에셋이 없습니다.",MessageType.Info);if(GUILayout.Button("프로토타입 장면 자동 구성",GUILayout.Height(42))){_generator=RogueDungeonLabSceneSetup.CreateOrRepairScene(true);Bind();}return;}if(_serialized==null||_serialized.targetObject!=_settings)_serialized=new SerializedObject(_settings);_tab=GUILayout.Toolbar(_tab,Tabs,GUILayout.Height(25));_scroll=EditorGUILayout.BeginScrollView(_scroll);_serialized.Update();EditorGUI.BeginChangeCheck();if(_tab==1)DistributionTab();else if(_tab==2)DropTab();else if(_tab==3)GuideTab();else GenerationTab();bool changed=EditorGUI.EndChangeCheck();bool applied=_serialized.ApplyModifiedProperties();if(changed||applied){EditorUtility.SetDirty(_settings);Schedule();}EditorGUILayout.EndScrollView();
+            if(_generator==null)FindBindings();
+            Header();
+            if(_generator==null)
+            {
+                EditorGUILayout.HelpBox("Generator가 없습니다.",MessageType.Info);
+                if(GUILayout.Button("프로토타입 장면 자동 구성",GUILayout.Height(42)))
+                {
+                    _generator=RogueDungeonLabSceneSetup.CreateOrRepairScene(true);
+                    Bind();
+                }
+                return;
+            }
+
+            if(_settings!=null&&(_serialized==null||_serialized.targetObject!=_settings))
+                _serialized=new SerializedObject(_settings);
+            _tab=GUILayout.Toolbar(_tab,Tabs,GUILayout.Height(25));
+            _scroll=EditorGUILayout.BeginScrollView(_scroll);
+            bool editsSettings=_tab<=2;
+            if(editsSettings&&_settings==null)
+            {
+                EditorGUILayout.HelpBox("생성·분포·드랍 탭에는 설정 에셋이 필요합니다. 저장형 스테이지는 '스테이지 자산' 탭에서 계속 관리할 수 있습니다.",MessageType.Info);
+            }
+            else if(editsSettings)
+            {
+                _serialized.Update();
+                EditorGUI.BeginChangeCheck();
+                if(_tab==1)DistributionTab();else if(_tab==2)DropTab();else GenerationTab();
+                bool changed=EditorGUI.EndChangeCheck();
+                bool applied=_serialized.ApplyModifiedProperties();
+                if(changed||applied){EditorUtility.SetDirty(_settings);Schedule();}
+            }
+            else if(_tab==3)
+            {
+                StageAssetsTab();
+            }
+            else
+            {
+                GuideTab();
+            }
+            EditorGUILayout.EndScrollView();
         }
         private void Header(){EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);GUILayout.Label("실시간 3D 로그라이크 던전 실험실",EditorStyles.boldLabel);GUILayout.FlexibleSpace();if(GUILayout.Button("장면 자동 구성",EditorStyles.toolbarButton)){_generator=RogueDungeonLabSceneSetup.CreateOrRepairScene(true);Bind();}if(_generator!=null&&GUILayout.Button("Generator 선택",EditorStyles.toolbarButton)){Selection.activeObject=_generator.gameObject;EditorGUIUtility.PingObject(_generator.gameObject);}EditorGUILayout.EndHorizontal();}
         private void GenerationTab()
@@ -69,8 +109,8 @@ namespace RogueDungeonLab.Editor
             EditorGUILayout.HelpBox("Play 모드에서 빨간 적/주황 파괴물을 좌클릭하거나 빠른 표본을 추가하세요.",MessageType.Info);SerializedProperty enemy=_serialized.FindProperty("enemyDropTable"),breakable=_serialized.FindProperty("destructibleDropTable");EditorGUILayout.PropertyField(enemy,new GUIContent("적 드랍 테이블"));EditorGUILayout.PropertyField(breakable,new GUIContent("파괴물 드랍 테이블"));Prop("spawnDropMarkers","드랍 마커 표시");Prop("resetDropStatsOnGenerate","재생성 시 통계 초기화");InlineTable("적 테이블 항목",enemy.objectReferenceValue as WeightedDropTable,ref _enemyFold);InlineTable("파괴물 테이블 항목",breakable.objectReferenceValue as WeightedDropTable,ref _breakableFold);DropValidationService service=FindService();if(service==null){EditorGUILayout.HelpBox("DropValidationService가 없습니다. 장면 자동 구성을 실행하세요.",MessageType.Warning);return;}Section("빠른 샘플링");EditorGUILayout.BeginHorizontal();if(GUILayout.Button("적 +100"))Sim(service,DropSourceKind.Enemy,100);if(GUILayout.Button("적 +1,000"))Sim(service,DropSourceKind.Enemy,1000);if(GUILayout.Button("적 +10,000"))Sim(service,DropSourceKind.Enemy,10000);EditorGUILayout.EndHorizontal();EditorGUILayout.BeginHorizontal();if(GUILayout.Button("파괴물 +100"))Sim(service,DropSourceKind.Destructible,100);if(GUILayout.Button("파괴물 +1,000"))Sim(service,DropSourceKind.Destructible,1000);if(GUILayout.Button("파괴물 +10,000"))Sim(service,DropSourceKind.Destructible,10000);EditorGUILayout.EndHorizontal();if(GUILayout.Button("모든 통계 초기화"))service.ResetStatistics();Section("관측 결과");List<DropSourceStatisticsSnapshot> snaps=service.GetSnapshots();if(snaps.Count==0)EditorGUILayout.HelpBox("아직 표본이 없습니다.",MessageType.None);for(int s=0;s<snaps.Count;s++){DropSourceStatisticsSnapshot src=snaps[s];EditorGUILayout.BeginVertical(EditorStyles.helpBox);EditorGUILayout.LabelField(string.Format("{0} / {1} / {2:N0}회",src.SourceKind==DropSourceKind.Enemy?"적":"파괴물",src.TableName,src.Attempts),EditorStyles.boldLabel);for(int e=0;e<src.Entries.Count;e++){DropEntryStatisticsSnapshot x=src.Entries[e];EditorGUILayout.LabelField(string.Format("{0}: 기대 {1:P1}, 관측 {2:P1}, Δ {3:+0.0%;-0.0%;0.0%}, 95% [{4:P1}, {5:P1}]",x.ItemId,x.ExpectedProbability,x.ObservedProbability,x.ObservedProbability-x.ExpectedProbability,x.WilsonLow95,x.WilsonHigh95));}EditorGUILayout.EndVertical();}
         }
         private void InlineTable(string label,WeightedDropTable table,ref bool fold){fold=EditorGUILayout.Foldout(fold,label,true);if(!fold)return;EditorGUI.indentLevel++;if(table==null)EditorGUILayout.HelpBox("테이블 에셋을 지정하세요.",MessageType.None);else{SerializedObject so=new SerializedObject(table);so.Update();EditorGUI.BeginChangeCheck();EditorGUILayout.PropertyField(so.FindProperty("entries"),new GUIContent("가중치 항목"),true);if(EditorGUI.EndChangeCheck()){so.ApplyModifiedProperties();EditorUtility.SetDirty(table);DropValidationService s=FindService();if(s!=null)s.ResetStatistics();}else so.ApplyModifiedProperties();}EditorGUI.indentLevel--;}
-        // 던전 생성, 자유 카메라와 임시 캐릭터의 Play 모드 사용법을 안내합니다.
-        private void GuideTab(){EditorGUILayout.LabelField("사용 순서",EditorStyles.boldLabel);EditorGUILayout.HelpBox("1. 장면 자동 구성\n2. 생성/분포 탭 편집\n3. Play 실행\n4. Play HUD의 스테이지 설정/탐험/드랍 통계 탭 사용\n5. 빨간 적 또는 주황 파괴물 좌클릭\n6. 기대/관측 확률 비교",MessageType.None);EditorGUILayout.LabelField("조작",EditorStyles.boldLabel);EditorGUILayout.HelpBox("자유 시점: WASD 시선 기준 3D 이동 · Space 상승 · Ctrl 하강 · Shift 가속 · 우클릭 드래그 -89°~89° 제자리 회전 · 휠 줌 · 중클릭 드래그 이동\n임시 캐릭터: WASD 이동 · Shift 달리기 · Space 점프 · R 입구 복귀",MessageType.None);EditorGUILayout.LabelField("색상",EditorStyles.boldLabel);EditorGUILayout.HelpBox("파랑 입구 · 자홍 출구 · 빨강 적 · 주황 파괴물 · 초록 지형지물 · 청록 기믹",MessageType.None);EditorGUILayout.LabelField("프로토타입 범위",EditorStyles.boldLabel);EditorGUILayout.HelpBox("단일 층 직교 그리드와 플레이스홀더 프리미티브를 사용합니다. 제품화 시 프리팹 카탈로그, NavMesh, 다층 연결, 오브젝트 풀링으로 확장하세요.",MessageType.Info);}
+        // 던전 생성·저장 제작, 자유 카메라와 임시 캐릭터의 사용법을 안내합니다.
+        private void GuideTab(){EditorGUILayout.LabelField("사용 순서",EditorStyles.boldLabel);EditorGUILayout.HelpBox("1. 장면 자동 구성\n2. 생성/분포 탭에서 결과 확정\n3. 스테이지 자산 탭에서 Blueprint 저장·검증\n4. 저장본 미리보기 또는 저장 레시피 복원\n5. StageDefinition 생성 후 Play 탐험\n6. 기대/관측 확률 비교",MessageType.None);EditorGUILayout.LabelField("조작",EditorStyles.boldLabel);EditorGUILayout.HelpBox("자유 시점: WASD 시선 기준 3D 이동 · Space 상승 · Ctrl 하강 · Shift 가속 · 우클릭 드래그 -89°~89° 제자리 회전 · 휠 줌 · 중클릭 드래그 이동\n임시 캐릭터: WASD 이동 · Shift 달리기 · Space 점프 · R 입구 복귀",MessageType.None);EditorGUILayout.LabelField("저장 제작",EditorStyles.boldLabel);EditorGUILayout.HelpBox("스테이지 자산 탭은 현재 결과와 일치하는 레시피 설정을 함께 저장합니다. 저장본 맵 미리보기, 설정만 복원, 설정+시드 절차 재생성, hash 비교와 SavedBlueprint StageDefinition 생성을 제공합니다. 생성 계층은 미리보기이므로 직접 수정하지 않습니다.",MessageType.None);EditorGUILayout.LabelField("색상",EditorStyles.boldLabel);EditorGUILayout.HelpBox("파랑 입구 · 자홍 출구 · 빨강 적 · 주황 파괴물 · 초록 지형지물 · 청록 기믹",MessageType.None);EditorGUILayout.LabelField("프로토타입 범위",EditorStyles.boldLabel);EditorGUILayout.HelpBox("단일 층 직교 그리드를 사용합니다. 다음 단계는 저장 Blueprint의 Mesh·콘텐츠 Prefab Bake이며, NavMesh와 다층 연결은 후속 확장입니다.",MessageType.Info);}
         private void Report(){Section("최근 생성 리포트");GenerationReport r=_generator.LastReport;if(r==null){EditorGUILayout.HelpBox("아직 생성하지 않았습니다.",MessageType.None);return;}EditorGUILayout.BeginVertical(EditorStyles.helpBox);EditorGUILayout.LabelField("활성 시드",r.activeSeed.ToString());EditorGUILayout.LabelField("생성 시간",r.generationMilliseconds.ToString("0.00")+" ms");EditorGUILayout.LabelField("방 / 바닥 셀",r.roomCount+" / "+r.floorCellCount);EditorGUILayout.LabelField("적 / 파괴물 / 지형지물 / 기믹",string.Format("{0} / {1} / {2} / {3}",r.enemyCount,r.destructibleCount,r.propCount,r.gimmickCount));EditorGUILayout.LabelField("메시 삼각형",r.meshTriangleCount.ToString("N0"));for(int i=0;i<r.warnings.Count;i++)EditorGUILayout.HelpBox(r.warnings[i],MessageType.Warning);EditorGUILayout.EndVertical();}
         private void Preset(DungeonPreset p){Apply();Undo.RecordObject(_settings,"Apply Dungeon Preset");_settings.ApplyPreset(p);EditorUtility.SetDirty(_settings);_serialized.Update();_generator.GenerateWithSeed(_settings.seed);_pending=false;RepaintAll();}
         private void Sim(DropValidationService s,DropSourceKind k,int n){Apply();s.Simulate(k,_generator.GetEffectiveDropTable(k),n);Repaint();}
@@ -82,7 +122,7 @@ namespace RogueDungeonLab.Editor
         // 현재 장면의 던전 생성기를 찾아 에디터 창 참조를 갱신합니다.
         private void FindBindings(){_generator=UnityEngine.Object.FindAnyObjectByType<RogueDungeonGenerator>();Bind();}
         // 선택된 생성기 설정으로 SerializedObject 바인딩을 다시 만듭니다.
-        private void Bind(){_settings=_generator!=null?_generator.settings:null;_serialized=_settings!=null?new SerializedObject(_settings):null;}
+        private void Bind(){_settings=_generator!=null?_generator.settings:null;_serialized=_settings!=null?new SerializedObject(_settings):null;BindStageAssetDefaults();}
         // 활성 드랍 통계 서비스를 우선 사용하고 없으면 현재 장면에서 찾습니다.
         private static DropValidationService FindService(){DropValidationService s=DropValidationService.Active;return s!=null?s:UnityEngine.Object.FindAnyObjectByType<DropValidationService>();}
         private void IntSlider(string path,string label,int min,int max){SerializedProperty p=_serialized.FindProperty(path);p.intValue=EditorGUILayout.IntSlider(label,p.intValue,min,max);}private void Prop(string path,string label){EditorGUILayout.PropertyField(_serialized.FindProperty(path),new GUIContent(label));}private static void Section(string s){GUILayout.Space(8);EditorGUILayout.LabelField(s,EditorStyles.boldLabel);}private static void RepaintAll(){SceneView.RepaintAll();}

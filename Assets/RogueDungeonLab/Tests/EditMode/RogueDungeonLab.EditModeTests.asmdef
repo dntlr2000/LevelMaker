@@ -2,7 +2,8 @@
   "name": "RogueDungeonLab.EditModeTests",
   "rootNamespace": "RogueDungeonLab.Tests",
   "references": [
-    "RogueDungeonLab.Runtime"
+    "RogueDungeonLab.Runtime",
+    "RogueDungeonLab.Editor"
   ],
   "includePlatforms": [
     "Editor"

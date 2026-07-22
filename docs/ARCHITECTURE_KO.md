@@ -23,6 +23,14 @@ DungeonStageDefinition
        └─ IDungeonContentResolver → Prefab/factory 또는 fallback
   → DungeonStageInstance + DungeonLayout 호환 projection + GenerationReport
 
+RogueDungeonLabWindow / 스테이지 자산
+  → DungeonStageAuthoringService
+       ├─ 현재 Blueprint + 일치 레시피 검증 → 새 DungeonBlueprintAsset 또는 Undo 덮어쓰기
+       ├─ 저장 레시피 → SerializedObject 설정 복원 → 선택적 동일 입력 절차 재생성
+       ├─ 절차 원본 ↔ 저장본 provenance/hash 비교
+       ├─ 저장 Blueprint 무재계산 RuntimeBuild 미리보기
+       └─ SavedBlueprint DungeonStageDefinition 생성·Generator 연결
+
 좌클릭 Raycast
   → DestructibleDropTarget
   → WeightedDropTable.Roll
@@ -47,7 +55,7 @@ DungeonBlueprint
        → 연결성, stable ID, 참조, transform, 저장 해시 검증
 ```
 
-`DungeonBlueprint`는 GameObject나 Prefab 직접 참조를 포함하지 않으며 `DungeonBlueprintAsset`이 깊은 복사본을 Unity 자산으로 보관할 수 있습니다. 제작 메모와 생성 시각은 논리 해시에서 제외되고, 셀·방·spawn·tag 목록은 canonical 정렬 후 해시됩니다.
+`DungeonBlueprint`는 GameObject나 Prefab 직접 참조를 포함하지 않으며 `DungeonBlueprintAsset`이 깊은 복사본을 Unity 자산으로 보관할 수 있습니다. R5.1부터 자산 래퍼는 선택적 `authoringRecipeSnapshot`도 별도 깊은 복사로 보존합니다. 이 스냅샷은 입력 복원용 제작 메타데이터이며 Blueprint 논리 데이터와 hash에는 포함되지 않습니다. 제작 메모와 생성 시각도 논리 해시에서 제외되고, 셀·방·spawn·tag 목록은 canonical 정렬 후 해시됩니다.
 
 `RogueDungeonGenerator.GenerateWithSeed`는 `LegacyV1` 요청을 만들고, GameObject가 없는 계산 단계에서 Blueprint를 확정한 다음 `DungeonSceneBuilder`로 씬을 구축합니다. `DungeonLayout`은 기존 HUD·임시 플레이어 호환 projection으로 함께 유지하며, `DungeonMeshBuilder.Build`와 `DungeonContentSpawner.Spawn`의 기존 signature도 wrapper로 남아 있습니다.
 
@@ -59,7 +67,31 @@ Legacy 콘텐츠 planner는 입구·출구, 기믹, 적, 파괴물, cube/cylinde
 
 `RogueDungeonGenerator`에 StageDefinition이 없으면 기존 settings-only `GenerateWithSeed`가 같은 Loader의 Procedural 경로를 사용합니다. Definition이 있으면 Play 시작 또는 컨텍스트 메뉴에서 두 source를 전환할 수 있습니다. `CurrentCellSize`는 활성 Blueprint grid를 기준으로 하므로 저장 맵과 현재 settings의 cellSize가 달라도 임시 플레이어가 올바른 입구에 배치됩니다.
 
-R4까지는 `RuntimeBuild`만 지원합니다. `BakedPrefab`은 enum 계약만 선점하고 validator가 차단하며, 에디터 저장·불러오기 UI는 R5, 실제 Bake는 R6에서 연결합니다.
+R5.1까지는 `RuntimeBuild`만 지원합니다. `BakedPrefab`은 enum 계약만 선점하고 validator가 차단하며, 실제 Bake는 R6에서 연결합니다.
+
+## R5 저장 제작 계약
+
+`DungeonStageAuthoringService`는 Editor 어셈블리에만 존재하며 `DungeonBlueprintValidator`와 `DungeonContentCatalogValidator`가 오류를 보고한 데이터의 저장·미리보기·StageDefinition 생성을 차단합니다. 새 저장은 현재 Blueprint를 깊은 복사하고 `createdUtcTicks`와 `authoringNote`를 기록한 뒤 canonical hash를 다시 확정합니다. 제작 메모와 저장 시각은 논리 hash에서 제외됩니다.
+
+기존 자산 덮어쓰기는 전체 `DungeonBlueprintAsset`을 `Undo.RegisterCompleteObjectUndo`로 기록하므로 중첩된 cell·room·spawn 목록까지 복구할 수 있습니다. StageDefinition 생성과 Generator 연결은 `SerializedObject`를 사용하고 `EditorUtility.SetDirty`, AssetDatabase 저장과 씬 dirty 처리를 수행합니다.
+
+비교 상태는 다음처럼 분류합니다.
+
+- `Identical`: canonical Blueprint 결과가 같음
+- `DifferentSeed`: recipe·catalog·generatorVersion은 같고 seed만 다름
+- `StaleInputs`: recipe, catalog 또는 generatorVersion이 현재 원본과 다름
+- `Diverged`: provenance와 seed가 같은데 논리 결과가 달라 알고리즘/무결성 점검 필요
+- `InvalidCurrent`·`InvalidSaved`: 코드 기반 검증 오류로 비교와 제작 차단
+
+저장본 미리보기는 `DungeonStageLoader.LoadSavedBlueprint`를 사용합니다. 이 경로는 asset의 깊은 복사본을 검증해 RuntimeBuild하며 recipe나 새 seed로 Blueprint를 재계산하지 않습니다. 에디터의 `현재 절차 설정으로 재생성`은 미리보기 전 기억한 seed로 Procedural StageDefinition 또는 기존 settings facade를 다시 실행하며 설정값을 복구하지 않는다는 의미로 이름을 명확히 했습니다. 생성된 StageDefinition은 `SavedBlueprint + RuntimeBuild`를 직렬화하므로 새 씬에서도 같은 Loader 경로를 사용합니다.
+
+## R5.1 저장 레시피 복원 계약
+
+새 저장과 덮어쓰기는 현재 Blueprint의 `recipeHash`와 실제 연결 설정에서 캡처한 `DungeonRecipeSnapshot.ComputeHash()`가 같을 때만 레시피를 함께 보존합니다. 저장 레시피는 별도 깊은 복사이며 구조 수치, 세 밀도 프로필과 AnimationCurve의 키·접선·가중치·wrap mode를 포함합니다. 설정 snapshot을 제공하지 않은 기존 API 호출과 기존 R5 자산은 `HasAuthoringRecipeSnapshot == false`로 유지되어 SavedBlueprint 로드 결과가 바뀌지 않습니다.
+
+`DungeonStageAuthoringService.ValidateStoredRecipe`는 snapshot format, Blueprint `recipeHash` 일치와 현재 `ClampValues` 규칙으로 재캡처 가능한 canonical 값인지 검사합니다. 실패한 snapshot은 설정 적용만 차단하며 저장 Blueprint 미리보기·RuntimeBuild 자체에는 관여하지 않습니다.
+
+`ApplyStoredRecipeToSettings`는 `SerializedObject`와 전체 Undo를 사용해 생성 필드만 덮어씁니다. 시드는 사용자가 저장 시드 적용을 선택한 경우에만 바뀌며, drop table, drop marker, 통계 초기화와 `generateOnPlay`는 보존합니다. 정확 재생성은 실제 설정 변경 전에 저장 snapshot·seed·generatorVersion·catalog로 Blueprint를 계산해 저장 hash와 비교합니다. 검증 성공 뒤 `DungeonStageLoader.LoadProcedural`의 명시 버전 overload와 `RogueDungeonGenerator.GenerateProcedural`을 사용하므로 LegacyV1과 StableV2를 모두 재현합니다.
 
 ## 콘텐츠 카탈로그와 planning hash
 
@@ -104,3 +136,5 @@ Catalog나 resolver가 반환하지 않은 알려진 built-in key는 누락 정�
 역할별 Runtime 파일의 공개 API와 로직은 유지하되, `MonoBehaviour`와 `ScriptableObject`마다 타입명과 같은 `partial` 연결 파일을 둡니다. Unity가 안정적인 `MonoScript` 자산을 생성하므로 장면 저장, 설정 에셋, Play/Edit 전환과 도메인 재로드 뒤에도 참조가 유지됩니다.
 
 드랍 정의는 항목 정규화 후 해시를 계산합니다. 내부 정규화를 사용자 편집으로 오인해 첫 통계 표본을 초기화하지 않습니다.
+
+R5.1 자산 회귀는 Blueprint·선택 레시피와 StageDefinition을 프로젝트에 저장한 뒤 강제 재임포트해 중첩 데이터와 자산 참조가 유지되는지 검사합니다. 설정 적용·Undo, 기존 snapshot 없는 자산, 손상 snapshot 차단과 StableV2 동일 hash 재생성도 자동 검증합니다. 실제 Unity 프로세스 완전 종료·재시작은 수동 검증으로 별도 유지합니다.

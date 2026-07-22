@@ -1,6 +1,6 @@
 # 스테이지 제작·배포 통합 로드맵
 
-> 상태: R0·R1·R2·R3·R4 구현 완료, R5 대기
+> 상태: R0·R1·R2·R3·R4·R5·R5.1 구현 완료, R6 대기
 >
 > 기준 프로젝트: Unity `6000.5.3f1`
 >
@@ -80,10 +80,10 @@ R0 회귀 기준
     → R2 생성/구축 분리
       → R3 StageDefinition·Loader
         ├─ R4 콘텐츠 카탈로그
-        │    → R5 저장·불러오기 UI → R6 Bake → R7 수동 Override
+        │    → R5 저장·불러오기 UI → R5.1 레시피 복원 → R6 Bake → R7 수동 Override
         └─ R8 RunState
 
-R3 + R4 + R5
+R3 + R4 + R5.1
   → R9 다른 프로젝트용 패키징
   → R10 런타임 사용자 맵 저장(선택)
 ```
@@ -121,7 +121,7 @@ DungeonLoadContext.explicitSeed
 
 ### 5.2 DungeonBlueprint
 
-`DungeonBlueprint`는 GameObject를 포함하지 않는 직렬화 가능한 순수 데이터입니다. `DungeonBlueprintAsset`은 이 데이터를 Unity 프로젝트 안에 저장하는 ScriptableObject 래퍼입니다.
+`DungeonBlueprint`는 GameObject를 포함하지 않는 직렬화 가능한 순수 데이터입니다. `DungeonBlueprintAsset`은 이 데이터를 Unity 프로젝트 안에 저장하는 ScriptableObject 래퍼이며, R5.1부터 제작 UI 복원에만 사용하는 선택적 authoring recipe snapshot을 논리 Blueprint와 분리해 보존합니다.
 
 | 영역 | 필수 데이터 |
 |---|---|
@@ -227,7 +227,7 @@ baseSeed
 
 1. 현재 설정을 스냅샷으로 만들고 Blueprint를 메모리에서 생성
 2. 연결성, 입구·출구, spawn ID, content key를 검증
-3. 검증 성공 결과를 `DungeonBlueprintAsset`에 deep copy
+3. 검증 성공 결과와 hash가 일치하는 선택적 authoring recipe snapshot을 `DungeonBlueprintAsset`에 각각 deep copy
 4. 레시피·카탈로그·Blueprint 해시와 버전을 기록
 5. 저장한 자산에서 다시 미리보기를 구축하고 원본 해시와 비교
 
@@ -301,7 +301,7 @@ GenerateWithSeed(seed)
 
 각 단계는 앞 단계의 테스트가 통과한 뒤 진행합니다. 한 단계에서 데이터 계약과 UI, 대규모 파일 이동을 동시에 하지 않습니다.
 
-현재 진행 상태는 `R0 완료 → R1 완료 → R2 완료 → R3 완료 → R4 완료 → R5 대기`입니다. Unity `6000.5.3f1`에서 compile 성공, EditMode `41/41`, PlayMode `3/3`을 통과했습니다.
+현재 진행 상태는 `R0 완료 → R1 완료 → R2 완료 → R3 완료 → R4 완료 → R5 완료 → R5.1 완료 → R6 대기`입니다. Unity `6000.5.3f1`에서 compile 성공, EditMode `51/51`, PlayMode `3/3`을 통과했습니다.
 
 ### R0 — 현재 동작 지문과 회귀 기준 고정 (완료)
 
@@ -374,7 +374,7 @@ R4 전 중간 점검에서 Procedural/SavedBlueprint source 전환, 저장 hash 
 
 구현 결과: `DungeonContentCatalog`와 Unity Object 없는 planning snapshot, canonical SHA-256, `RDL-CAT-*`·`RDL-CONTENT-*` 검증을 추가했습니다. `DungeonPrefabContentResolver`와 Prefab/factory resolution, 세 가지 누락 정책, `DungeonLoadContext`의 custom resolver override를 RuntimeBuild에 연결했습니다. `StableV2`는 PCG32의 Layout/Gimmick/Enemy/Destructible/Prop/Variant 독립 stream과 고정 범주 우선순위를 사용하며 명시적으로 선택할 때만 활성화됩니다. 요청 snapshot 무결성, 예약 key/category, 실제 cell-room 일치, Prefab 드랍 설정 우선순위, 비활성 staging root와 명시적 합성 Mesh 소유권도 검증합니다. Unity `6000.5.3f1`에서 compile, EditMode `41/41`와 PlayMode `3/3`을 통과했습니다.
 
-### R5 — 에디터 저장·불러오기 제작 흐름 (대기)
+### R5 — 에디터 저장·불러오기 제작 흐름 (완료)
 
 에디터 창에 `스테이지 자산` 탭을 추가합니다.
 
@@ -388,6 +388,20 @@ R4 전 중간 점검에서 Procedural/SavedBlueprint source 전환, 저장 hash 
 - Unity 재시작과 Play/Edit 전환 후 참조 유지 검증
 
 완료 기준: 사용자가 설정을 드래그해 결과를 고른 뒤 자산으로 저장하고, 새 씬에서 저장 자산만으로 동일 맵을 탐험할 수 있습니다. 여기까지가 첫 저장형 스테이지 MVP입니다.
+
+구현 결과: 에디터 창에 `스테이지 자산` 탭을 추가하고 `DungeonStageAuthoringService`로 현재 결과 새 저장, 경로·hash 확인 후 Undo 가능한 덮어쓰기, 저장본 무재계산 미리보기, 절차 원본 복귀, provenance/hash 비교와 stale 표시를 연결했습니다. 검증 오류가 있으면 제작 작업을 차단하며, `SavedBlueprint + RuntimeBuild` StageDefinition을 `SerializedObject`로 생성하고 선택적으로 현재 Generator에 연결합니다. 새 Blueprint와 StageDefinition을 강제 재임포트해 중첩 데이터와 자산 참조를 확인했고 Unity `6000.5.3f1`에서 compile, EditMode `48/48`, PlayMode `3/3`을 통과했습니다. 실제 Unity 프로세스 완전 재시작은 수동 검증으로 남겼습니다.
+
+### R5.1 — 저장 레시피 복원 보완 (완료)
+
+- Blueprint 자산에 논리 hash와 분리된 선택적 authoring recipe snapshot 저장
+- snapshot format·recipe hash·정규화 검증과 기존 snapshot 없는 R5 자산 호환
+- `레시피 설정만 불러오기`의 확인·SerializedObject·Undo와 비생성 필드 보존
+- 저장 recipe·seed·generatorVersion·catalog를 적용한 정확 절차 재생성
+- `현재 절차 설정으로 재생성`으로 기존 시드 복귀 동작의 의미 명확화
+
+완료 기준: 저장 당시 구조·밀도·곡선 설정을 UI에 복원할 수 있고, 같은 버전·catalog가 있으면 저장 시드로 원 Blueprint hash를 재현하며, 기존 R5 자산의 저장 맵 로드는 바뀌지 않습니다.
+
+구현 결과: `DungeonRecipeSnapshot`에 깊은 복사와 설정 역적용을 추가하고 `DungeonBlueprintAsset`이 선택적으로 snapshot을 보존하도록 확장했습니다. 제작 서비스는 snapshot을 적용하기 전 format·hash·canonical 값을 검사하며 생성 필드만 Undo 가능하게 덮어씁니다. 정확 재생성은 실제 자산 변경 전에 동일 입력 Blueprint를 계산해 저장 hash를 확인하고 LegacyV1·StableV2 명시 버전 loader로 구축합니다. Unity `6000.5.3f1`에서 compile, EditMode `51/51`, PlayMode `3/3`을 통과했습니다.
 
 ### R6 — Bake와 배포용 파생 자산
 
@@ -533,7 +547,7 @@ Assets/RogueDungeonLab/
 
 ## 12. 완료된 구현 묶음과 다음 단계
 
-R0부터 R4까지의 기반 구현 묶음은 완료되었습니다.
+R0부터 R5.1까지의 첫 저장형 스테이지 MVP 구현 묶음은 완료되었습니다.
 
 1. 현재 결과 지문을 만드는 EditMode 테스트
 2. `DungeonRecipeSnapshot`과 `DungeonGenerationRequest`
@@ -547,5 +561,11 @@ R0부터 R4까지의 기반 구현 묶음은 완료되었습니다.
 10. `DungeonContentCatalog` planning snapshot·canonical hash와 교차 validator
 11. opt-in `StableV2` PCG32 독립 stream과 canonical 콘텐츠 선택
 12. Prefab/factory resolver, 세 가지 누락 정책과 load context override
+13. `스테이지 자산` 탭과 `DungeonStageAuthoringService`
+14. Blueprint 새 저장·Undo 덮어쓰기·검증·stale 비교와 저장본 미리보기
+15. SavedBlueprint StageDefinition 생성·Generator 연결과 자산 재임포트 검증
+16. Blueprint와 분리된 선택적 authoring recipe snapshot 영속성·검증
+17. 설정만 복원하는 Undo 흐름과 비생성 옵션 보존
+18. 저장 시드·생성기 버전·catalog를 사용한 LegacyV1·StableV2 동일 hash 절차 재생성
 
-다음 구현은 R5의 에디터 저장·불러오기 제작 UI입니다. 현재 결과를 새 `DungeonBlueprintAsset`으로 저장하거나 선택 자산에 덮어쓰고, 저장본 미리보기와 StageDefinition 생성을 연결합니다. 실제 Bake는 계속 R6 범위입니다.
+다음 구현은 R6의 Bake와 배포용 파생 자산입니다. 검증된 저장 Blueprint에서 floor/wall Mesh와 콘텐츠 Prefab, manifest를 생성하고 `SavedBlueprint + BakedPrefab` 로드 경로를 연결합니다.

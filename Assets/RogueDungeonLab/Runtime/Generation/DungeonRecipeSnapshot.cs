@@ -118,6 +118,21 @@ namespace RogueDungeonLab
                 maxCount = Mathf.Max(0, source.maxCount)
             };
         }
+
+        // 저장된 정규화 값과 곡선으로 원본과 참조를 공유하지 않는 밀도 프로필을 복원합니다.
+        public DensityProfile ToDensityProfile()
+        {
+            return new DensityProfile
+            {
+                baseDensity = baseDensity,
+                overProgression = overProgression != null
+                    ? overProgression.ToAnimationCurve()
+                    : AnimationCurve.Linear(0f, 1f, 1f, 1f),
+                roomBias = roomBias,
+                clustering = clustering,
+                maxCount = maxCount
+            };
+        }
     }
 
     [Serializable]
@@ -177,6 +192,41 @@ namespace RogueDungeonLab
                 destructibleProfile = DungeonDensityProfileSnapshot.Capture(settings.destructibleProfile, DensityProfile.DestructibleDefault()),
                 propProfile = DungeonDensityProfileSnapshot.Capture(settings.propProfile, DensityProfile.PropDefault())
             };
+        }
+
+        // Unity 직렬화 round-trip으로 곡선 키와 중첩 프로필까지 분리된 복사본을 만듭니다.
+        public DungeonRecipeSnapshot DeepClone()
+        {
+            string json = JsonUtility.ToJson(this);
+            DungeonRecipeSnapshot clone = JsonUtility.FromJson<DungeonRecipeSnapshot>(json);
+            if (clone == null) throw new InvalidOperationException("Recipe snapshot clone failed.");
+            return clone;
+        }
+
+        // 정규화된 생성 필드만 대상 설정에 복원하고 드랍·런타임 옵션은 보존합니다.
+        public void ApplyTo(RogueDungeonSettings settings)
+        {
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            if (formatVersion != CurrentFormatVersion)
+                throw new NotSupportedException("Unsupported recipe snapshot format: " + formatVersion);
+
+            settings.stageWidthCells = stageWidthCells;
+            settings.stageDepthCells = stageDepthCells;
+            settings.cellSize = cellSize;
+            settings.wallHeight = wallHeight;
+            settings.desiredRoomCount = desiredRoomCount;
+            settings.roomSizeMin = roomSizeMin;
+            settings.roomSizeMax = roomSizeMax;
+            settings.roomPlacementAttempts = roomPlacementAttempts;
+            settings.corridorWidthCells = corridorWidthCells;
+            settings.extraConnectionChance = extraConnectionChance;
+            settings.specialGimmickCount = specialGimmickCount;
+            settings.contentSpacingCells = contentSpacingCells;
+            settings.reservedEntranceRadiusCells = reservedEntranceRadiusCells;
+            settings.enemyProfile = (enemyProfile ?? new DungeonDensityProfileSnapshot()).ToDensityProfile();
+            settings.destructibleProfile = (destructibleProfile ?? new DungeonDensityProfileSnapshot()).ToDensityProfile();
+            settings.propProfile = (propProfile ?? new DungeonDensityProfileSnapshot()).ToDensityProfile();
+            settings.ClampValues();
         }
 
         // 정규화된 레시피 값의 순서 독립적인 SHA-256 지문을 계산합니다.

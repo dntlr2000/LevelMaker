@@ -20,7 +20,7 @@ namespace RogueDungeonLab
 
     public static class DungeonStageDefinitionValidator
     {
-        // RuntimeBuild source와 R4 생성기·콘텐츠 카탈로그 계약을 검증합니다.
+        // RuntimeBuild source와 R5 저장 제작·콘텐츠 카탈로그 계약을 검증합니다.
         public static DungeonValidationReport Validate(DungeonStageDefinition definition)
         {
             DungeonValidationReport report = new DungeonValidationReport();
@@ -36,7 +36,7 @@ namespace RogueDungeonLab
             }
             if (definition.buildMode != DungeonStageBuildMode.RuntimeBuild)
             {
-                report.Add(DungeonStageDefinitionValidationCodes.UnsupportedBuildMode, DungeonValidationSeverity.Error, "R4 supports RuntimeBuild only.");
+                report.Add(DungeonStageDefinitionValidationCodes.UnsupportedBuildMode, DungeonValidationSeverity.Error, "R5 supports RuntimeBuild only.");
             }
             if (definition.sourceMode == DungeonStageSourceMode.Procedural && definition.recipe == null)
             {
@@ -183,16 +183,85 @@ namespace RogueDungeonLab
             RogueDungeonSettings runtimeSettings = null,
             string requestId = "")
         {
-            if (parent == null) throw new ArgumentNullException(nameof(parent));
-            if (recipe == null) throw new ArgumentNullException(nameof(recipe));
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            DungeonGenerationRequest request = DungeonGenerationRequest.Create(
+            return LoadProcedural(
+                parent,
                 recipe,
                 seed,
                 DungeonGeneratorVersions.LegacyV1,
-                DungeonBuiltInContentKeys.LegacyCatalogPlanningHash,
+                runtimeSettings,
+                null,
+                DungeonMissingContentPolicy.BuiltInFallback,
+                null,
                 requestId);
+        }
+
+        // 명시한 생성기 버전·catalog·누락 정책으로 StageDefinition 없이 절차 스테이지를 구축합니다.
+        public static DungeonStageInstance LoadProcedural(
+            Transform parent,
+            RogueDungeonSettings recipe,
+            int seed,
+            int generatorVersion,
+            RogueDungeonSettings runtimeSettings = null,
+            DungeonContentCatalog contentCatalog = null,
+            DungeonMissingContentPolicy missingContentPolicy = DungeonMissingContentPolicy.BuiltInFallback,
+            IDungeonContentResolver contentResolver = null,
+            string requestId = "")
+        {
+            if (parent == null) throw new ArgumentNullException(nameof(parent));
+            if (recipe == null) throw new ArgumentNullException(nameof(recipe));
+
+            DungeonValidationReport setupValidation = new DungeonValidationReport();
+            if (!DungeonGeneratorVersions.IsSupported(generatorVersion))
+            {
+                setupValidation.Add(
+                    DungeonStageDefinitionValidationCodes.InvalidGeneratorVersion,
+                    DungeonValidationSeverity.Error,
+                    "Generator version must be LegacyV1 or StableV2.");
+            }
+            if (!Enum.IsDefined(typeof(DungeonMissingContentPolicy), missingContentPolicy))
+            {
+                setupValidation.Add(
+                    DungeonStageDefinitionValidationCodes.InvalidMissingContentPolicy,
+                    DungeonValidationSeverity.Error,
+                    "Missing content policy is invalid.");
+            }
+            if (contentCatalog != null)
+            {
+                DungeonValidationReport catalogValidation =
+                    DungeonContentCatalogValidator.Validate(contentCatalog);
+                for (int i = 0; i < catalogValidation.issues.Count; i++)
+                {
+                    DungeonValidationIssue issue = catalogValidation.issues[i];
+                    if (issue != null) setupValidation.issues.Add(issue);
+                }
+            }
+            ThrowIfInvalid("Procedural load settings are invalid.", setupValidation);
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            DungeonGenerationRequest request = generatorVersion == DungeonGeneratorVersions.StableV2
+                ? DungeonGenerationRequest.CreateStableV2(
+                    recipe,
+                    seed,
+                    contentCatalog,
+                    requestId)
+                : DungeonGenerationRequest.Create(
+                    recipe,
+                    seed,
+                    DungeonGeneratorVersions.LegacyV1,
+                    DungeonBuiltInContentKeys.LegacyCatalogPlanningHash,
+                    requestId);
             DungeonBlueprintGenerationResult generated = DungeonBlueprintGenerator.Generate(request);
+            DungeonValidationReport contentValidation = DungeonContentCatalogValidator.ValidateBlueprint(
+                generated.Blueprint,
+                contentCatalog,
+                contentResolver != null
+                    ? DungeonMissingContentPolicy.BuiltInFallback
+                    : missingContentPolicy);
+            ThrowIfInvalid("Dungeon content is invalid.", contentValidation);
+
+            IDungeonContentResolver resolver = contentResolver;
+            if (resolver == null && contentCatalog != null)
+                resolver = new DungeonPrefabContentResolver(contentCatalog);
             return BuildRuntimeStage(
                 parent,
                 null,
@@ -202,9 +271,79 @@ namespace RogueDungeonLab
                 runtimeSettings ?? recipe,
                 recipe,
                 requestId,
+                resolver,
+                missingContentPolicy,
+                contentValidation,
+                stopwatch);
+        }
+
+        // 저장 Blueprint를 레시피나 시드로 재계산하지 않고 선택적 catalog·resolver로 즉시 구축합니다.
+        public static DungeonStageInstance LoadSavedBlueprint(
+            Transform parent,
+            DungeonBlueprintAsset blueprintAsset,
+            RogueDungeonSettings runtimeSettings = null,
+            DungeonContentCatalog contentCatalog = null,
+            DungeonMissingContentPolicy missingContentPolicy = DungeonMissingContentPolicy.BuiltInFallback,
+            IDungeonContentResolver contentResolver = null,
+            string requestId = "")
+        {
+            if (parent == null) throw new ArgumentNullException(nameof(parent));
+            DungeonValidationReport setupValidation = new DungeonValidationReport();
+            if (blueprintAsset == null)
+            {
+                setupValidation.Add(
+                    DungeonStageDefinitionValidationCodes.MissingSavedBlueprint,
+                    DungeonValidationSeverity.Error,
+                    "Saved Blueprint asset is missing.");
+            }
+            if (!Enum.IsDefined(typeof(DungeonMissingContentPolicy), missingContentPolicy))
+            {
+                setupValidation.Add(
+                    DungeonStageDefinitionValidationCodes.InvalidMissingContentPolicy,
+                    DungeonValidationSeverity.Error,
+                    "Missing content policy is invalid.");
+            }
+            if (contentCatalog != null)
+            {
+                DungeonValidationReport catalogValidation =
+                    DungeonContentCatalogValidator.Validate(contentCatalog);
+                for (int i = 0; i < catalogValidation.issues.Count; i++)
+                {
+                    DungeonValidationIssue issue = catalogValidation.issues[i];
+                    if (issue != null) setupValidation.issues.Add(issue);
+                }
+            }
+            ThrowIfInvalid("Saved Blueprint load settings are invalid.", setupValidation);
+
+            DungeonBlueprint source = blueprintAsset.blueprint;
+            DungeonBlueprint blueprint = source != null ? source.DeepClone() : null;
+            DungeonValidationReport blueprintValidation = DungeonBlueprintValidator.Validate(blueprint);
+            ThrowIfInvalid("Saved Dungeon Blueprint is invalid.", blueprintValidation);
+            DungeonLayout layout = DungeonBlueprintLayoutConverter.ToLayout(blueprint);
+            DungeonValidationReport contentValidation = DungeonContentCatalogValidator.ValidateBlueprint(
+                blueprint,
+                contentCatalog,
+                contentResolver != null
+                    ? DungeonMissingContentPolicy.BuiltInFallback
+                    : missingContentPolicy);
+            ThrowIfInvalid("Dungeon content is invalid.", contentValidation);
+
+            IDungeonContentResolver resolver = contentResolver;
+            if (resolver == null && contentCatalog != null)
+                resolver = new DungeonPrefabContentResolver(contentCatalog);
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            return BuildRuntimeStage(
+                parent,
                 null,
-                DungeonMissingContentPolicy.BuiltInFallback,
-                new DungeonValidationReport(),
+                DungeonStageSourceMode.SavedBlueprint,
+                blueprint,
+                layout,
+                runtimeSettings,
+                null,
+                requestId,
+                resolver,
+                missingContentPolicy,
+                contentValidation,
                 stopwatch);
         }
 
