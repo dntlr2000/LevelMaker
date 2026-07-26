@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using RogueDungeonLab.Editor;
@@ -85,7 +86,7 @@ namespace RogueDungeonLab.Tests
             }
         }
 
-        // 선택 Blueprint 덮어쓰기가 새 결과를 저장하고 Unity Undo로 이전 전체 직렬화 상태를 복구하는지 검사합니다.
+        // 선택 Blueprint 덮어쓰기 Undo가 저장·강제 재임포트 뒤에도 이전 전체 직렬화 상태로 영속되는지 검사합니다.
         [Test]
         public void OverwriteBlueprintAsset_SupportsUndoForNestedBlueprintData()
         {
@@ -106,6 +107,8 @@ namespace RogueDungeonLab.Tests
                     firstRecipe);
                 string firstHash = asset.blueprint.blueprintHash;
                 string firstRecipeHash = asset.AuthoringRecipeHash;
+                Undo.FlushUndoRecordObjects();
+                Undo.IncrementCurrentGroup();
 
                 DungeonStageAuthoringService.OverwriteBlueprintAsset(
                     asset,
@@ -126,6 +129,22 @@ namespace RogueDungeonLab.Tests
                 Assert.That(asset.blueprint.authoringNote, Is.EqualTo("첫 저장"));
                 Assert.That(asset.AuthoringRecipeHash, Is.EqualTo(firstRecipeHash));
                 Assert.That(DungeonBlueprintValidator.Validate(asset.blueprint).IsValid, Is.True);
+
+                AssetDatabase.SaveAssets();
+                AssetDatabase.ImportAsset(
+                    TempFolder + "/OverwriteBlueprint.asset",
+                    ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
+                DungeonBlueprintAsset reloaded =
+                    AssetDatabase.LoadAssetAtPath<DungeonBlueprintAsset>(
+                        TempFolder + "/OverwriteBlueprint.asset");
+
+                Assert.That(reloaded, Is.Not.Null);
+                Assert.That(reloaded.blueprint.blueprintHash, Is.EqualTo(firstHash));
+                Assert.That(reloaded.blueprint.authoringNote, Is.EqualTo("첫 저장"));
+                Assert.That(reloaded.AuthoringRecipeHash, Is.EqualTo(firstRecipeHash));
+                Assert.That(
+                    DungeonStageAuthoringService.ValidateStoredRecipe(reloaded).State,
+                    Is.EqualTo(DungeonStoredRecipeState.Valid));
             }
             finally
             {
@@ -339,6 +358,54 @@ namespace RogueDungeonLab.Tests
             }
         }
 
+        // 저장 레시피·시드·LegacyV1 버전으로 절차 생성했을 때 저장 Blueprint hash를 정확히 재현하는지 검사합니다.
+        [Test]
+        public void ApplyStoredRecipeAndGenerate_ReproducesLegacyV1BlueprintHash()
+        {
+            RogueDungeonSettings source = CreateSettings(DungeonPreset.Compact);
+            RogueDungeonSettings target = CreateSettings(DungeonPreset.Chaos);
+            GameObject generatorObject = new GameObject("R5 Legacy Recipe Restore Generator");
+            RogueDungeonGenerator generator = generatorObject.AddComponent<RogueDungeonGenerator>();
+            try
+            {
+                const int savedSeed = 780501;
+                DungeonBlueprint blueprint = CreateBlueprint(source, savedSeed);
+                DungeonBlueprintAsset asset = DungeonStageAuthoringService.CreateBlueprintAsset(
+                    blueprint,
+                    TempFolder + "/LegacyRecipeBlueprint.asset",
+                    string.Empty,
+                    null,
+                    DungeonMissingContentPolicy.BuiltInFallback,
+                    DungeonRecipeSnapshot.Capture(source));
+                target.generateOnPlay = false;
+                generator.settings = target;
+
+                DungeonStageInstance instance =
+                    DungeonStageAuthoringService.ApplyStoredRecipeAndGenerate(
+                        generator,
+                        asset,
+                        target);
+
+                Assert.That(instance.SourceMode, Is.EqualTo(DungeonStageSourceMode.Procedural));
+                Assert.That(instance.RequestId, Is.EqualTo("editor-recipe-restore"));
+                Assert.That(instance.Blueprint.generatorVersion, Is.EqualTo(DungeonGeneratorVersions.LegacyV1));
+                Assert.That(instance.Blueprint.blueprintHash, Is.EqualTo(blueprint.blueprintHash));
+                Assert.That(generator.CurrentBlueprint.blueprintHash, Is.EqualTo(blueprint.blueprintHash));
+                Assert.That(target.seed, Is.EqualTo(savedSeed));
+                Assert.That(target.generateOnPlay, Is.False);
+                Assert.That(
+                    DungeonRecipeSnapshot.Capture(target).ComputeHash(),
+                    Is.EqualTo(blueprint.recipeHash));
+            }
+            finally
+            {
+                generator.ClearGenerated();
+                Object.DestroyImmediate(generatorObject);
+                Object.DestroyImmediate(target);
+                Object.DestroyImmediate(source);
+            }
+        }
+
         // 저장 레시피·시드·StableV2 버전으로 절차 생성했을 때 저장 Blueprint hash를 정확히 재현하는지 검사합니다.
         [Test]
         public void ApplyStoredRecipeAndGenerate_ReproducesStableV2BlueprintHash()
@@ -378,6 +445,118 @@ namespace RogueDungeonLab.Tests
                 Assert.That(
                     DungeonRecipeSnapshot.Capture(target).ComputeHash(),
                     Is.EqualTo(blueprint.recipeHash));
+            }
+            finally
+            {
+                generator.ClearGenerated();
+                Object.DestroyImmediate(generatorObject);
+                Object.DestroyImmediate(target);
+                Object.DestroyImmediate(source);
+            }
+        }
+
+        // 프로젝트 자산인 custom catalog를 쓴 StableV2 저장본이 같은 catalog로 정확히 재생성되는지 검사합니다.
+        [Test]
+        public void ApplyStoredRecipeAndGenerate_ReproducesStableV2BlueprintHashWithCustomCatalog()
+        {
+            RogueDungeonSettings source = CreateSettings(DungeonPreset.Balanced);
+            RogueDungeonSettings target = CreateSettings(DungeonPreset.Chaos);
+            GameObject generatorObject = new GameObject("R5 Catalog Recipe Restore Generator");
+            RogueDungeonGenerator generator = generatorObject.AddComponent<RogueDungeonGenerator>();
+            try
+            {
+                source.enemyProfile.baseDensity = 1f;
+                source.enemyProfile.maxCount = 24;
+                source.ClampValues();
+                DungeonContentCatalog catalog = CreateCustomCatalogAsset();
+                const int savedSeed = 880501;
+                DungeonBlueprint blueprint = DungeonBlueprintGenerator.Generate(
+                    DungeonGenerationRequest.CreateStableV2(
+                        source,
+                        savedSeed,
+                        catalog,
+                        "r5-custom-catalog-source")).Blueprint;
+                Assert.That(ContainsSpawnContentKey(blueprint, "tests/custom-enemy"), Is.True);
+                Assert.That(blueprint.catalogPlanningHash, Is.EqualTo(catalog.ComputePlanningHash()));
+
+                DungeonBlueprintAsset asset = DungeonStageAuthoringService.CreateBlueprintAsset(
+                    blueprint,
+                    TempFolder + "/StableCatalogRecipeBlueprint.asset",
+                    string.Empty,
+                    catalog,
+                    DungeonMissingContentPolicy.Error,
+                    DungeonRecipeSnapshot.Capture(source));
+                AssetDatabase.SaveAssets();
+                AssetDatabase.ImportAsset(
+                    TempFolder + "/CustomCatalog.asset",
+                    ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
+                catalog = AssetDatabase.LoadAssetAtPath<DungeonContentCatalog>(
+                    TempFolder + "/CustomCatalog.asset");
+                target.generateOnPlay = false;
+                generator.settings = target;
+
+                DungeonStageInstance instance =
+                    DungeonStageAuthoringService.ApplyStoredRecipeAndGenerate(
+                        generator,
+                        asset,
+                        target,
+                        catalog,
+                        DungeonMissingContentPolicy.Error);
+
+                Assert.That(instance.SourceMode, Is.EqualTo(DungeonStageSourceMode.Procedural));
+                Assert.That(instance.Blueprint.generatorVersion, Is.EqualTo(DungeonGeneratorVersions.StableV2));
+                Assert.That(instance.Blueprint.catalogPlanningHash, Is.EqualTo(catalog.ComputePlanningHash()));
+                Assert.That(instance.Blueprint.blueprintHash, Is.EqualTo(blueprint.blueprintHash));
+                Assert.That(generator.CurrentBlueprint.blueprintHash, Is.EqualTo(blueprint.blueprintHash));
+                Assert.That(ContainsSpawnContentKey(instance.Blueprint, "tests/custom-enemy"), Is.True);
+            }
+            finally
+            {
+                generator.ClearGenerated();
+                Object.DestroyImmediate(generatorObject);
+                Object.DestroyImmediate(target);
+                Object.DestroyImmediate(source);
+            }
+        }
+
+        // snapshot 없는 기존 R5 형식 자산이 강제 재임포트 뒤에도 로드되며 설정 복원만 거부하는지 검사합니다.
+        [Test]
+        public void SnapshotlessLegacyBlueprintAsset_RemainsLoadableAfterForceReimport()
+        {
+            RogueDungeonSettings source = CreateSettings(DungeonPreset.Compact);
+            RogueDungeonSettings target = CreateSettings(DungeonPreset.Chaos);
+            GameObject generatorObject = new GameObject("R5 Snapshotless Legacy Generator");
+            RogueDungeonGenerator generator = generatorObject.AddComponent<RogueDungeonGenerator>();
+            try
+            {
+                DungeonBlueprint blueprint = CreateBlueprint(source, 900501);
+                string path = TempFolder + "/SnapshotlessLegacyBlueprint.asset";
+                DungeonStageAuthoringService.CreateBlueprintAsset(blueprint, path);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.ImportAsset(
+                    path,
+                    ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
+                DungeonBlueprintAsset reloaded =
+                    AssetDatabase.LoadAssetAtPath<DungeonBlueprintAsset>(path);
+
+                Assert.That(reloaded, Is.Not.Null);
+                Assert.That(reloaded.HasAuthoringRecipeSnapshot, Is.False);
+                Assert.That(DungeonBlueprintValidator.Validate(reloaded.blueprint).IsValid, Is.True);
+                Assert.That(
+                    DungeonStageAuthoringService.ValidateStoredRecipe(reloaded).State,
+                    Is.EqualTo(DungeonStoredRecipeState.Missing));
+                Assert.Throws<System.InvalidOperationException>(delegate
+                {
+                    DungeonStageAuthoringService.ApplyStoredRecipeToSettings(reloaded, target, false);
+                });
+
+                generator.settings = target;
+                DungeonStageInstance instance =
+                    DungeonStageAuthoringService.PreviewSavedBlueprint(generator, reloaded);
+
+                Assert.That(instance.SourceMode, Is.EqualTo(DungeonStageSourceMode.SavedBlueprint));
+                Assert.That(instance.Blueprint.blueprintHash, Is.EqualTo(blueprint.blueprintHash));
+                Assert.That(generator.CurrentBlueprint.blueprintHash, Is.EqualTo(blueprint.blueprintHash));
             }
             finally
             {
@@ -492,6 +671,63 @@ namespace RogueDungeonLab.Tests
             settings.ApplyPreset(preset);
             settings.ClampValues();
             return settings;
+        }
+
+        // 실제 Prefab 참조와 custom enemy planning entry를 가진 프로젝트 catalog 자산을 만듭니다.
+        private static DungeonContentCatalog CreateCustomCatalogAsset()
+        {
+            GameObject prefabSource = new GameObject("R5 Custom Enemy Prefab");
+            GameObject prefab;
+            try
+            {
+                prefab = PrefabUtility.SaveAsPrefabAsset(
+                    prefabSource,
+                    TempFolder + "/CustomEnemy.prefab");
+            }
+            finally
+            {
+                Object.DestroyImmediate(prefabSource);
+            }
+
+            DungeonContentCatalog catalog = ScriptableObject.CreateInstance<DungeonContentCatalog>();
+            catalog.entries = new List<DungeonContentCatalogEntry>
+            {
+                new DungeonContentCatalogEntry
+                {
+                    contentKey = "tests/custom-enemy",
+                    category = DungeonSpawnCategory.Enemy,
+                    prefab = prefab,
+                    weight = 1f,
+                    minProgression = 0f,
+                    maxProgression = 1f,
+                    placement = DungeonContentPlacement.Any,
+                    requiredRoomTags = new List<string>(),
+                    footprintCells = Vector2Int.one,
+                    minimumSpacingCells = 0,
+                    randomizeYaw = true,
+                    yawDegreesRange = new Vector2(-30f, 30f),
+                    uniformScaleRange = new Vector2(0.9f, 1.1f),
+                    gameplayId = "tests-custom-enemy"
+                }
+            };
+            AssetDatabase.CreateAsset(catalog, TempFolder + "/CustomCatalog.asset");
+            EditorUtility.SetDirty(catalog);
+            AssetDatabase.SaveAssets();
+            return catalog;
+        }
+
+        // Blueprint spawn 목록에 지정 logical content key가 한 번 이상 기록됐는지 확인합니다.
+        private static bool ContainsSpawnContentKey(
+            DungeonBlueprint blueprint,
+            string contentKey)
+        {
+            if (blueprint == null || blueprint.spawns == null) return false;
+            for (int i = 0; i < blueprint.spawns.Count; i++)
+            {
+                DungeonSpawnRecord spawn = blueprint.spawns[i];
+                if (spawn != null && spawn.contentKey == contentKey) return true;
+            }
+            return false;
         }
 
         // 지정 설정·시드의 승인된 LegacyV1 Blueprint를 생성합니다.

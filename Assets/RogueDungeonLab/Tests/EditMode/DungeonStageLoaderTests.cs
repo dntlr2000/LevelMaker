@@ -206,7 +206,7 @@ namespace RogueDungeonLab.Tests
             }
         }
 
-        // Generator가 Saved Definition을 facade 상태에 반영하고 기존 GenerateWithSeed 호출로 다시 절차 경로를 사용할 수 있는지 검사합니다.
+        // Generator facade와 별도 Procedural recipe가 EditMode 원본 설정을 변경하지 않고 각 경로를 유지하는지 검사합니다.
         [Test]
         public void RogueDungeonGenerator_SupportsDefinitionAndLegacyFacadeTogether()
         {
@@ -223,6 +223,10 @@ namespace RogueDungeonLab.Tests
                 asset.Store(CreateBlueprint(sourceSettings, 515151));
                 legacySettings.ApplyPreset(DungeonPreset.Balanced);
                 legacySettings.cellSize = 2.25f;
+                sourceSettings.seed = 13579;
+                legacySettings.seed = 24680;
+                int sourceSeedBefore = sourceSettings.seed;
+                int legacySeedBefore = legacySettings.seed;
 
                 definition.sourceMode = DungeonStageSourceMode.SavedBlueprint;
                 definition.savedBlueprint = asset;
@@ -248,6 +252,31 @@ namespace RogueDungeonLab.Tests
                 Assert.That(generator.CurrentCellSize, Is.EqualTo(2.25f));
                 Assert.That(completed, Is.EqualTo(2));
                 Assert.That(generator.transform.Find(DungeonStageLoader.GeneratedRootName), Is.Not.Null);
+                Assert.That(legacySettings.seed, Is.EqualTo(legacySeedBefore));
+
+                generator.GenerateProcedural(
+                    legacySettings,
+                    888888,
+                    DungeonGeneratorVersions.LegacyV1);
+
+                Assert.That(generator.ActiveSeed, Is.EqualTo(888888));
+                Assert.That(generator.CurrentLayout.Width, Is.EqualTo(legacySettings.stageWidthCells));
+                Assert.That(legacySettings.seed, Is.EqualTo(legacySeedBefore));
+                Assert.That(completed, Is.EqualTo(3));
+
+                definition.sourceMode = DungeonStageSourceMode.Procedural;
+                definition.recipe = sourceSettings;
+                definition.seedPolicy = DungeonStageSeedPolicy.FixedSeed;
+                definition.fixedSeed = 909090;
+                generator.LoadStageDefinition();
+
+                Assert.That(generator.CurrentStageInstance.Definition, Is.SameAs(definition));
+                Assert.That(generator.ActiveSeed, Is.EqualTo(909090));
+                Assert.That(generator.CurrentLayout.Width, Is.EqualTo(sourceSettings.stageWidthCells));
+                Assert.That(generator.CurrentLayout.Width, Is.Not.EqualTo(legacySettings.stageWidthCells));
+                Assert.That(sourceSettings.seed, Is.EqualTo(sourceSeedBefore));
+                Assert.That(legacySettings.seed, Is.EqualTo(legacySeedBefore));
+                Assert.That(completed, Is.EqualTo(4));
             }
             finally
             {

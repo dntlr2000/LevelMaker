@@ -39,6 +39,10 @@ namespace RogueDungeonLab
         public DungeonContentCatalog contentCatalog;
         public DungeonMissingContentPolicy missingContentPolicy = DungeonMissingContentPolicy.BuiltInFallback;
 
+        [Header("Bake 결과 (R6)")]
+        public GameObject bakedPrefab;
+        public DungeonBakeManifest bakeManifest;
+
         [Header("Lifecycle")]
         public bool loadOnPlay = true;
     }

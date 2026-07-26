@@ -1,8 +1,8 @@
 # 테스트 계획
 
-## R0·R1·R2·R3·R4·R5·R5.1 자동 회귀 기준
+## R0·R1·R2·R3·R4·R5·R5.1·R5.2·R6 승인 기준
 
-Unity `6000.5.3f1`에서 compile 성공 후 EditMode 51개와 PlayMode 3개를 자동 실행했습니다.
+Unity `6000.5.3f1`에서 compile 성공 후 EditMode 74개와 PlayMode 8개를 자동 실행했습니다.
 
 - Compact `12345`, Balanced `-987654321`, Chaos `20260719`의 방·floor·BFS·콘텐츠 셀 SHA-256 Golden 지문
 - 같은 프리셋·시드 반복 생성 지문 일치
@@ -19,7 +19,7 @@ Unity `6000.5.3f1`에서 compile 성공 후 EditMode 51개와 PlayMode 3개를 �
 - explicit → run → fixed → random 시드 정책 우선순위와 random provider 호출 조건
 - Procedural StageDefinition의 Blueprint 구축과 재로드 시 generated root 단일 유지
 - SavedBlueprint가 변경된 recipe·명시 시드·run seed·random provider로 재계산되지 않음
-- 누락 source, 미지원 BakedPrefab, 잘못된 generatorVersion과 손상 Blueprint의 코드 기반 차단
+- 누락 source, 잘못된 BakedPrefab 조합, 잘못된 generatorVersion과 손상 Blueprint의 코드 기반 차단
 - 한 Generator에서 Saved Definition과 기존 settings-only `GenerateWithSeed` facade를 모두 사용
 - 카탈로그 entry와 tag 재정렬에 독립적인 planning hash, Prefab 참조 제외
 - 카탈로그 중복 key, 잘못된 progression·footprint·간격의 `RDL-CAT-*` 오류
@@ -37,7 +37,7 @@ Unity `6000.5.3f1`에서 compile 성공 후 EditMode 51개와 PlayMode 3개를 �
 - 비활성 staging root에서 구축 후 교체·활성화하고 명시적으로 소유한 합성 Mesh만 해제
 - 자식 `DestructibleDropTarget` 파괴가 spawn root 전체를 제거하고 드랍 통계를 정확히 1회 누적
 - 현재 Blueprint를 새 자산에 deep copy하고 제작 메모·저장 시각·논리 hash를 재임포트 후 유지
-- 선택 Blueprint 덮어쓰기 후 Unity Undo가 중첩 cells·rooms·spawns 전체를 이전 상태로 복구
+- 선택 Blueprint 덮어쓰기 후 Unity Undo가 중첩 cells·rooms·spawns 전체를 이전 상태로 복구하고 저장·강제 재임포트 뒤에도 유지
 - 동일 결과, 다른 시드, stale 입력, 동일 provenance 결과 분기와 손상 저장본 비교 상태 분류
 - 저장 Blueprint 미리보기가 recipe·시드를 재계산하지 않고 저장 hash를 구축한 뒤 절차 시드로 복귀
 - SerializedObject로 생성한 SavedBlueprint StageDefinition과 Generator 연결이 AssetDatabase 재임포트 후 유지
@@ -47,13 +47,39 @@ Unity `6000.5.3f1`에서 compile 성공 후 EditMode 51개와 PlayMode 3개를 �
 - 저장 레시피 적용 시 구조·밀도·AnimationCurve가 복원되고 시드·드랍·런타임 옵션은 선택 정책대로 보존
 - snapshot 없는 기존 R5 자산은 저장 맵 로드가 유지되고 설정 복원만 차단
 - 변조된 snapshot의 recipe hash 불일치를 설정 자산 변경 전에 차단
-- 저장 recipe·seed·StableV2·catalog 입력으로 절차 재생성한 Blueprint hash가 저장본과 일치
+- 저장 recipe·seed로 LegacyV1 Blueprint hash를 정확히 재생성
+- 실제 Prefab 참조 custom catalog 자산의 recipe·seed·StableV2 입력으로 저장 Blueprint hash를 정확히 재생성
+- snapshot 없는 기존 R5 자산을 강제 재임포트한 뒤 SavedBlueprint 로드는 유지하고 설정 복원만 차단
+- settings-only와 Procedural StageDefinition의 Play HUD 설정이 `HideAndDontSave` 복제본에만 반영되고 원본 recipe·settings는 불변
+- 별도 StageDefinition recipe의 구조 값과 Generator settings의 드랍·런타임 옵션이 같은 활성 복제본에 병합
+- 입력 시드·실시간 재생성이 활성 StageDefinition, generatorVersion, catalog와 시드를 유지
+- 새 recipe 후보가 Loader 성공 뒤에만 commit되고 실패한 source 전환은 기존 복제본·StageInstance·generated root를 유지
+- Procedural에서 SavedBlueprint로 전환하거나 Generator를 파괴할 때 소유 런타임 복제본 정리
+- 첫 StageInstance가 없을 때도 `loadOnPlay` StageDefinition이 settings-only 재생성·새 시드 fallback보다 우선
+- SavedBlueprint 활성 상태의 구조·시드 편집 차단과 같은 저장 Blueprint 재구축
+- Bake manifest의 source/final Blueprint, custom catalog, 완전한 재질 슬롯, 필수 의존성 hash, R6 Override 차단과 고유 owned artifact 검증
+- `Procedural + BakedPrefab` 차단과 유효한 `SavedBlueprint + BakedPrefab` manifest·Prefab 허용
+- Balanced seed `73125` RuntimeBuild 15회에서 동일 Blueprint hash와 시간·managed memory p50/p95 기준선 기록
+- 기본 `DungeonBakeMaterialSet`의 8개 영속 Material 슬롯 생성과 재임포트 후 참조 유지
+- SavedBlueprint에서 floor/wall Mesh, built-in/fallback·직접 Catalog Prefab과 manifest 영속 자산 생성
+- source/final Blueprint, planning/realization/gameplay/material/override와 builder fingerprint 변경별 stale 코드
+- 재Bake 성공 때만 StageDefinition 참조 commit, 의도적 실패 때 staging 정리와 이전 정상 Bake 보존
+- 이전 manifest의 고유 GUID와 stage bake root를 모두 만족하는 파생 산출물만 정리하고 사용자·공유 자산 보존
+- RuntimeBuild/BakedPrefab의 입구·출구, floor/wall Collider, spawn identity·transform, 클릭/drop marker와 구축 report parity
+- BakedPrefab 로드 중 Blueprint 생성기, `DungeonMeshBuilder`와 콘텐츠 resolver 미실행
+- Runtime assembly의 `UnityEditor` 참조 부재와 BakedPrefab 포함 Player build smoke
 
-R5.1 구현 시점의 실행 결과는 compile 성공, EditMode `51/51`, PlayMode `3/3` 통과입니다. EditMode는 R5 자산 생성·덮어쓰기 Undo·재임포트·stale 비교·미리보기·StageDefinition 참조와 R5.1 저장 레시피 영속성·복원·손상 차단·정확 재생성을 포함합니다. PlayMode 세 테스트는 기존 임시 플레이어·카메라·HUD 자동 재생성, settings와 cellSize가 다른 저장 Blueprint의 입구 배치, 자식 클릭 대상의 루트 제거와 드랍 통계 1회 누적을 확인합니다. 실제 Unity 프로세스 종료 후 재시작, 마우스 포인터 Raycast와 HUD 위 클릭 차단은 수동 검증 항목입니다.
+R5.2 실행 결과는 compile 성공, EditMode `58/58`, PlayMode `7/7` 통과입니다. Balanced seed `73125`, warmup 3회 뒤 15회 RuntimeBuild의 이 환경 기준 시간은 p50 `7.390 ms`, p95 `7.744 ms`였습니다. Unity Mono가 `GC.GetAllocatedBytesForCurrentThread()`를 지원하지 않아 thread allocation은 p50/p95 모두 `0 B`와 `supported=False`로 기록했고, 대체 관측치인 `Profiler.GetMonoUsedSizeLong()` 증분은 p50 `2,252,800 B`, p95 `2,269,184 B`였습니다. 이 값은 절대 성능 제한이 아니라 같은 환경·설정에서 이후 R6 전후 회귀를 비교할 기준선입니다.
+
+R6 실행 결과는 compile 성공, EditMode `74/74`, PlayMode `8/8` 통과입니다. RuntimeBuild/BakedPrefab parity, 실제 Physics Raycast·마우스 클릭에 의한 Baked target 파괴와 드랍 1회, stale fingerprint, 재Bake 성공·실패 rollback·Undo 안전성, 소유 범위 변조 방어와 Player 비포함 assembly 분류를 포함합니다.
+
+분리된 임시 프로젝트에서 `R6ManualVerificationSetup.CreateAllFromBatch`로 SavedBlueprint·영속 Mesh·Prefab·manifest·Baked 검증 Scene을 만든 뒤 `R6PlayerBuildSmoke.BuildFromBatch` Windows Development Player 빌드가 성공했습니다. 총 빌드 크기는 `172,288,233 B`이며 `Logs/R6PlayerBuildSmoke.log`에 기록했습니다. `VerifyRollbackFromBatch`도 통과했고 로그는 `Logs/R6RollbackVerification.log`입니다.
+
+EditMode는 기존 생성·Blueprint·Loader·Catalog·자산 제작 회귀와 함께 manifest 계약, LegacyV1/custom catalog StableV2 정확 재생성, Undo 저장·재임포트, snapshot 없는 자산 호환을 확인합니다. PlayMode는 기존 카메라·임시 플레이어·클릭 드랍 외에 원본 비변경, 별도 StageDefinition recipe, source 전환 수명주기, 실패 rollback, SavedBlueprint 편집 차단과 첫 로드 전 Definition 우선을 확인합니다. 실제 Unity 프로세스 종료 후 재시작, Play 중 script/domain reload, HUD 화면 안내, 마우스 포인터 Raycast와 HUD 위 클릭 차단은 수동 검증 항목입니다.
 
 ## 전체 기능 검증 목록
 
-아래는 자동 회귀 외에 수동·통합·제품화 단계까지 포함한 전체 체크리스트입니다. 체크리스트에 있다는 사실만으로 이번 R5.1 자동 실행에서 확인했다는 의미는 아닙니다.
+아래는 자동 회귀 외에 수동·통합·제품화 단계까지 포함한 전체 체크리스트입니다. 체크리스트에 있다는 사실만으로 이번 R6 자동 실행에서 확인했다는 의미는 아닙니다.
 
 - 신규 Unity 6 프로젝트 import 후 컴파일 오류 0개
 - 장면 자동 구성 3회 후 Generator/Systems/Camera/Light 중복 없음
@@ -94,3 +120,10 @@ R5.1 구현 시점의 실행 결과는 compile 성공, EditMode `51/51`, PlayMod
 - 모든 가중치 0에서 예외 없는 invalid no-drop
 - 10,000회 표본에서 관측치가 기대치 근처로 수렴
 - 반복 재생성 후 동적 Mesh 누수 없음
+- Play 중 script/domain reload 뒤 런타임 설정 복제본이 중복·유실되지 않고 재생성 또는 안전 복구
+- R6 manifest가 source/final Blueprint, custom catalog, 완전한 영속 재질 세트와 고유 owned artifact를 모두 요구
+- 스테이지 자산 탭에서 SavedBlueprint Definition, 영속 MaterialSet을 선택하고 Bake·재Bake·최신성 검사·결과 Ping이 동작
+- Procedural Definition과 불완전한 MaterialSet은 Bake 버튼과 한국어 오류 안내로 차단
+- R6 재Bake 실패 시 staging만 제거되고 이전 정상 Prefab·manifest와 사용자·공유 자산이 유지
+- RuntimeBuild/BakedPrefab의 입구·출구·floor/Collider, stable spawn ID, 클릭/drop과 구축 report 동등
+- BakedPrefab을 연결한 빈 Player 씬에서 생성기·Mesh Builder·resolver 호출 없이 `__RogueDungeonLab_Generated` 하나를 로드

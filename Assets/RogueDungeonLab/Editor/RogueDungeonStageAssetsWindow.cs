@@ -187,6 +187,8 @@ namespace RogueDungeonLab.Editor
                     false);
             }
 
+            DrawStageBakeSection();
+
             Section("검증 리포트");
             _currentValidationFold = EditorGUILayout.Foldout(
                 _currentValidationFold,

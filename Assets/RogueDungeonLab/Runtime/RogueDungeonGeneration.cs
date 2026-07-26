@@ -444,6 +444,12 @@ namespace RogueDungeonLab
         private DungeonBlueprint _blueprint;
         private DungeonStageInstance _stageInstance;
         private RogueDungeonSettings _activeRuntimeSettings;
+        private RogueDungeonSettings _ownedRuntimeSettings;
+        private RogueDungeonSettings _runtimeRecipeSource;
+        private RogueDungeonSettings _runtimeOptionsSource;
+        private RogueDungeonSettings _pendingRuntimeSettings;
+        private RogueDungeonSettings _pendingRuntimeRecipeSource;
+        private RogueDungeonSettings _pendingRuntimeOptionsSource;
         private GenerationReport _report;
         private int _activeSeed;
         private bool _hasGenerated;
@@ -453,6 +459,8 @@ namespace RogueDungeonLab
         public DungeonStageInstance CurrentStageInstance { get { return _stageInstance; } }
         public GenerationReport LastReport { get { return _report; } }
         public int ActiveSeed { get { return _activeSeed; } }
+        public RogueDungeonSettings ActiveRuntimeSettings { get { return ResolveActiveRuntimeSettings(); } }
+        public bool CanEditActiveRuntimeRecipe { get { return ResolveCanEditActiveRuntimeRecipe(); } }
         public float CurrentCellSize
         {
             get
@@ -475,6 +483,13 @@ namespace RogueDungeonLab
             if (settings != null && settings.generateOnPlay) GenerateWithSeed(settings.seed);
         }
 
+        // Generator가 파괴될 때 자신이 만든 Play 전용 설정 복제본도 함께 정리합니다.
+        private void OnDestroy()
+        {
+            ReleasePendingRuntimeSettings();
+            ReleaseOwnedRuntimeSettings();
+        }
+
         // 기존 settings 자산에 기록된 시드로 절차 던전을 생성합니다.
         [ContextMenu("Generate From Settings Seed")]
         public void GenerateFromSettings()
@@ -487,20 +502,45 @@ namespace RogueDungeonLab
         [ContextMenu("Regenerate Active Seed")]
         public void RegenerateActiveSeed()
         {
-            if (IsStageDefinitionActive())
+            if (ShouldUseAssignedStageDefinition())
             {
                 if (stageDefinition.sourceMode == DungeonStageSourceMode.SavedBlueprint) LoadStageDefinition();
-                else LoadStageDefinitionWithSeed(_activeSeed);
+                else if (_hasGenerated) LoadStageDefinitionWithSeed(_activeSeed);
+                else LoadStageDefinition();
                 return;
             }
             if (settings != null) GenerateWithSeed(_hasGenerated ? _activeSeed : settings.seed);
+        }
+
+        // HUD가 편집 중인 활성 절차 출처를 유지하면서 지정 시드로 다시 생성합니다.
+        public void GenerateActiveRecipeWithSeed(int seed)
+        {
+            if (!CanEditActiveRuntimeRecipe)
+            {
+                UnityEngine.Debug.LogWarning("Saved Blueprint source does not allow runtime recipe editing.", this);
+                return;
+            }
+            if (stageDefinition != null &&
+                stageDefinition.sourceMode == DungeonStageSourceMode.Procedural &&
+                (IsStageDefinitionActive() ||
+                 (_stageInstance == null && ShouldUseAssignedStageDefinition())))
+            {
+                LoadStageDefinitionWithSeed(seed);
+                return;
+            }
+            if (settings != null)
+            {
+                GenerateWithSeed(seed);
+                return;
+            }
+            UnityEngine.Debug.LogWarning("No editable procedural source is assigned.", this);
         }
 
         // 절차 출처에는 새 임의 시드를 적용하고 저장 출처에는 저장된 Blueprint를 다시 구축합니다.
         [ContextMenu("Generate New Random Seed")]
         public void GenerateNewSeed()
         {
-            if (stageDefinition != null && (IsStageDefinitionActive() || settings == null))
+            if (ShouldUseAssignedStageDefinition())
             {
                 if (stageDefinition.sourceMode == DungeonStageSourceMode.SavedBlueprint) LoadStageDefinition();
                 else LoadStageDefinitionWithSeed(DungeonStageSeedResolver.CreateRandomSeed());
@@ -518,9 +558,23 @@ namespace RogueDungeonLab
                 UnityEngine.Debug.LogWarning("Assign RogueDungeonSettings first.", this);
                 return;
             }
-            settings.ClampValues();
-            DungeonStageInstance instance = DungeonStageLoader.LoadProcedural(transform, settings, seed, settings);
-            ApplyStageInstance(instance);
+            RogueDungeonSettings runtimeSettings = GetOrCreateRuntimeSettings(settings, settings);
+            if (IsGeneratorOwnedRuntimeSettings(runtimeSettings)) runtimeSettings.seed = seed;
+            runtimeSettings.ClampValues();
+            try
+            {
+                DungeonStageInstance instance = DungeonStageLoader.LoadProcedural(
+                    transform,
+                    runtimeSettings,
+                    seed,
+                    runtimeSettings);
+                ApplyStageInstance(instance);
+            }
+            catch
+            {
+                DiscardPendingRuntimeSettings(runtimeSettings);
+                throw;
+            }
         }
 
         // 지정 레시피·생성기 버전·catalog로 절차 결과를 만들고 현재 Generator 상태에 반영합니다.
@@ -533,18 +587,28 @@ namespace RogueDungeonLab
             string requestId = "")
         {
             if (recipe == null) throw new ArgumentNullException(nameof(recipe));
-            recipe.ClampValues();
-            DungeonStageInstance instance = DungeonStageLoader.LoadProcedural(
-                transform,
-                recipe,
-                seed,
-                generatorVersion,
-                recipe,
-                contentCatalog,
-                missingContentPolicy,
-                null,
-                requestId);
-            ApplyStageInstance(instance);
+            RogueDungeonSettings runtimeSettings = GetOrCreateRuntimeSettings(recipe, recipe);
+            if (IsGeneratorOwnedRuntimeSettings(runtimeSettings)) runtimeSettings.seed = seed;
+            runtimeSettings.ClampValues();
+            try
+            {
+                DungeonStageInstance instance = DungeonStageLoader.LoadProcedural(
+                    transform,
+                    runtimeSettings,
+                    seed,
+                    generatorVersion,
+                    runtimeSettings,
+                    contentCatalog,
+                    missingContentPolicy,
+                    null,
+                    requestId);
+                ApplyStageInstance(instance);
+            }
+            catch
+            {
+                DiscardPendingRuntimeSettings(runtimeSettings);
+                throw;
+            }
         }
 
         // 할당된 StageDefinition의 seed policy 또는 저장 Blueprint를 사용해 스테이지를 로드합니다.
@@ -601,26 +665,53 @@ namespace RogueDungeonLab
                 UnityEngine.Debug.LogWarning("Assign DungeonStageDefinition first.", this);
                 return;
             }
-            RogueDungeonSettings runtimeSettings = settings != null
-                ? settings
-                : stageDefinition.sourceMode == DungeonStageSourceMode.Procedural ? stageDefinition.recipe : null;
+            RogueDungeonSettings runtimeSettings = settings;
+            RogueDungeonSettings proceduralRecipeOverride = null;
+            if (stageDefinition.sourceMode == DungeonStageSourceMode.Procedural &&
+                stageDefinition.recipe != null)
+            {
+                if (Application.isPlaying)
+                {
+                    proceduralRecipeOverride = GetOrCreateRuntimeSettings(
+                        stageDefinition.recipe,
+                        settings != null ? settings : stageDefinition.recipe);
+                    proceduralRecipeOverride.ClampValues();
+                    runtimeSettings = proceduralRecipeOverride;
+                }
+                else
+                {
+                    runtimeSettings = settings != null ? settings : stageDefinition.recipe;
+                }
+            }
             DungeonLoadContext context = new DungeonLoadContext(stageDefinition, transform, runtimeSettings)
             {
-                ExplicitSeed = explicitSeed
+                ExplicitSeed = explicitSeed,
+                ProceduralRecipeOverride = proceduralRecipeOverride
             };
-            ApplyStageInstance(DungeonStageLoader.Load(context));
+            try
+            {
+                ApplyStageInstance(DungeonStageLoader.Load(context));
+            }
+            catch
+            {
+                DiscardPendingRuntimeSettings(proceduralRecipeOverride);
+                throw;
+            }
         }
 
         // 새 StageInstance를 기존 공개 상태와 드랍 서비스·완료 이벤트에 반영합니다.
         private void ApplyStageInstance(DungeonStageInstance instance)
         {
             if (instance == null) throw new ArgumentNullException(nameof(instance));
+            CommitRuntimeSettings(instance);
             _stageInstance = instance;
             _layout = instance.Layout;
             _blueprint = instance.Blueprint;
             _report = instance.Report;
             _activeSeed = instance.ActiveSeed;
             _activeRuntimeSettings = instance.RuntimeSettings;
+            if (_activeRuntimeSettings != null && _activeRuntimeSettings == _ownedRuntimeSettings)
+                _activeRuntimeSettings.seed = _activeSeed;
             _hasGenerated = true;
             ConfigureDropValidation(instance.ActiveSeed, instance.RuntimeSettings);
             Action<GenerationReport> handler = GenerationCompleted;
@@ -641,6 +732,152 @@ namespace RogueDungeonLab
         private bool IsStageDefinitionActive()
         {
             return stageDefinition != null && _stageInstance != null && _stageInstance.Definition == stageDefinition;
+        }
+
+        // 활성 인스턴스가 아직 없어도 자동 로드 Definition 또는 유일한 출처인 Definition을 우선할지 판정합니다.
+        private bool ShouldUseAssignedStageDefinition()
+        {
+            return stageDefinition != null &&
+                   (IsStageDefinitionActive() || stageDefinition.loadOnPlay || settings == null);
+        }
+
+        // 현재 로드 출처가 Play HUD에서 구조 레시피를 수정할 수 있는 절차 모드인지 판정합니다.
+        private bool ResolveCanEditActiveRuntimeRecipe()
+        {
+            if (_stageInstance != null) return _stageInstance.SourceMode == DungeonStageSourceMode.Procedural;
+            if (ShouldUseAssignedStageDefinition())
+                return stageDefinition.sourceMode == DungeonStageSourceMode.Procedural;
+            return settings != null;
+        }
+
+        // 현재 절차 출처에 대응하는 원본과 분리된 Play 전용 설정을 찾아 필요하면 생성합니다.
+        private RogueDungeonSettings ResolveActiveRuntimeSettings()
+        {
+            if (!ResolveCanEditActiveRuntimeRecipe()) return null;
+            if (_stageInstance != null && _stageInstance.SourceMode == DungeonStageSourceMode.Procedural)
+            {
+                if (!Application.isPlaying ||
+                    (_ownedRuntimeSettings != null && _activeRuntimeSettings == _ownedRuntimeSettings))
+                {
+                    return _activeRuntimeSettings;
+                }
+                RogueDungeonSettings activeRecipe =
+                    _stageInstance.Definition != null ? _stageInstance.Definition.recipe : settings;
+                if (activeRecipe == null) activeRecipe = _activeRuntimeSettings;
+                RogueDungeonSettings activeOptions = settings != null ? settings : _activeRuntimeSettings;
+                return GetOrCreateRuntimeSettings(activeRecipe, activeOptions);
+            }
+            if (stageDefinition != null &&
+                ShouldUseAssignedStageDefinition() &&
+                stageDefinition.sourceMode == DungeonStageSourceMode.Procedural &&
+                stageDefinition.recipe != null)
+            {
+                return GetOrCreateRuntimeSettings(
+                    stageDefinition.recipe,
+                    settings != null ? settings : stageDefinition.recipe);
+            }
+            return settings != null ? GetOrCreateRuntimeSettings(settings, settings) : null;
+        }
+
+        // Play에서는 생성 레시피와 런타임 옵션을 합친 HideAndDontSave 복제본을 Generator 소유로 준비합니다.
+        private RogueDungeonSettings GetOrCreateRuntimeSettings(
+            RogueDungeonSettings recipeSource,
+            RogueDungeonSettings runtimeOptionsSource)
+        {
+            if (recipeSource == null) return null;
+            RogueDungeonSettings optionsSource = runtimeOptionsSource != null ? runtimeOptionsSource : recipeSource;
+            if (!Application.isPlaying) return recipeSource;
+            if (_ownedRuntimeSettings != null &&
+                _runtimeRecipeSource == recipeSource &&
+                _runtimeOptionsSource == optionsSource)
+            {
+                ReleasePendingRuntimeSettings();
+                return _ownedRuntimeSettings;
+            }
+            if (_pendingRuntimeSettings != null &&
+                _pendingRuntimeRecipeSource == recipeSource &&
+                _pendingRuntimeOptionsSource == optionsSource)
+            {
+                return _pendingRuntimeSettings;
+            }
+
+            ReleasePendingRuntimeSettings();
+            RogueDungeonSettings clone = Instantiate(optionsSource);
+            clone.name = recipeSource.name + " (Runtime)";
+            clone.hideFlags = HideFlags.HideAndDontSave;
+            if (recipeSource != optionsSource)
+                DungeonRecipeSnapshot.Capture(recipeSource).ApplyTo(clone);
+            clone.ClampValues();
+            _pendingRuntimeSettings = clone;
+            _pendingRuntimeRecipeSource = recipeSource;
+            _pendingRuntimeOptionsSource = optionsSource;
+            return clone;
+        }
+
+        // 성공한 StageInstance가 사용한 후보 설정을 활성 소유권으로 승격하고 이전 복제본을 그 뒤에 정리합니다.
+        private void CommitRuntimeSettings(DungeonStageInstance instance)
+        {
+            if (instance.RuntimeSettings == _pendingRuntimeSettings && _pendingRuntimeSettings != null)
+            {
+                RogueDungeonSettings committed = _pendingRuntimeSettings;
+                RogueDungeonSettings recipeSource = _pendingRuntimeRecipeSource;
+                RogueDungeonSettings optionsSource = _pendingRuntimeOptionsSource;
+                _pendingRuntimeSettings = null;
+                _pendingRuntimeRecipeSource = null;
+                _pendingRuntimeOptionsSource = null;
+                ReleaseOwnedRuntimeSettings();
+                _ownedRuntimeSettings = committed;
+                _runtimeRecipeSource = recipeSource;
+                _runtimeOptionsSource = optionsSource;
+                return;
+            }
+
+            ReleasePendingRuntimeSettings();
+            if (instance.SourceMode == DungeonStageSourceMode.SavedBlueprint)
+                ReleaseOwnedRuntimeSettings();
+        }
+
+        // 로드 실패 시 해당 요청이 만든 후보 복제본만 버리고 기존 활성 설정과 스테이지를 유지합니다.
+        private void DiscardPendingRuntimeSettings(RogueDungeonSettings candidate)
+        {
+            if (candidate != null && candidate == _pendingRuntimeSettings)
+                ReleasePendingRuntimeSettings();
+        }
+
+        // 지정 설정이 현재 활성 또는 다음 로드 후보로 Generator가 소유한 복제본인지 확인합니다.
+        private bool IsGeneratorOwnedRuntimeSettings(RogueDungeonSettings candidate)
+        {
+            return candidate != null &&
+                   (candidate == _ownedRuntimeSettings || candidate == _pendingRuntimeSettings);
+        }
+
+        // 아직 로드에 성공하지 않은 임시 설정 후보만 안전하게 파괴합니다.
+        private void ReleasePendingRuntimeSettings()
+        {
+            RogueDungeonSettings pending = _pendingRuntimeSettings;
+            _pendingRuntimeSettings = null;
+            _pendingRuntimeRecipeSource = null;
+            _pendingRuntimeOptionsSource = null;
+            DestroyRuntimeSettings(pending);
+        }
+
+        // Generator가 소유한 임시 설정만 파괴하고 프로젝트 자산 참조는 건드리지 않습니다.
+        private void ReleaseOwnedRuntimeSettings()
+        {
+            RogueDungeonSettings owned = _ownedRuntimeSettings;
+            _ownedRuntimeSettings = null;
+            _runtimeRecipeSource = null;
+            _runtimeOptionsSource = null;
+            if (_activeRuntimeSettings == owned) _activeRuntimeSettings = null;
+            DestroyRuntimeSettings(owned);
+        }
+
+        // Play와 Edit 수명 주기에 맞는 Unity 파괴 API로 지정 임시 설정을 정리합니다.
+        private void DestroyRuntimeSettings(RogueDungeonSettings runtimeSettings)
+        {
+            if (runtimeSettings == null) return;
+            if (Application.isPlaying) Destroy(runtimeSettings);
+            else DestroyImmediate(runtimeSettings);
         }
 
         // 생성 전 Gizmo에도 사용할 설정 또는 저장 Blueprint 크기에서 예상 Bounds를 계산합니다.

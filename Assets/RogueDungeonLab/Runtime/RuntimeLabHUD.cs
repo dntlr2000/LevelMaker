@@ -18,15 +18,26 @@ namespace RogueDungeonLab
         private void DrawStageSettingsTab()
         {
             GUILayout.Label("실시간 스테이지 설정", _header);
-            if (_generator == null || _generator.settings == null)
+            if (_generator == null)
             {
-                GUILayout.Label("Generator와 RogueDungeonSettings를 먼저 연결하세요.", _warning);
+                GUILayout.Label("Generator를 먼저 연결하세요.", _warning);
+                return;
+            }
+            if (!_generator.CanEditActiveRuntimeRecipe)
+            {
+                GUILayout.Label("Saved Blueprint 모드에서는 저장된 논리 맵을 보호하기 위해 구조 설정과 시드를 Play HUD에서 편집할 수 없습니다.", _warning);
+                GUILayout.Label("구조를 바꾸려면 에디터의 스테이지 자산 탭에서 제작 레시피를 불러와 새 Blueprint로 저장하세요. 탐험 탭의 재생성은 같은 저장본만 다시 구축합니다.", _muted);
                 return;
             }
 
-            RogueDungeonSettings settings = _generator.settings;
+            RogueDungeonSettings settings = _generator.ActiveRuntimeSettings;
+            if (settings == null)
+            {
+                GUILayout.Label("편집할 절차 레시피가 없습니다. Generator settings 또는 Procedural StageDefinition recipe를 연결하세요.", _warning);
+                return;
+            }
             settings.ClampValues();
-            GUILayout.Label("슬라이더와 프리셋 변경은 활성 시드를 유지한 채 자동 재생성되어 드래그 중에도 결과가 갱신됩니다. 시드 입력만 생성 버튼으로 확정합니다.", _muted);
+            GUILayout.Label("Play 전용 복제 설정을 편집합니다. 원본 settings와 StageDefinition recipe는 변경되지 않습니다. 슬라이더와 프리셋은 활성 시드를 유지해 자동 재생성되고, 시드 입력만 생성 버튼으로 확정합니다.", _muted);
             DrawPresetButtons(settings);
 
             GUILayout.Space(8f);
@@ -121,7 +132,7 @@ namespace RogueDungeonLab
             settings.seed = seed;
             settings.ClampValues();
             _seedText = settings.seed.ToString();
-            _generator.GenerateWithSeed(settings.seed);
+            _generator.GenerateActiveRecipeWithSeed(settings.seed);
             CompleteImmediateGeneration();
         }
 
@@ -144,7 +155,12 @@ namespace RogueDungeonLab
         // 슬라이더 드래그에서 발생한 여러 변경을 다음 Update의 자동 재생성 요청 하나로 합칩니다.
         private void RequestLiveRegeneration()
         {
-            if (_generator == null || _generator.settings == null) return;
+            if (_generator == null ||
+                !_generator.CanEditActiveRuntimeRecipe ||
+                _generator.ActiveRuntimeSettings == null)
+            {
+                return;
+            }
             _liveRegenerationPending = true;
         }
 
@@ -152,7 +168,9 @@ namespace RogueDungeonLab
         private void ProcessLiveRegeneration()
         {
             if (!_liveRegenerationPending) return;
-            if (_generator == null || _generator.settings == null)
+            if (_generator == null ||
+                !_generator.CanEditActiveRuntimeRecipe ||
+                _generator.ActiveRuntimeSettings == null)
             {
                 _liveRegenerationPending = false;
                 return;
@@ -160,7 +178,7 @@ namespace RogueDungeonLab
             if (Time.unscaledTime < _nextLiveRegenerationTime) return;
 
             _liveRegenerationPending = false;
-            _generator.settings.ClampValues();
+            _generator.ActiveRuntimeSettings.ClampValues();
             _generator.RegenerateActiveSeed();
             _nextLiveRegenerationTime = Time.unscaledTime + LiveRegenerationInterval;
         }
@@ -223,7 +241,9 @@ namespace RogueDungeonLab
             if (GUILayout.Button("현재 시드 재생성")) RegenerateActiveSeedImmediately();
             if (GUILayout.Button("새 시드"))
             {
-                if (_generator.settings != null) GenerateNewSeedAndSync(_generator.settings);
+                RogueDungeonSettings activeSettings = _generator.ActiveRuntimeSettings;
+                if (_generator.CanEditActiveRuntimeRecipe && activeSettings != null)
+                    GenerateNewSeedAndSync(activeSettings);
                 else _generator.GenerateNewSeed();
             }
             GUILayout.EndHorizontal();

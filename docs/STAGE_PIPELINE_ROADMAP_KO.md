@@ -1,6 +1,6 @@
 # 스테이지 제작·배포 통합 로드맵
 
-> 상태: R0·R1·R2·R3·R4·R5·R5.1 구현 완료, R6 대기
+> 상태: R0·R1·R2·R3·R4·R5·R5.1·R5.2·R6 구현 및 통합 검증 완료
 >
 > 기준 프로젝트: Unity `6000.5.3f1`
 >
@@ -44,7 +44,7 @@
 | 저장 맵 빠른 사용 | `SavedBlueprint` | `RuntimeBuild` | 적용 안 함 | Blueprint 자산 |
 | 검수 완료 맵 배포 | `SavedBlueprint` | `BakedPrefab` | 적용 안 함 | Blueprint 자산 + Bake 결과 |
 
-저장형 모드에서는 Blueprint에 기록된 시드가 출처 정보로 남지만, 로드할 때 새 시드로 다시 계산하지 않습니다. Bake 모드는 Blueprint 해시와 Bake manifest의 해시가 같을 때만 최신 상태로 봅니다.
+저장형 모드에서는 Blueprint에 기록된 시드가 출처 정보로 남지만, 로드할 때 새 시드로 다시 계산하지 않습니다. Bake 모드는 `DungeonBakeManifest`의 source/final Blueprint, planning/realization/gameplay/material/override hash와 builder version이 모두 현재 입력과 맞을 때만 최신 상태로 봅니다.
 
 ## 4. 목표 파이프라인
 
@@ -65,7 +65,7 @@ DungeonBlueprint
   → DungeonStageOverrides 적용(선택)
   → 최종 DungeonBlueprint
   ├─ RuntimeBuild → DungeonSceneBuilder + IDungeonContentResolver
-  └─ BakedPrefab  → BakeManifest 검증 → Prefab 인스턴스
+  └─ BakedPrefab  → DungeonBakeManifest 검증 → Prefab 인스턴스
   → DungeonStageInstance
 
 DungeonStageInstance + DungeonRunState
@@ -80,11 +80,15 @@ R0 회귀 기준
     → R2 생성/구축 분리
       → R3 StageDefinition·Loader
         ├─ R4 콘텐츠 카탈로그
-        │    → R5 저장·불러오기 UI → R5.1 레시피 복원 → R6 Bake → R7 수동 Override
+        │    → R5 저장·불러오기 UI → R5.1 레시피 복원 → R5.2 R6 착수 게이트
+        │         ├─ R6 Bake → R7 수동 Override
+        │         └─ R9A RuntimeBuild 코어 패키징
         └─ R8 RunState
 
-R3 + R4 + R5.1
-  → R9 다른 프로젝트용 패키징
+R6
+  → R9B Bake 배포 패키징
+
+R3
   → R10 런타임 사용자 맵 저장(선택)
 ```
 
@@ -161,7 +165,7 @@ Blueprint에는 Scene 경로, Asset GUID, Prefab 직접 참조를 넣지 않습�
 - `recipe`: Procedural일 때 필수
 - `savedBlueprint`: SavedBlueprint일 때 필수
 - `contentCatalog`: 실제 콘텐츠 해석에 사용
-- `bakedPrefab`, `bakeManifest`: BakedPrefab일 때 필수
+- `bakedPrefab`, Runtime-safe `DungeonBakeManifest`: BakedPrefab일 때 필수
 - `fixedSeed`: FixedSeed일 때 사용
 - `missingContentPolicy`: 오류, primitive fallback, 건너뛰기 중 하나
 
@@ -169,7 +173,7 @@ Blueprint에는 Scene 경로, Asset GUID, Prefab 직접 참조를 넣지 않습�
 
 - `Procedural + BakedPrefab` 조합은 허용하지 않습니다. 먼저 결과를 Blueprint로 저장해야 합니다.
 - `SavedBlueprint`에서는 `seedPolicy`를 무시합니다.
-- Bake manifest의 Blueprint·카탈로그·빌더 버전 해시가 다르면 stale 오류로 처리합니다.
+- Bake manifest의 최종 Blueprint·Override·콘텐츠 실현·게임플레이 구축·재질 의존성·빌더 버전 해시 중 하나라도 현재 입력과 다르면 stale 오류로 처리합니다. `catalogPlanningHash`는 배치 후보 선택의 출처를 검증하지만 Prefab·드랍·재질 변경을 대신하지 않습니다.
 - 출시용 설정에서는 필수 `contentKey` 누락을 오류로, 실험실에서는 primitive fallback 경고로 처리할 수 있습니다.
 
 ### 5.4 콘텐츠 카탈로그와 Resolver
@@ -196,6 +200,8 @@ DungeonContentPlanner
 - 선택적 드랍 테이블 또는 게임 측 식별자
 
 카탈로그 항목과 room tag는 계산 전에 ordinal canonical 순서로 정규화합니다. Inspector에서 항목 순서를 바꾼 것만으로 결과가 변하지 않으며, 중복 키는 `RDL-CAT-*` 검증 오류로 처리합니다. planning snapshot에는 Unity Object를 넣지 않고 Prefab·drop table·gameplay ID를 planning hash에서 제외합니다. Blueprint에는 최종 선택된 key가 기록되므로 저장 맵을 다시 열 때 가중치 추첨을 반복하지 않습니다.
+
+`catalogPlanningHash`는 “어떤 key가 선택될 수 있는가”를 고정할 뿐, 선택된 key가 어떤 Prefab·Mesh·Material·드랍 규칙으로 실현되는지는 고정하지 않습니다. RuntimeBuild에서는 resolver가 이 후반 의존성을 해석하고, Bake에서는 R5.2에 정의한 별도 realization·gameplay·material hash가 같은 입력인지 검증합니다. planning hash만 일치하는 Bake를 최신 결과로 승인하지 않습니다.
 
 다른 프로젝트가 Addressables, 자체 DI, 오브젝트 풀을 쓰더라도 코어를 고치지 않고 `IDungeonContentResolver` 구현을 `DungeonLoadContext.ContentResolver`로 주입할 수 있습니다. 기본 구현은 직접 Prefab 참조를 사용하며, `Error`·`BuiltInFallback`·`Skip` 누락 정책과 실행별 override를 제공합니다.
 
@@ -233,13 +239,46 @@ baseSeed
 
 `__RogueDungeonLab_Generated`를 Prefab으로 바로 저장하지 않습니다. 이 루트는 계속 `DontSaveInEditor | DontSaveInBuild` 미리보기로 유지합니다.
 
-Bake는 저장된 Blueprint에서만 실행합니다.
+Bake는 저장된 Blueprint에서만 실행합니다. `__RogueDungeonLab_Generated`를 복제하거나 사용자가 편집 중인 preview hierarchy를 입력으로 삼지 않습니다.
 
-- floor/wall Mesh 자산 생성
-- 콘텐츠 Prefab 배치 결과 생성
-- `BakeManifest`에 Blueprint 해시, catalog hash, builder version 기록
-- 재실행 시 이전 파생 산출물을 안전하게 교체
-- 원본이 바뀌면 에디터와 빌드 검증에서 stale 표시
+R5.2에서 어셈블리 경계를 다음처럼 고정합니다.
+
+- Runtime의 `DungeonBakeManifest`는 `ScriptableObject` 데이터 계약과 순수 검증만 담당합니다. `DungeonStageDefinition`, Player build와 `DungeonStageLoader`가 이 타입을 직접 참조할 수 있으며 `AssetDatabase`, `PrefabUtility`, `UnityEditor` 타입을 포함하지 않습니다.
+- Runtime의 `DungeonBakeMaterialSet`은 floor·wall과 built-in 콘텐츠 범주의 영속 `Material` 참조를 보관합니다. `HideAndDontSave` 런타임 미리보기 Material은 Bake 입력이나 Prefab 참조로 저장하지 않습니다.
+- Editor의 `DungeonStageBaker`만 저장 경로, Asset GUID·dependency hash 계산, Mesh/Prefab 자산 생성, staging·commit·정리와 Undo를 담당합니다.
+
+`DungeonBakeManifest`의 무결성 필드는 다음 의미를 가집니다.
+
+| 필드 | 고정하는 범위 |
+|---|---|
+| `sourceBlueprintHash` | Override 적용 전 저장 원본 `DungeonBlueprintAsset`의 canonical hash |
+| `overrideHash` | 적용한 `DungeonStageOverrides`의 canonical hash. R6 format v1은 Override 미지원이므로 빈 값만 허용 |
+| `finalBlueprintHash` | 검증된 Override 적용 뒤 실제 Bake한 최종 Blueprint hash. R6에서는 `sourceBlueprintHash`와 같음 |
+| `catalogPlanningHash` | 원 Blueprint의 콘텐츠 후보 선택 출처. Prefab·드랍·재질 변경은 포함하지 않음 |
+| `contentRealizationHash` | 최종 Blueprint가 참조한 key의 resolver 종류·버전, 직접 Catalog Prefab의 identity·hierarchy·component와 source Mesh 의존성. gameplay·Material은 아래 hash로 분리 |
+| `gameplayBuildConfigHash` | 누락 정책, `gameplayId`, canonical drop table 정의, drop marker 등 구축 시 주입되는 게임플레이 설정 |
+| `materialDependencyHash` | `DungeonBakeMaterialSet`, Prefab Renderer의 영속 Material과 Shader 의존성 |
+| `builderVersion` | hierarchy·Collider·component·floor/wall Mesh 생성 규칙을 포함하는 Baker/Builder 계약 버전 |
+
+Manifest는 `bakedPrefab`과 Baker가 소유하는 정확한 `ownedArtifacts` 목록도 기록합니다. 각 레코드는 역할, Asset GUID와 dependency hash를 가지며, 생성된 floor/wall Mesh와 Prefab을 검증·정리할 때 이름 추측 대신 이 목록을 사용합니다. 사용자 Blueprint·settings·catalog, Catalog Prefab, 공유 Mesh·Material은 어떤 경우에도 Baker 소유로 기록하지 않습니다.
+
+R6 MVP의 Bake resolver 범위는 다음으로 제한합니다.
+
+- 알려진 built-in `contentKey`와 범주별 fallback은 `DungeonBakeMaterialSet`을 사용하는 영속 표현으로 생성
+- `DungeonContentCatalog`의 직접 Prefab 참조는 Prefab dependency를 fingerprint한 뒤 인스턴스화
+- 런타임 factory, Addressables, DI·오브젝트 풀처럼 Editor에서 재현할 수 없는 custom resolver는 RuntimeBuild 전용으로 유지
+- custom resolver Bake는 후속 `Editor bake adapter` 계약이 생기기 전까지 오류로 차단하며 자동으로 primitive로 바꾸지 않음
+- `Error`·`BuiltInFallback`·`Skip` 정책 자체와 실제 해석 결과를 gameplay/realization hash에 포함하고, 출시 Bake는 필수 key를 해석하지 못하면 실패
+
+재Bake는 실제 파일 시스템 원자성을 가정하지 않고 staging/commit 절차로 안전성을 보장합니다.
+
+1. 기존 활성 manifest와 파생 산출물은 그대로 둔 채 stage 전용 임시 폴더에 새 Mesh·Prefab·manifest 후보를 생성
+2. 새 후보의 모든 hash, 자산 참조와 RuntimeBuild/BakedPrefab 동등성 검사를 완료하고 `AssetDatabase.SaveAssets`·재임포트
+3. 성공한 후보만 `SerializedObject`와 Undo 가능한 단위로 StageDefinition의 활성 Prefab·manifest 참조에 commit
+4. commit 뒤 이전 manifest가 명시한 소유 산출물만 정리
+5. 생성·검증·저장 중 실패하면 staging 산출물만 제거하고 이전 정상 Bake와 StageDefinition 참조를 유지
+
+R6의 parity는 렌더링 hierarchy가 우연히 같은지가 아니라 논리·게임플레이 계약이 같은지로 판정합니다. RuntimeBuild와 BakedPrefab은 같은 최종 Blueprint hash, 입구·출구, floor 셀과 floor/wall Collider, `DungeonSpawnIdentity`의 spawn ID·category·contentKey·transform, 클릭 대상의 gameplay ID·drop table, drop marker 정책, 구축 개수·경고 report를 가져야 합니다. BakedPrefab 로드는 Blueprint 생성, `DungeonMeshBuilder`와 콘텐츠 resolver를 다시 실행하지 않고 manifest 검증 뒤 Prefab을 인스턴스화해야 하며, `__RogueDungeonLab_Generated`, `DungeonStageInstance`와 `GenerationCompleted` 호환 동작은 유지합니다.
 
 수동 편집은 다음 형태의 `DungeonStageOverrides`로 시작합니다.
 
@@ -301,7 +340,7 @@ GenerateWithSeed(seed)
 
 각 단계는 앞 단계의 테스트가 통과한 뒤 진행합니다. 한 단계에서 데이터 계약과 UI, 대규모 파일 이동을 동시에 하지 않습니다.
 
-현재 진행 상태는 `R0 완료 → R1 완료 → R2 완료 → R3 완료 → R4 완료 → R5 완료 → R5.1 완료 → R6 대기`입니다. Unity `6000.5.3f1`에서 compile 성공, EditMode `51/51`, PlayMode `3/3`을 통과했습니다.
+현재 진행 상태는 `R0 완료 → R1 완료 → R2 완료 → R3 완료 → R4 완료 → R5 완료 → R5.1 완료 → R5.2 완료 → R6 완료`입니다. Unity `6000.5.3f1`에서 R6 compile 성공, EditMode `74/74`, PlayMode `8/8`을 통과했고, 분리된 임시 프로젝트에서 Baked 검증 Scene을 포함한 Windows Development Player 빌드도 성공했습니다.
 
 ### R0 — 현재 동작 지문과 회귀 기준 고정 (완료)
 
@@ -403,16 +442,39 @@ R4 전 중간 점검에서 Procedural/SavedBlueprint source 전환, 저장 hash 
 
 구현 결과: `DungeonRecipeSnapshot`에 깊은 복사와 설정 역적용을 추가하고 `DungeonBlueprintAsset`이 선택적으로 snapshot을 보존하도록 확장했습니다. 제작 서비스는 snapshot을 적용하기 전 format·hash·canonical 값을 검사하며 생성 필드만 Undo 가능하게 덮어씁니다. 정확 재생성은 실제 자산 변경 전에 동일 입력 Blueprint를 계산해 저장 hash를 확인하고 LegacyV1·StableV2 명시 버전 loader로 구축합니다. Unity `6000.5.3f1`에서 compile, EditMode `51/51`, PlayMode `3/3`을 통과했습니다.
 
-### R6 — Bake와 배포용 파생 자산
+### R5.2 — R6 Bake 착수 게이트 (완료)
 
-- `DungeonStageBaker`와 `BakeManifest` 추가
+R6 구현 전에 Runtime/Editor 경계와 Bake 최신성 판정을 고정하고, Play HUD가 프로젝트 레시피 원본을 직접 변경하는 문제를 제거합니다.
+
+- settings-only와 Procedural StageDefinition의 레시피를 Play 중 `HideAndDontSave` 복제본으로 격리
+- Generator가 활성 런타임 설정의 생성·재사용·교체·해제를 소유하고 `ActiveRuntimeSettings`·`CanEditActiveRuntimeRecipe`로 노출하며 HUD는 그 복제본만 편집
+- Procedural StageDefinition은 `DungeonLoadContext.ProceduralRecipeOverride`로 같은 복제본을 생성 입력과 gameplay 설정에 전달
+- SavedBlueprint 활성 상태에서는 설정 조정이 저장 논리 맵을 변경하지 않도록 UI와 재생성 경로 분리
+- Runtime-safe `DungeonBakeManifest`·`DungeonBakeMaterialSet` 계약과 Editor-only `DungeonStageBaker` 경계 고정
+- planning, realization, gameplay, material, override와 builder hash의 책임 분리
+- stage별 staging/commit, manifest 기반 파생 산출물 소유권과 실패 rollback 규칙 고정
+- RuntimeBuild/BakedPrefab의 stable ID·Collider·클릭/drop·report parity를 R6 완료 조건으로 승격
+- RuntimeBuild 성능 기준선, 자산 재임포트·Undo 영속성·LegacyV1/custom catalog 회귀 보강
+
+완료 기준: Play HUD가 settings와 StageDefinition 레시피 원본을 변경하지 않으면서 활성 시드의 Procedural 결과에 반영되고, R6의 manifest·영속 재질·resolver 범위·파생 산출물 소유권·parity 계약이 Runtime/Editor 어셈블리 경계를 위반하지 않도록 코드·테스트·문서로 고정됩니다.
+
+구현 결과: Generator 소유 `HideAndDontSave` 설정 복제본, `ProceduralRecipeOverride`, HUD 활성 레시피 연결과 SavedBlueprint 편집 차단을 추가했습니다. 새 출처 설정은 Loader 성공 뒤에만 commit하며 실패 시 후보만 폐기해 기존 StageInstance·generated root·활성 설정을 유지합니다. Runtime-safe manifest는 custom catalog, 완전한 Bake material set, 필수 hash, R6 Override 미지원과 고유 `ownedArtifacts`를 검증합니다. 저장·재임포트·LegacyV1/custom catalog 재생성 회귀와 성능 기준선을 보강했고 Unity `6000.5.3f1`에서 compile, EditMode `58/58`, PlayMode `7/7`을 통과했습니다. Balanced seed `73125` RuntimeBuild 15회의 시간은 p50 `7.390 ms`, p95 `7.744 ms`; Profiler Mono 사용량 증분은 p50 `2,252,800 B`, p95 `2,269,184 B`였습니다. 실제 Play 중 script/domain reload와 HUD 화면·포인터 Raycast는 수동 미실행 항목입니다.
+
+### R6 — Bake와 배포용 파생 자산 (완료)
+
+- Editor-only `DungeonStageBaker`를 추가하고 R5.2의 Runtime-safe `DungeonBakeManifest`·`DungeonBakeMaterialSet` 계약 사용
 - floor/wall Mesh를 프로젝트 자산으로 저장
-- 콘텐츠와 marker를 포함한 Prefab 생성
-- 같은 Blueprint 재Bake와 stale 파생 자산 정리
+- built-in 영속 표현과 직접 Catalog Prefab, marker를 포함한 Prefab 생성
+- stage 전용 staging 폴더에서 검증한 뒤 commit하고 manifest가 소유한 이전 파생 산출물만 정리
+- source/final Blueprint, planning/realization/gameplay/material/override hash와 builder version의 stale 검증
 - `SavedBlueprint + BakedPrefab` 로드 경로 추가
 - Editor 전용 API 격리와 Player build smoke test 추가
 
-완료 기준: 런타임 생성 코드를 실행하지 않고도 검수한 맵 Prefab을 로드할 수 있으며 Blueprint와 Bake 결과의 해시 불일치를 탐지합니다.
+완료 기준: 런타임 생성·Mesh 구축·resolver 코드를 실행하지 않고도 검수한 맵 Prefab을 로드할 수 있고, 모든 Bake 입력 의존성 불일치를 탐지합니다. RuntimeBuild와 BakedPrefab은 입구·출구·floor/Collider, stable spawn identity, 클릭/drop과 report가 동등하며, 실패한 재Bake는 이전 정상 결과나 사용자·공유 자산을 손상하지 않습니다.
+
+구현 결과: Editor-only Baker의 stage 전용 staging/commit, 영속 floor/wall Mesh와 Baked Prefab·manifest 생성, 기본 영속 재질 세트 도구, realization/gameplay/material dependency fingerprint·stale 검증, manifest 소유권 기반 이전 산출물 정리와 rollback 경로를 연결했습니다. `SavedBlueprint + BakedPrefab` Loader는 manifest 검증 뒤 저장 Prefab만 인스턴스화하며, 제작 창에는 대상·MaterialSet 선택, Bake/재Bake 확인, 최신성 리포트와 결과 Ping을 추가했습니다. Catalog Prefab missing script·Editor-only component 안전성, 직접 Prefab 클릭 대상과 실제 Runtime 기본 DropTable gameplay 지문도 검사합니다.
+
+Unity `6000.5.3f1`에서 compile, EditMode `74/74`, PlayMode `8/8`을 통과했습니다. 자동 회귀는 RuntimeBuild/BakedPrefab의 Blueprint·입출구·floor/wall Collider·stable spawn identity·클릭/drop·report parity, 생성기·Mesh Builder·resolver 미호출, 성공/실패 재Bake와 공유 자산 보호를 포함합니다. 분리된 임시 프로젝트에서는 R6 전용 SavedBlueprint·MaterialSet·Baked Prefab·manifest·Scene 생성, 반복 재Bake, 실패 주입 rollback과 총 `172,288,233 B` Windows Development Player 빌드가 성공했습니다.
 
 ### R7 — 비파괴 수동 편집
 
@@ -436,15 +498,31 @@ R4 전 중간 점검에서 Procedural/SavedBlueprint source 전환, 저장 hash 
 
 ### R9 — 다른 Unity 프로젝트용 패키징
 
+R9는 R6과 무관한 RuntimeBuild 소비 경로와 Bake 산출물 배포 경로를 분리합니다.
+
+#### R9A — RuntimeBuild 코어 패키징
+
+R5.2 뒤 시작할 수 있으며 R6 완료를 요구하지 않습니다.
+
 - 코어 생성·Blueprint·Loader와 실험실 HUD/임시 플레이어 의존성 분리
 - Input System 의존 코드는 선택적 Sample 또는 별도 assembly로 이동
 - 기존 `RogueDungeonLab.Runtime` 참조가 깨지지 않는 migration 경로 준비
 - UPM 구조 또는 복사 가능한 `Assets/RogueDungeonLab` 배포 구조 확정
-- 카탈로그·Blueprint·StageDefinition 예제와 통합 가이드 작성
-- Built-in/URP/HDRP 재질 resolver 점검
+- Procedural·SavedBlueprint RuntimeBuild용 카탈로그·Blueprint·StageDefinition 예제와 통합 가이드 작성
 - 소비 프로젝트용 최소 smoke scene과 Player build 테스트 제공
 
-완료 기준: 새 Unity `6000.5` 프로젝트가 코어만 가져와도 컴파일되고, 필요한 프로젝트는 Sample을 추가해 현재 실험실 기능까지 사용할 수 있습니다.
+완료 기준: 새 Unity `6000.5` 프로젝트가 RuntimeBuild 코어만 가져와도 컴파일되고, 필요한 프로젝트는 Sample을 추가해 현재 실험실 기능까지 사용할 수 있습니다.
+
+#### R9B — Bake 배포 패키징
+
+R6 완료 뒤 시작합니다.
+
+- Baked Prefab, `DungeonBakeManifest`, `DungeonBakeMaterialSet`과 필요한 Catalog Prefab 의존성 수집
+- Baker를 포함하는 제작 패키지와 Player에 필요한 Runtime 자산의 경계 확정
+- Built-in/URP/HDRP 영속 재질 세트와 프로젝트별 bake adapter 점검
+- 소비 프로젝트에서 manifest stale 검증과 BakedPrefab Player build smoke test
+
+완료 기준: 원본 프로젝트가 만든 검수 Bake 묶음을 새 Unity `6000.5` 프로젝트로 옮겨도 manifest 참조와 gameplay parity가 유지되며 Player build가 성공합니다.
 
 ### R10 — 런타임 사용자 제작 맵 저장(선택)
 
@@ -458,9 +536,17 @@ R4 전 중간 점검에서 Procedural/SavedBlueprint source 전환, 저장 hash 
 
 완료 기준: 빌드된 게임에서 저장·재시작·불러오기 round-trip이 가능하며, 잘못된 파일이 임의 Prefab이나 경로를 로드하지 못합니다.
 
-## 8. 예정 파일 구조
+### 제품화 필수 경로와 선택 backlog
 
-새 타입은 역할별 파일로 추가하고, 기존 대형 파일 분리는 동작 지문을 확보한 뒤 진행합니다. Unity `6000.5` 직렬화 안정성을 위해 모든 MonoBehaviour와 ScriptableObject는 타입명과 같은 연결 파일을 유지합니다.
+- 저장 Blueprint를 생성 코드 없이 배포하려면 `R5.2 → R6`가 필수입니다.
+- 다른 프로젝트에서 RuntimeBuild만 사용하려면 R6을 기다리지 않고 `R5.2 → R9A`로 진행할 수 있습니다.
+- 다른 프로젝트로 BakedPrefab까지 배포하려면 `R5.2 → R6 → R9B`가 필수입니다.
+- `R7`은 수동 제작 변형이 필요한 제품의 authoring 단계이고, `R8`은 실제 게임 세이브/재개가 필요한 제품의 gameplay 단계입니다. 둘은 R6의 manifest 계약에 포함될 확장 지점이지만 R6 MVP 자체의 완료 조건은 아닙니다.
+- `R10`과 방 의미론, 다층, NavMesh, 대형 맵 최적화, 고급 드랍 규칙, CSV/JSON 통계 내보내기는 명시적 선택 backlog입니다. 해당 요구가 확정되기 전에는 R6 범위를 넓히지 않습니다.
+
+## 8. 현재·예정 파일 구조
+
+R5.2의 Runtime Bake 계약 타입은 이미 `Runtime/Baking`에 두고, R6의 실제 `DungeonStageBaker`만 Editor에 추가합니다. 새 타입은 역할별 파일로 추가하고, 기존 대형 파일 분리는 동작 지문을 확보한 뒤 진행합니다. Unity `6000.5` 직렬화 안정성을 위해 모든 MonoBehaviour와 ScriptableObject는 타입명과 같은 연결 파일을 유지합니다.
 
 ```text
 Assets/RogueDungeonLab/
@@ -477,6 +563,9 @@ Assets/RogueDungeonLab/
 │  ├─ Building/
 │  │  ├─ DungeonSceneBuilder.cs
 │  │  └─ DungeonStageInstance.cs
+│  ├─ Baking/
+│  │  ├─ DungeonBakeManifest.cs
+│  │  └─ DungeonBakeMaterialSet.cs
 │  ├─ Content/
 │  │  ├─ DungeonContentCatalog.cs
 │  │  └─ IDungeonContentResolver.cs
@@ -489,8 +578,7 @@ Assets/RogueDungeonLab/
 │  ├─ Authoring/
 │  │  └─ DungeonStageAssetPanel.cs
 │  └─ Baking/
-│     ├─ DungeonStageBaker.cs
-│     └─ BakeManifest.cs
+│     └─ DungeonStageBaker.cs
 └─ Tests/
    ├─ EditMode/
    └─ PlayMode/
@@ -512,12 +600,14 @@ Assets/RogueDungeonLab/
 | 난수 | PCG32 golden vector, child stream 반복성, 범주별 독립성 |
 | 해석 | Prefab resolver identity 유지, Error/BuiltInFallback/Skip 정책 |
 | 구축 | 동일 Blueprint의 RuntimeBuild 결과가 동일 |
-| Bake | manifest hash 일치, 원본 변경 시 stale 탐지 |
+| Bake 계약 | source/final Blueprint, planning/realization/gameplay/material/override hash와 builder version 일치, 원본·Prefab·드랍·재질 변경 시 stale 탐지 |
+| Bake parity | RuntimeBuild/BakedPrefab의 입구·출구·floor/Collider, stable ID, 클릭/drop, report 동등 |
+| Bake 소유권 | staging 실패 시 이전 Bake 유지, manifest 소유 산출물만 정리, 사용자·공유 자산 보존 |
 | 상태 | 파괴·처치 상태가 spawn ID로 복원됨 |
 | 호환 | 기존 generator API, HUD, 카메라, 임시 플레이어, 클릭 드랍 정상 |
 | 생명주기 | Edit/Play/domain reload에서 null 예외와 Mesh 누수 없음 |
 | 경계 | Runtime assembly의 `UnityEditor` 참조 0개 |
-| 배포 | 빈 Unity 6000.5 프로젝트 import와 Player build 성공 |
+| 배포 | R9A RuntimeBuild 코어와 R9B Bake 묶음을 각각 빈 Unity 6000.5 프로젝트에 import하고 Player build 성공 |
 
 성능은 R0에서 현재 p50/p95 생성 시간과 할당량을 먼저 기록합니다. 측정 기준 없이 임의 제한 시간을 정하지 않고, 각 단계에서 같은 맵 크기의 회귀 비율을 비교합니다.
 
@@ -528,7 +618,9 @@ Assets/RogueDungeonLab/
 - `DungeonGeneratorVersions.Current`와 기존 settings-only facade는 LegacyV1을 유지하며 StableV2를 자동 강제하지 않습니다.
 - 새 직렬화 필드는 명시적 기본값과 `formatVersion` migration을 가집니다.
 - Blueprint migration은 원본을 바로 덮지 않고 복사본 생성 또는 확인 가능한 Undo 단위로 실행합니다.
-- Bake Prefab과 Mesh는 파생 산출물이므로 원본 Blueprint가 있으면 재생성할 수 있어야 합니다.
+- Bake Prefab과 Mesh는 파생 산출물이므로 원본 Blueprint가 있으면 재생성할 수 있어야 합니다. 정리는 manifest의 `ownedArtifacts`와 stage 전용 bake root를 모두 만족하는 자산에만 수행합니다.
+- `DungeonBakeMaterialSet`과 Catalog Prefab·공유 Mesh·Material은 입력 자산이며 Baker 소유 파생 산출물로 취급하지 않습니다.
+- 재Bake는 staging 후보 검증과 저장에 성공하기 전까지 활성 StageDefinition과 기존 manifest·Prefab 참조를 바꾸지 않습니다.
 - 마일스톤별 facade를 유지해 문제가 생기면 해당 내부 경로만 이전 구현으로 되돌릴 수 있게 합니다.
 - 사용자가 직접 수정한 settings, Blueprint, catalog 자산은 자동 정리 대상으로 보지 않습니다.
 
@@ -540,14 +632,15 @@ Assets/RogueDungeonLab/
 | 공유 settings를 Play HUD가 변경해 원본 오염 | 생성 요청 snapshot과 런타임 복제본 사용 |
 | 생성 계층 직접 수정이 재생성 때 사라짐 | 읽기 전용 preview + Override 자산 |
 | 다른 프로젝트에서 Prefab 연결이 끊김 | Blueprint의 contentKey + 프로젝트별 resolver/catalog |
-| 카탈로그 변경으로 저장 맵 외형이 달라짐 | catalog hash와 missing/stale 정책 |
-| Bake와 논리 데이터가 어긋남 | BakeManifest 검증 |
+| 카탈로그 선택 규칙은 같지만 Prefab·드랍·재질이 바뀜 | planning과 realization/gameplay/material hash를 분리해 stale 검증 |
+| Bake와 논리 데이터가 어긋남 | Runtime-safe `DungeonBakeManifest`와 RuntimeBuild/BakedPrefab parity 검증 |
+| 실패한 재Bake가 정상 산출물이나 공유 자산을 손상 | stage 전용 staging/commit과 manifest `ownedArtifacts` 기반 정리 |
 | Input System 없는 프로젝트가 컴파일 실패 | R9에서 코어와 선택 Sample assembly 분리 |
 | 오래된 세이브가 다른 맵에 적용됨 | RunState의 blueprintHash 확인과 migration hook |
 
 ## 12. 완료된 구현 묶음과 다음 단계
 
-R0부터 R5.1까지의 첫 저장형 스테이지 MVP 구현 묶음은 완료되었습니다.
+R0부터 R6까지의 절차 생성·첫 저장형 스테이지·배포용 BakedPrefab 파이프라인이 구현 및 통합 검증을 완료했습니다.
 
 1. 현재 결과 지문을 만드는 EditMode 테스트
 2. `DungeonRecipeSnapshot`과 `DungeonGenerationRequest`
@@ -567,5 +660,9 @@ R0부터 R5.1까지의 첫 저장형 스테이지 MVP 구현 묶음은 완료되
 16. Blueprint와 분리된 선택적 authoring recipe snapshot 영속성·검증
 17. 설정만 복원하는 Undo 흐름과 비생성 옵션 보존
 18. 저장 시드·생성기 버전·catalog를 사용한 LegacyV1·StableV2 동일 hash 절차 재생성
+19. Editor-only Baker의 영속 Mesh·Prefab·manifest와 stage 전용 staging/commit
+20. manifest 전체 fingerprint 최신성 검사와 소유권 기반 재Bake 정리
+21. `SavedBlueprint + BakedPrefab` Loader와 스테이지 자산 Bake UI
+22. R6 수동 검증 자산·Scene 생성, 실제 Baked 클릭/drop PlayMode와 Windows Player build smoke
 
-다음 구현은 R6의 Bake와 배포용 파생 자산입니다. 검증된 저장 Blueprint에서 floor/wall Mesh와 콘텐츠 Prefab, manifest를 생성하고 `SavedBlueprint + BakedPrefab` 로드 경로를 연결합니다.
+다음 구현 단계는 검수 Prefab의 변경을 generated hierarchy 직접 수정이 아니라 데이터로 보존하는 R7 `DungeonStageOverrides`입니다. R7 착수 전에는 R6 수동 검증 장면에서 실제 화면의 탐험·클릭·stale 재Bake를 한 차례 승인하는 것이 권장됩니다.

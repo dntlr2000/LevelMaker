@@ -8,6 +8,7 @@ namespace RogueDungeonLab
         public DungeonStageDefinition Definition { get; private set; }
         public Transform Parent { get; private set; }
         public RogueDungeonSettings RuntimeSettings { get; set; }
+        public RogueDungeonSettings ProceduralRecipeOverride { get; set; }
         public int? ExplicitSeed { get; set; }
         public int? RunSeed { get; set; }
         public Func<int> RandomSeedProvider { get; set; }

@@ -151,11 +151,13 @@ namespace RogueDungeonLab
                 if (_service == null) _service = FindAnyObjectByType<DropValidationService>();
             }
 
-            RogueDungeonSettings currentSettings = _generator != null ? _generator.settings : null;
+            RogueDungeonSettings currentSettings = _generator != null ? _generator.ActiveRuntimeSettings : null;
             if (_boundSettings != currentSettings)
             {
                 _boundSettings = currentSettings;
-                _seedText = currentSettings != null ? currentSettings.seed.ToString() : string.Empty;
+                _seedText = currentSettings != null
+                    ? (_generator.CurrentBlueprint != null ? _generator.ActiveSeed : currentSettings.seed).ToString()
+                    : string.Empty;
             }
         }
 

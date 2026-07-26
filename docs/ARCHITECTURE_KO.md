@@ -1,6 +1,6 @@
 # 아키텍처
 
-이 문서는 현재 구현을 설명합니다. 절차 생성형과 저장형 스테이지를 함께 지원할 목표 구조와 구현 순서는 [스테이지 제작·배포 통합 로드맵](STAGE_PIPELINE_ROADMAP_KO.md)을 참고합니다.
+이 문서는 R5.2 승인 기준선과 검증 완료된 R6 Mesh·Prefab Bake 구현 경계를 설명합니다. 후속 단계는 [스테이지 제작·배포 통합 로드맵](STAGE_PIPELINE_ROADMAP_KO.md)을 참고합니다.
 
 ## 파이프라인
 
@@ -18,9 +18,13 @@ DungeonStageDefinition
        └─ DungeonBlueprintAsset의 deep copy (재계산 없음)
   → DungeonBlueprintValidator
   → DungeonContentCatalogValidator
-  → DungeonSceneBuilder
-       ├─ DungeonMeshBuilder
-       └─ IDungeonContentResolver → Prefab/factory 또는 fallback
+  → buildMode
+       ├─ RuntimeBuild
+       │    └─ DungeonSceneBuilder
+       │         ├─ DungeonMeshBuilder
+       │         └─ IDungeonContentResolver → Prefab/factory 또는 fallback
+       └─ BakedPrefab
+            └─ DungeonBakeManifest 검증 → 저장 Prefab 인스턴스
   → DungeonStageInstance + DungeonLayout 호환 projection + GenerationReport
 
 RogueDungeonLabWindow / 스테이지 자산
@@ -29,7 +33,10 @@ RogueDungeonLabWindow / 스테이지 자산
        ├─ 저장 레시피 → SerializedObject 설정 복원 → 선택적 동일 입력 절차 재생성
        ├─ 절차 원본 ↔ 저장본 provenance/hash 비교
        ├─ 저장 Blueprint 무재계산 RuntimeBuild 미리보기
-       └─ SavedBlueprint DungeonStageDefinition 생성·Generator 연결
+       ├─ SavedBlueprint DungeonStageDefinition 생성·Generator 연결
+       └─ DungeonStageBaker
+            ├─ stage 전용 staging → 영속 Mesh·Prefab·manifest
+            └─ fingerprint·parity 검증 → commit 또는 rollback
 
 좌클릭 Raycast
   → DestructibleDropTarget
@@ -67,7 +74,34 @@ Legacy 콘텐츠 planner는 입구·출구, 기믹, 적, 파괴물, cube/cylinde
 
 `RogueDungeonGenerator`에 StageDefinition이 없으면 기존 settings-only `GenerateWithSeed`가 같은 Loader의 Procedural 경로를 사용합니다. Definition이 있으면 Play 시작 또는 컨텍스트 메뉴에서 두 source를 전환할 수 있습니다. `CurrentCellSize`는 활성 Blueprint grid를 기준으로 하므로 저장 맵과 현재 settings의 cellSize가 달라도 임시 플레이어가 올바른 입구에 배치됩니다.
 
-R5.1까지는 `RuntimeBuild`만 지원합니다. `BakedPrefab`은 enum 계약만 선점하고 validator가 차단하며, 실제 Bake는 R6에서 연결합니다.
+R6에서는 기존 `RuntimeBuild`와 함께 `SavedBlueprint + BakedPrefab`을 로드할 수 있습니다. `DungeonStageDefinition`의 `bakedPrefab`과 Runtime-safe `DungeonBakeManifest` 참조가 모두 유효해야 하며, `Procedural + BakedPrefab`은 validator가 차단합니다.
+
+## R5.2 런타임 레시피 격리와 R6 Bake 계약
+
+### 현재 R5.2 구현
+
+Play의 Generator는 settings-only 레시피와 Procedural StageDefinition 레시피를 프로젝트 자산 그대로 편집하지 않고 `HideAndDontSave` 런타임 복제본으로 사용합니다. 활성 StageDefinition source가 바뀌거나 Generator가 해제될 때 복제본의 소유권도 Generator 수명주기에 맞춰 교체·해제합니다. 새 source의 복제본은 후보 상태로 Loader에 전달하고 구축 성공 뒤에만 활성 소유권으로 승격합니다. 검증·구축이 실패하면 후보만 폐기하고 기존 StageInstance, generated root와 활성 복제본을 유지합니다. Generator는 현재 복제본을 `ActiveRuntimeSettings`, 편집 가능 여부를 `CanEditActiveRuntimeRecipe`로 노출하고 Procedural StageDefinition 로드는 `DungeonLoadContext.ProceduralRecipeOverride`로 같은 복제본을 전달합니다. Runtime HUD는 이 활성 복제본을 편집하고 같은 시드로 재생성하므로 Play 중 구조·밀도 변경은 실제 Procedural Blueprint에 반영되지만 원본 `RogueDungeonSettings` 자산은 바뀌지 않습니다. SavedBlueprint는 계속 저장 논리 데이터를 무재계산 로드하며 HUD 설정 편집으로 Blueprint를 변형하지 않습니다.
+
+R5.2는 R6이 사용할 두 Runtime 타입도 먼저 고정합니다.
+
+- `DungeonBakeManifest`: source/final Blueprint, planning/realization/gameplay/material/override hash, builder version, baked Prefab과 Baker 소유 파생 자산 레코드를 직렬화하는 Runtime-safe `ScriptableObject`
+- `DungeonBakeMaterialSet`: floor·wall과 built-in 콘텐츠 범주가 사용할 영속 `Material` 참조를 직렬화하는 Runtime-safe `ScriptableObject`
+- `DungeonBakeManifestValidator`: `UnityEditor` 없이 format/builder version, 저장 Blueprint 무결성, custom catalog, source/final·필수 의존성 hash, 완전한 재질 슬롯, R6 Override 미지원, Prefab 참조와 고유 owned artifact를 검사하는 기본 검증기
+
+`DungeonBakeManifest`와 `DungeonBakeMaterialSet`은 Runtime 어셈블리에 있으므로 `DungeonStageDefinition`, Loader와 Player build가 직접 참조할 수 있습니다. Asset GUID/dependency hash 계산, `AssetDatabase`, `PrefabUtility`, 저장 경로와 Undo는 여기에 들어가지 않습니다.
+
+### R6 구현 경계
+
+Editor-only `DungeonStageBaker`는 다음 동작을 담당합니다.
+
+- 저장된 SavedBlueprint에서 floor/wall Mesh와 known built-in/fallback·Catalog 직접 Prefab을 영속 자산으로 생성
+- Prefab·Mesh·Material·drop table 의존성 fingerprint와 manifest 필드 계산
+- stage 전용 staging/commit, 실패 rollback과 이전 manifest 소유 파생 산출물 정리
+- 제작 UI의 Bake/재Bake와 `ValidateCurrentBake` 최신성 리포트
+
+Runtime의 StageDefinition validator와 Loader는 `SavedBlueprint + BakedPrefab`의 저장 manifest·Prefab 관계를 검사하고 Prefab 인스턴스화 경로를 사용합니다. 이 분기는 Blueprint 생성기, Mesh Builder와 resolver를 재실행하지 않습니다. manifest에 기록된 `ownedArtifacts`만 Baker 소유로 보며 Blueprint·settings·catalog, Catalog Prefab과 공유 Mesh·Material은 정리 대상에서 제외합니다.
+
+RuntimeBuild/BakedPrefab parity, 실패 주입 재Bake와 BakedPrefab Player build smoke를 R6 통합 검증으로 실행했습니다. Unity `6000.5.3f1`에서 EditMode `74/74`, PlayMode `8/8`과 분리된 임시 프로젝트의 Windows Development Player 빌드가 통과했으며 상세 결과는 테스트 문서에 기록합니다.
 
 ## R5 저장 제작 계약
 
@@ -107,6 +141,21 @@ R5.1까지는 `RuntimeBuild`만 지원합니다. `BakedPrefab`은 enum 계약만
 
 Catalog validator는 `RDL-CAT-*` 코드로 빈/중복 key, 예약 built-in key의 범주, 잘못된 범주·weight·progression·footprint·간격·변형을 검사하고, Blueprint 교차 검증은 `RDL-CONTENT-*` 코드로 key/category/progression/실제 floor cell 기준 room 조건/tag/footprint와 planning hash 차이를 검사합니다. StableV2 저장 Blueprint와 현재 catalog의 planning hash 차이는 경고로 남습니다.
 
+planning hash는 Blueprint 생성 결정성의 입력이지 Bake 최신성의 전체 증명이 아닙니다. R5.2의 manifest 계약은 다음 후반 의존성을 분리합니다.
+
+| Manifest 값 | 의미 |
+|---|---|
+| `sourceBlueprintHash` | 저장 원본 Blueprint |
+| `overrideHash` | R7에서 적용할 비파괴 변경 집합. R6 format v1에서는 빈 값만 허용하며 validator가 비어 있지 않은 값을 차단 |
+| `finalBlueprintHash` | Override 적용 뒤 실제 구축한 논리 결과. R6에서는 source와 동일 |
+| `catalogPlanningHash` | 후보 key 선택에 사용한 출처 |
+| `contentRealizationHash` | 최종 key를 해석한 resolver 버전, 직접 Prefab identity·hierarchy·component와 source Mesh 의존성 |
+| `gameplayBuildConfigHash` | 누락 정책, gameplay ID, canonical drop table과 drop marker 구축 설정 |
+| `materialDependencyHash` | 영속 Bake material set, Prefab Renderer Material과 Shader 의존성 |
+| `builderVersion` | hierarchy, Collider, component와 생성 Mesh 포맷 규칙 |
+
+R6의 Editor-only `DungeonStageBaker`는 위 값을 계산해 Runtime manifest에 문자열·자산 참조로 저장합니다. 하나의 광범위한 Asset dependency hash를 planning 또는 realization 값으로 재사용하지 않고, Prefab 구조·gameplay 직렬화 값·Material/Shader를 각 필드의 canonical projection으로 분리합니다. Runtime은 `AssetDatabase`로 재계산하지 않고 manifest 형식, 지원 builder version과 저장된 참조 관계를 검사합니다. `DungeonStageBaker.ValidateCurrentBake`는 현재 프로젝트 의존성을 다시 fingerprint해 모든 값을 비교하므로 제작 UI의 stale 판정에 사용합니다.
+
 ## StableV2 결정성
 
 `StableV2`는 프로젝트가 소유한 PCG32 구현과 고정 seed 파생 공식을 사용합니다. 난수 stream은 `Layout`, `Gimmick`, `Enemy`, `Destructible`, `Prop`, `Variant`로 분리되며 spawn별 변형은 범주·셀·범주 내 순번으로 만든 child stream을 사용합니다. 콘텐츠 배치 우선순위는 marker 확정 후 `Gimmick → Enemy → Destructible → Prop`으로 고정되어 있습니다. 한 범주의 후보 key나 난수 호출 수를 바꿔도 뒤 범주의 stream 출력은 밀리지 않습니다.
@@ -119,6 +168,16 @@ Catalog validator는 `RDL-CAT-*` 코드로 빈/중복 key, 예약 built-in key�
 
 Catalog나 resolver가 반환하지 않은 알려진 built-in key는 누락 정책과 무관하게 기존 primitive로 구축됩니다. 그 밖의 해석 실패에는 `Error`가 생성 부작용 전에 중단하고, `BuiltInFallback`이 category별 임시 표현을 만들며, `Skip`이 경고와 함께 해당 spawn을 생략합니다. `DungeonLoadContext.ContentResolver`와 `MissingContentPolicyOverride`를 사용하면 Stage Definition 자산을 바꾸지 않고 실행별 resolver와 정책을 주입할 수 있습니다.
 
+R6 MVP는 이 RuntimeBuild resolver 전체를 Bake하려 하지 않습니다. Editor에서 결정적으로 재현할 수 있는 known built-in 표현과 직접 `DungeonContentCatalog` Prefab만 지원합니다. built-in floor·wall·범주 표현은 `DungeonBakeMaterialSet`의 영속 Material을 사용하며 현재 `HideAndDontSave` 미리보기 Material을 저장하지 않습니다. factory, Addressables, DI·오브젝트 풀 resolver는 RuntimeBuild 전용이고, 별도 Editor bake adapter 계약이 생기기 전에는 Bake를 오류로 차단합니다.
+
+R6 재Bake는 활성 자산을 직접 덮는 방식이 아니라 stage 전용 staging에서 후보 Mesh·Prefab·manifest를 만든 뒤 hash와 parity 검증에 성공한 결과만 commit합니다. commit 뒤 정리는 이전 manifest의 정확한 role·GUID, 예약 파일명, main asset과 stage bake root를 모두 만족하는 파생 자산에만 적용합니다. 실패하면 staging만 제거하고 이전 정상 manifest와 Prefab 참조를 유지합니다. 이전 파생 파일 삭제는 Unity Undo로 복구할 수 없으므로 commit 확인 뒤 StageDefinition의 해당 Undo 기록도 제거해 삭제된 참조가 되살아나는 상태를 막습니다.
+
+RuntimeBuild/BakedPrefab parity는 최종 Blueprint hash, 입구·출구, floor 셀과 floor/wall Collider, `DungeonSpawnIdentity`의 stable ID·category·contentKey·transform, 클릭 대상 gameplay ID·drop table, drop marker 정책과 구축 report를 비교합니다. R6 BakedPrefab 로드는 생성기·Mesh Builder·resolver를 재실행하지 않고 Prefab을 인스턴스화하지만 `__RogueDungeonLab_Generated`, `DungeonStageInstance`와 `GenerationCompleted`의 소비자 계약은 유지해야 합니다.
+
+에디터의 `스테이지 자산` 탭은 저장된 `SavedBlueprint StageDefinition`, 사용자 소유 `DungeonBakeMaterialSet`과 선택적 gameplay settings를 Baker 입력으로 전달합니다. gameplay 입력은 현재 Generator의 활성 settings, 기존 manifest의 `sourceRuntimeSettings`, Generator 원본 settings 순으로 해결하므로 재Bake는 기존 출처를 우선 보존하고 SavedBlueprint 첫 Bake도 장면 설정을 사용할 수 있습니다. 기본 재질 세트 생성 도구는 입력 자산을 명시적으로 만들 뿐 Baker 소유 산출물로 등록하지 않습니다.
+
+commit된 StageDefinition은 저장 Blueprint와 함께 Baked Prefab·manifest를 참조하고 `BakedPrefab` build mode를 사용합니다. Loader는 Runtime-safe manifest 검증 뒤 Prefab만 새 비활성 generated root 후보로 인스턴스화하고, 성공한 후보를 기존 root와 교체합니다. floor/wall Mesh는 프로젝트 자산이므로 `DungeonGeneratedMeshOwner`의 transient Mesh 해제 대상이 아닙니다.
+
 레이아웃 단계는 GameObject를 만들지 않습니다. 방은 겹침 없는 사각형으로 배치하고 가장 가까운 미연결 방을 L자 복도로 연결한 뒤 확률적으로 루프를 추가합니다.
 
 진행도는 `distanceFromEntrance / distanceToExit`이며, 각 밀도 프로필은 기본 셀 확률 × 진행도 곡선 × 방/복도 보정 × 결정적 군집 보정으로 평가됩니다. LegacyV1은 기존 Perlin 계산을 유지하고 StableV2는 셀 기반 child stream 값을 사용합니다.
@@ -127,7 +186,7 @@ Catalog나 resolver가 반환하지 않은 알려진 built-in key는 누락 정�
 
 합성 바닥·벽에는 정적 `MeshCollider`를 함께 생성합니다. HUD에서 만드는 `PrototypePlayerController`는 런타임 전용 `CharacterController`를 사용하며, 입구 위치 생성·카메라 기준 이동·중력·점프·추락 복귀를 담당합니다. `LabOrbitCamera`는 캐릭터가 없을 때 카메라의 실제 정면·오른쪽 축으로 `WASD`를 처리하므로 `W/S` 이동에는 시선의 높이 성분도 포함됩니다. `Space`/`Ctrl`은 별도의 월드 수직 이동입니다. 자유 시점 우클릭 회전은 카메라 위치를 고정하고 회전 중심을 재계산하며, 캐릭터가 활성화되면 기존처럼 해당 Transform을 중심으로 공전 추적합니다. 이 런타임 흐름은 `UnityEditor`를 참조하지 않습니다.
 
-`RuntimeLabHUD`는 설정·탐험·통계를 탭으로 분리합니다. 설정 탭은 `RogueDungeonSettings`의 구조·콘텐츠 수치에 직접 바인딩합니다. 슬라이더와 프리셋 변경은 다음 `Update`에 요청 하나로 합쳐지고 0.08초 제한 주기로 `ClampValues`와 `RegenerateActiveSeed`를 호출하므로, 결정적 시드는 유지하면서 드래그 중 결과를 갱신합니다. 시드 텍스트만 명시적인 생성 버튼에서 확정합니다. 패널은 기준 해상도에 대한 제한 배율과 화면 비율별 논리 영역을 계산하며, 실제 픽셀 영역을 카메라·클릭 입력 차단에도 동일하게 사용합니다. 각 탭 내용은 독립적으로 접근 가능한 스크롤 영역 안에 배치됩니다.
+`RuntimeLabHUD`는 설정·탐험·통계를 탭으로 분리합니다. 설정 탭은 Generator가 제공하는 활성 `HideAndDontSave` 런타임 설정 복제본의 구조·콘텐츠 수치에 바인딩합니다. settings-only와 Procedural StageDefinition은 각각 해당 원본에서 만든 복제본을 사용하며, SavedBlueprint 상태에서는 구조·밀도 편집과 자동 절차 재생성을 제공하지 않습니다. 슬라이더와 프리셋 변경은 다음 `Update`에 요청 하나로 합쳐지고 0.08초 제한 주기로 `ClampValues`와 `RegenerateActiveSeed`를 호출하므로, 원본 자산과 결정적 시드는 유지하면서 드래그 중 결과를 갱신합니다. 시드 텍스트만 명시적인 생성 버튼에서 확정합니다. 패널은 기준 해상도에 대한 제한 배율과 화면 비율별 논리 영역을 계산하며, 실제 픽셀 영역을 카메라·클릭 입력 차단에도 동일하게 사용합니다. 각 탭 내용은 독립적으로 접근 가능한 스크롤 영역 안에 배치됩니다.
 
 드랍 대시보드는 기대 확률, 관측 확률, 편차와 Wilson 95% 신뢰구간을 계산합니다. 테이블 정의가 바뀌면 이전 표본을 새 기대값과 비교하지 않도록 해당 통계를 초기화합니다.
 

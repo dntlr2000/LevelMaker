@@ -59,15 +59,18 @@ namespace RogueDungeonLab.Editor
             DungeonBlueprintAsset identicalAsset = CreateReferenceBlueprint(
                 IdenticalBlueprintPath,
                 identicalBlueprint,
-                "R5 기준: 원본 recipe, StableV2, seed 12345");
+                "R5 기준: 원본 recipe, StableV2, seed 12345",
+                originalSettings);
             DungeonBlueprintAsset differentSeedAsset = CreateReferenceBlueprint(
                 DifferentSeedBlueprintPath,
                 differentSeedBlueprint,
-                "R5 비교 기준: 같은 입력, seed 12346");
+                "R5 비교 기준: 같은 입력, seed 12346",
+                originalSettings);
             DungeonBlueprintAsset staleAsset = CreateReferenceBlueprint(
                 StaleBlueprintPath,
                 staleBlueprint,
-                "R5 비교 기준: 변경된 recipe, seed 12345");
+                "R5 비교 기준: 변경된 recipe, seed 12345",
+                changedSettings);
             ValidateReferenceComparisons(
                 identicalBlueprint,
                 identicalAsset,
@@ -179,11 +182,12 @@ namespace RogueDungeonLab.Editor
             return blueprint;
         }
 
-        // 기준 Blueprint 자산의 GUID는 유지하고 논리 데이터와 설명만 기준값으로 갱신합니다.
+        // 기준 Blueprint 자산의 GUID를 유지하면서 논리 데이터·설명·정확 재생성용 레시피를 갱신합니다.
         private static DungeonBlueprintAsset CreateReferenceBlueprint(
             string path,
             DungeonBlueprint blueprint,
-            string authoringNote)
+            string authoringNote,
+            RogueDungeonSettings authoringSettings)
         {
             DungeonBlueprintAsset asset = LoadOrCreate<DungeonBlueprintAsset>(path);
             DungeonBlueprint stored = blueprint.DeepClone();
@@ -192,7 +196,7 @@ namespace RogueDungeonLab.Editor
                 ? asset.blueprint.createdUtcTicks
                 : DateTime.UtcNow.Ticks;
             stored.RefreshHash();
-            asset.Store(stored);
+            asset.Store(stored, DungeonRecipeSnapshot.Capture(authoringSettings));
             EditorUtility.SetDirty(asset);
             return asset;
         }

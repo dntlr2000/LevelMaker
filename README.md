@@ -8,7 +8,7 @@
 - [제품화 확장 가이드](docs/EXTENSION_GUIDE_KO.md)
 - [테스트 계획](docs/TEST_PLAN_KO.md)
 
-현재 통합 로드맵의 R0·R1·R2·R3·R4·R5와 R5.1 보완이 완료되었고 R6 Bake가 다음 단계입니다. 기존 생성 결과를 유지한 채 현재 결과와 저장 당시 레시피를 `DungeonBlueprintAsset`으로 보존하고, `DungeonStageDefinition` 하나로 절차 생성과 저장 Blueprint RuntimeBuild를 선택할 수 있습니다. `DungeonContentCatalog` 또는 프로젝트별 resolver로 실제 콘텐츠를 연결합니다.
+현재 통합 로드맵의 R0부터 R6까지 구현했습니다. 기존 생성 결과와 저장 당시 레시피를 `DungeonBlueprintAsset`으로 보존하고, `DungeonStageDefinition` 하나로 절차 생성, 저장 Blueprint RuntimeBuild 또는 검수 완료 BakedPrefab 로드를 선택할 수 있습니다. `DungeonContentCatalog` 또는 프로젝트별 resolver로 RuntimeBuild 콘텐츠를 연결하며, R6 Bake는 알려진 built-in/fallback과 Catalog 직접 Prefab을 영속 자산으로 확정합니다.
 
 ## Stage Definition과 콘텐츠 카탈로그 (R3·R4)
 
@@ -50,9 +50,9 @@ DungeonLoadContext context = new DungeonLoadContext(stageDefinition, parent)
 DungeonStageInstance instance = DungeonStageLoader.Load(context);
 ```
 
-`BakedPrefab` 모드는 R6 범위이므로 현재 validator가 명시적으로 차단합니다.
+`SavedBlueprint + BakedPrefab`은 R6 배포 경로입니다. Runtime-safe `DungeonBakeManifest`는 저장 Blueprint, custom catalog, 완전한 영속 재질 세트, source/final·planning·realization·gameplay·material hash와 Baker 소유 산출물 목록을 검증합니다. Editor-only Baker가 floor/wall Mesh와 Prefab을 저장하고, 런타임 Loader는 Blueprint 생성, Mesh Builder 또는 콘텐츠 resolver를 다시 실행하지 않고 검증된 Prefab을 인스턴스화합니다. `Procedural + BakedPrefab`과 R6 Override는 명시적으로 차단됩니다.
 
-## 스테이지 자산 제작 (R5·R5.1)
+## 스테이지 자산 제작 (R5·R5.1·R6)
 
 `Tools > Rogue Dungeon Lab > 실험실 열기`의 `스테이지 자산` 탭에서 다음 흐름을 사용합니다.
 
@@ -68,13 +68,36 @@ DungeonStageInstance instance = DungeonStageLoader.Load(context);
 
 검증 오류가 있는 현재 결과나 저장본은 저장·미리보기·StageDefinition 생성을 진행할 수 없습니다. 저장 레시피 버전·hash·정규화가 맞지 않으면 설정 복원을 별도로 차단합니다. 설정 스냅샷이 없는 기존 R5 자산은 맵 미리보기와 로드는 그대로 가능하고 설정 복원 버튼만 비활성화됩니다. 저장 시각·제작 메모·선택적 제작 레시피는 논리 Blueprint hash에 영향을 주지 않습니다. 생성된 `__RogueDungeonLab_Generated` 계층은 계속 미리보기 산출물이므로 직접 수정하지 않습니다.
 
-## R5.1 검증 상태
+## 배포용 BakedPrefab 만들기 (R6)
 
-Unity `6000.5.3f1` batchmode compile과 EditMode `51/51`, PlayMode `3/3`이 통과했습니다. R5.1 EditMode 검증은 새 Blueprint의 레시피 저장·재임포트, Blueprint와 레시피를 함께 되돌리는 덮어쓰기 Undo, 곡선·생성 필드 복원과 비생성 옵션 보존, 기존 snapshot 없는 자산 호환, 손상 hash 차단과 StableV2 동일 hash 재생성을 포함합니다. 기존 R5 저장본 무재계산 미리보기·StageDefinition·stale 분류도 함께 통과했습니다. PlayMode는 임시 플레이어 흐름, 저장 Blueprint 입구 배치와 자식 클릭 대상의 드랍 통계 1회 누적을 확인합니다. Unity 프로세스를 완전히 종료한 실제 재시작과 화면 포인터 Raycast는 수동 확인 범위입니다.
+`스테이지 자산` 탭의 접을 수 있는 `R6 배포용 Bake` 영역을 사용합니다.
+
+1. `SavedBlueprint StageDefinition`을 선택하거나 `현재 Generator Definition 사용`을 누릅니다. Procedural Definition은 Bake할 수 없습니다.
+2. 재사용할 `DungeonBakeMaterialSet`을 지정합니다. 없다면 `기본 Bake 재질 세트 자산 생성`으로 8개 영속 재질 슬롯이 채워진 자산을 만듭니다.
+3. `배포용 Mesh·Prefab Bake`를 누르고 확인합니다. 기존 결과가 있으면 버튼이 재Bake로 바뀝니다.
+4. 성공한 Bake만 StageDefinition의 Prefab·manifest 참조와 `BakedPrefab` 모드에 commit됩니다. 실패한 후보는 staging에서 폐기되고 이전 정상 Bake는 유지됩니다. 이전 파생 자산 정리는 비가역적이므로 Bake commit 자체는 `Ctrl+Z` 대상이 아닙니다.
+5. `최신성 다시 검사`로 Blueprint, Catalog Prefab·게임플레이 설정, 재질·Shader와 builder 계약의 현재 fingerprint를 manifest와 비교합니다. stale 또는 오류가 있으면 원인을 고친 뒤 재Bake합니다.
+6. Prefab과 manifest 필드의 `Ping`으로 생성 자산을 확인하고, 이 StageDefinition을 Generator에 연결해 Play에서 로드합니다.
+
+R6 MVP는 known built-in/fallback과 Content Catalog의 직접 Prefab만 Bake합니다. runtime factory, Addressables, DI·오브젝트 풀 resolver는 RuntimeBuild 전용입니다. floor/wall Mesh와 Baked Prefab은 Baker 소유 파생 자산이지만 Blueprint, settings, Catalog, Catalog Prefab과 `DungeonBakeMaterialSet`은 사용자 입력 자산이므로 재Bake 정리 대상이 아닙니다.
+
+## 검증 상태
+
+R5.2는 Play HUD가 settings 또는 Procedural StageDefinition recipe 원본 대신 Generator 소유 `HideAndDontSave` 복제본을 편집하도록 바꿨습니다. 새 출처는 Loader 성공 뒤에만 활성 복제본으로 승격되므로 실패한 전환은 기존 맵과 설정을 보존합니다. SavedBlueprint에서는 구조·시드 편집을 차단하고 같은 저장본 재구축만 허용합니다.
+
+Unity `6000.5.3f1` batchmode compile, EditMode `58/58`, PlayMode `7/7`이 통과했습니다. Balanced seed `73125` RuntimeBuild 15회 기준 시간은 p50 `7.390 ms`, p95 `7.744 ms`이고, Unity Mono가 thread allocation counter를 지원하지 않아 Profiler의 Mono 사용량 증분 p50 `2,252,800 B`, p95 `2,269,184 B`를 대체 기준선으로 기록했습니다. 저장 제작 회귀는 Undo 후 저장·강제 재임포트, LegacyV1 및 실제 Prefab custom catalog StableV2의 정확 재생성, snapshot 없는 기존 자산 로드를 포함합니다. 실제 Unity 프로세스 완전 재시작, Play domain reload 중 transient Mesh 관찰, HUD 화면과 포인터 Raycast는 수동 확인 범위입니다.
+
+R6 통합 결과는 Unity `6000.5.3f1` batchmode compile 성공, EditMode `74/74`, PlayMode `8/8` 통과입니다. 실제 Physics Raycast와 마우스 입력으로 BakedPrefab 파괴 대상의 드랍 통계가 정확히 1회 증가하는 경로, RuntimeBuild/BakedPrefab 구조·stable identity·Collider·report parity, stale fingerprint, 실패 재Bake rollback과 안전한 이전 산출물 정리를 포함합니다.
+
+원본 작업 트리와 분리한 임시 프로젝트에서 `R6ManualVerificationSetup`으로 전용 SavedBlueprint·MaterialSet·Baked Prefab·manifest·Scene을 생성하고, 그 Baked 장면 하나로 Windows Development Player 빌드도 성공했습니다. 총 빌드 크기는 `172,288,233 B`였으며 로그는 `Logs/R6PlayerBuildSmoke.log`, 실패 주입 rollback 로그는 `Logs/R6RollbackVerification.log`입니다. 실제 화면에서의 HUD 배치와 Unity Play 중 script/domain reload는 계속 수동 확인 범위입니다.
 
 ### R4 수동 검증 장면
 
-[`Assets/R4ManualVerification/Scenes/R4_ManualVerification.unity`](../R4ManualVerification/Scenes/R4_ManualVerification.unity)를 열고 Play를 누르면 StableV2, Catalog Prefab, 클릭 파괴와 드랍 통계를 바로 확인할 수 있습니다. 전체 자산과 장면을 기준 상태로 다시 만들려면 `Tools > Rogue Dungeon Lab > R4 수동 검증 환경 생성`을 실행합니다. Stage Definition 교체 순서는 [R4 수동 검증 안내](../R4ManualVerification/README_KO.md)를 참고합니다.
+[`Assets/R4ManualVerification/Scenes/R4_ManualVerification.unity`](Assets/R4ManualVerification/Scenes/R4_ManualVerification.unity)를 열고 Play를 누르면 StableV2, Catalog Prefab, 클릭 파괴와 드랍 통계를 바로 확인할 수 있습니다. 전체 자산과 장면을 기준 상태로 다시 만들려면 `Tools > Rogue Dungeon Lab > R4 수동 검증 환경 생성`을 실행합니다. Stage Definition 교체 순서는 [R4 수동 검증 안내](Assets/R4ManualVerification/README_KO.md)를 참고합니다.
+
+### R6 수동 검증 환경
+
+`Tools > Rogue Dungeon Lab > R6 수동 검증 환경 생성`은 전용 SavedBlueprint, 영속 DropTable·MaterialSet, BakedPrefab·manifest와 검증 장면을 반복 생성합니다. Play 탐험, 클릭 드랍, stale 재Bake와 실패 rollback 절차는 [R6 수동 검증 안내](Assets/R6ManualVerification/README_KO.md)를 참고합니다.
 
 ## Play 모드 조작
 
@@ -86,7 +109,7 @@ Unity `6000.5.3f1` batchmode compile과 EditMode `51/51`, PlayMode `3/3`이 통�
 
 ## Play HUD
 
-- `스테이지 설정`: 시드, 스테이지 크기, 셀·벽 크기, 방·복도, 기믹·간격과 콘텐츠별 밀도·방 선호도·군집도·최대 개수를 조절합니다. 슬라이더와 프리셋은 활성 시드를 유지한 채 자동 재생성되므로 드래그 중 변화를 확인할 수 있습니다.
+- `스테이지 설정`: Play 전용 복제 설정에서 시드, 스테이지 크기, 셀·벽 크기, 방·복도, 기믹·간격과 콘텐츠별 밀도·방 선호도·군집도·최대 개수를 조절합니다. 원본 settings와 StageDefinition recipe는 바뀌지 않으며, 슬라이더와 프리셋은 활성 시드를 유지한 채 자동 재생성됩니다. SavedBlueprint 모드에서는 저장 논리 맵 보호를 위해 이 편집을 차단합니다.
 - 숫자를 입력하는 시드 필드는 타이핑 중간값으로 생성하지 않으며 `설정 적용 및 입력 시드로 생성` 버튼으로 확정합니다.
 - `탐험`: 현재/새 시드 재생성, 임시 플레이어 생성·제거와 최근 생성 결과 확인
 - `드랍 통계`: 적·파괴물 빠른 표본, 통계 초기화와 관측 결과 확인

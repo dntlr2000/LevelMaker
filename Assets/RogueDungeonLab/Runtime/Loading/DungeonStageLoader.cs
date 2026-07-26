@@ -16,11 +16,15 @@ namespace RogueDungeonLab
         public const string MissingRunSeed = "RDL-STAGE-007";
         public const string InvalidSeedPolicy = "RDL-STAGE-008";
         public const string InvalidMissingContentPolicy = "RDL-STAGE-009";
+        public const string MissingBakedPrefab = "RDL-STAGE-010";
+        public const string MissingBakeManifest = "RDL-STAGE-011";
+        public const string BakeCatalogMismatch = "RDL-STAGE-012";
+        public const string MissingBakedMetadata = "RDL-STAGE-013";
     }
 
     public static class DungeonStageDefinitionValidator
     {
-        // RuntimeBuild source와 R5 저장 제작·콘텐츠 카탈로그 계약을 검증합니다.
+        // RuntimeBuild와 SavedBlueprint+BakedPrefab의 필수 참조·모드 계약을 검증합니다.
         public static DungeonValidationReport Validate(DungeonStageDefinition definition)
         {
             DungeonValidationReport report = new DungeonValidationReport();
@@ -34,9 +38,20 @@ namespace RogueDungeonLab
             {
                 report.Add(DungeonStageDefinitionValidationCodes.InvalidSourceMode, DungeonValidationSeverity.Error, "Stage source mode is invalid.");
             }
-            if (definition.buildMode != DungeonStageBuildMode.RuntimeBuild)
+            if (!Enum.IsDefined(typeof(DungeonStageBuildMode), definition.buildMode))
             {
-                report.Add(DungeonStageDefinitionValidationCodes.UnsupportedBuildMode, DungeonValidationSeverity.Error, "R5 supports RuntimeBuild only.");
+                report.Add(
+                    DungeonStageDefinitionValidationCodes.UnsupportedBuildMode,
+                    DungeonValidationSeverity.Error,
+                    "Stage build mode is invalid.");
+            }
+            else if (definition.buildMode == DungeonStageBuildMode.BakedPrefab &&
+                     definition.sourceMode != DungeonStageSourceMode.SavedBlueprint)
+            {
+                report.Add(
+                    DungeonStageDefinitionValidationCodes.UnsupportedBuildMode,
+                    DungeonValidationSeverity.Error,
+                    "BakedPrefab build mode requires a SavedBlueprint source.");
             }
             if (definition.sourceMode == DungeonStageSourceMode.Procedural && definition.recipe == null)
             {
@@ -58,13 +73,67 @@ namespace RogueDungeonLab
             {
                 report.Add(DungeonStageDefinitionValidationCodes.InvalidMissingContentPolicy, DungeonValidationSeverity.Error, "Missing content policy is invalid.");
             }
-            if (definition.contentCatalog != null)
+            if (definition.buildMode == DungeonStageBuildMode.BakedPrefab)
+            {
+                ValidateBakedDefinition(report, definition);
+            }
+            else if (definition.contentCatalog != null)
             {
                 Merge(report, DungeonContentCatalogValidator.Validate(definition.contentCatalog));
             }
             return report;
         }
 
+        // Baked stage가 manifest 원본·Prefab·Catalog와 정확히 연결되고 루트 metadata를 포함하는지 검사합니다.
+        private static void ValidateBakedDefinition(
+            DungeonValidationReport report,
+            DungeonStageDefinition definition)
+        {
+            if (definition.bakedPrefab == null)
+            {
+                report.Add(
+                    DungeonStageDefinitionValidationCodes.MissingBakedPrefab,
+                    DungeonValidationSeverity.Error,
+                    "BakedPrefab build mode requires a baked Prefab.");
+            }
+            if (definition.bakeManifest == null)
+            {
+                report.Add(
+                    DungeonStageDefinitionValidationCodes.MissingBakeManifest,
+                    DungeonValidationSeverity.Error,
+                    "BakedPrefab build mode requires a Bake manifest.");
+                return;
+            }
+
+            Merge(
+                report,
+                DungeonBakeManifestValidator.Validate(
+                    definition.bakeManifest,
+                    definition.savedBlueprint,
+                    definition.bakedPrefab));
+            if (definition.bakeManifest.sourceCatalog != definition.contentCatalog)
+            {
+                report.Add(
+                    DungeonStageDefinitionValidationCodes.BakeCatalogMismatch,
+                    DungeonValidationSeverity.Error,
+                    "Stage Definition Content Catalog does not match its Bake manifest.");
+            }
+            if (definition.bakedPrefab == null) return;
+
+            DungeonBakedStageMetadata metadata =
+                definition.bakedPrefab.GetComponent<DungeonBakedStageMetadata>();
+            if (metadata == null)
+            {
+                report.Add(
+                    DungeonStageDefinitionValidationCodes.MissingBakedMetadata,
+                    DungeonValidationSeverity.Error,
+                    "The baked Prefab root requires DungeonBakedStageMetadata.");
+                return;
+            }
+            Merge(report, metadata.Validate(definition.bakeManifest));
+        }
+
+        // 다른 계약 검증 결과를 Stage Definition 리포트에 순서대로 병합합니다.
         private static void Merge(DungeonValidationReport destination, DungeonValidationReport source)
         {
             if (destination == null || source == null || source.issues == null) return;
@@ -92,7 +161,7 @@ namespace RogueDungeonLab
     {
         public const string GeneratedRootName = "__RogueDungeonLab_Generated";
 
-        // StageDefinition의 Procedural 또는 SavedBlueprint 소스를 해석해 하나의 RuntimeBuild 인스턴스를 만듭니다.
+        // StageDefinition을 검증한 뒤 RuntimeBuild 또는 저장된 BakedPrefab 전용 경로로 분기합니다.
         public static DungeonStageInstance Load(DungeonLoadContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -109,8 +178,13 @@ namespace RogueDungeonLab
             }
             ThrowIfInvalid("Stage Definition is invalid.", definitionValidation);
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
             DungeonStageDefinition definition = context.Definition;
+            if (definition.buildMode == DungeonStageBuildMode.BakedPrefab)
+            {
+                return LoadBakedStage(context);
+            }
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
             DungeonBlueprint blueprint;
             DungeonLayout layout;
             RogueDungeonSettings sourceRecipe = null;
@@ -118,15 +192,15 @@ namespace RogueDungeonLab
             if (definition.sourceMode == DungeonStageSourceMode.Procedural)
             {
                 int seed = DungeonStageSeedResolver.Resolve(context);
-                sourceRecipe = definition.recipe;
+                sourceRecipe = context.ProceduralRecipeOverride ?? definition.recipe;
                 DungeonGenerationRequest request = definition.generatorVersion == DungeonGeneratorVersions.StableV2
                     ? DungeonGenerationRequest.CreateStableV2(
-                        definition.recipe,
+                        sourceRecipe,
                         seed,
                         definition.contentCatalog,
                         context.RequestId)
                     : DungeonGenerationRequest.Create(
-                        definition.recipe,
+                        sourceRecipe,
                         seed,
                         DungeonGeneratorVersions.LegacyV1,
                         DungeonBuiltInContentKeys.LegacyCatalogPlanningHash,
@@ -402,6 +476,7 @@ namespace RogueDungeonLab
                 return new DungeonStageInstance(
                     definition,
                     sourceMode,
+                    DungeonStageBuildMode.RuntimeBuild,
                     blueprint,
                     layout,
                     root,
@@ -416,6 +491,101 @@ namespace RogueDungeonLab
                 DestroyGeneratedRoot(root);
                 throw;
             }
+        }
+
+        // 저장 Blueprint는 데이터로 복원하고 Prefab만 복제해 생성기·resolver·SceneBuilder 없이 Baked stage를 교체합니다.
+        private static DungeonStageInstance LoadBakedStage(
+            DungeonLoadContext context)
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            DungeonStageDefinition definition = context.Definition;
+            DungeonBlueprint source =
+                definition.savedBlueprint != null
+                    ? definition.savedBlueprint.blueprint
+                    : null;
+            DungeonBlueprint blueprint = source != null ? source.DeepClone() : null;
+            DungeonValidationReport blueprintValidation =
+                DungeonBlueprintValidator.Validate(blueprint);
+            ThrowIfInvalid("Saved Dungeon Blueprint is invalid.", blueprintValidation);
+            DungeonLayout layout = DungeonBlueprintLayoutConverter.ToLayout(blueprint);
+
+            GameObject staging = new GameObject(GeneratedRootName + "_BakedStaging");
+            staging.transform.SetParent(context.Parent, false);
+            staging.SetActive(false);
+            GameObject root = null;
+            try
+            {
+                root = UnityEngine.Object.Instantiate(
+                    definition.bakedPrefab,
+                    staging.transform,
+                    false);
+                root.SetActive(false);
+                root.name = GeneratedRootName + "_Building";
+                root.transform.localPosition = Vector3.zero;
+                root.transform.localRotation = Quaternion.identity;
+                root.transform.localScale = Vector3.one;
+
+                DungeonBakedStageMetadata metadata =
+                    root.GetComponent<DungeonBakedStageMetadata>();
+                DungeonValidationReport metadataValidation =
+                    metadata != null
+                        ? metadata.Validate(definition.bakeManifest)
+                        : CreateMissingBakedMetadataReport();
+                ThrowIfInvalid(
+                    "Baked stage metadata is invalid.",
+                    metadataValidation);
+
+                DungeonSceneBuildResult buildResult = metadata.ToBuildResult();
+                DungeonValidationReport combinedValidation =
+                    CombineValidationReports(
+                        blueprintValidation,
+                        buildResult.ValidationReport);
+                stopwatch.Stop();
+                GenerationReport report = CreateReport(
+                    context.Parent,
+                    blueprint,
+                    layout,
+                    buildResult,
+                    null,
+                    stopwatch.Elapsed.TotalMilliseconds);
+
+                root.transform.SetParent(context.Parent, false);
+                ClearGenerated(context.Parent);
+                root.name = GeneratedRootName;
+                root.SetActive(true);
+                DestroyGeneratedRoot(staging);
+                staging = null;
+                return new DungeonStageInstance(
+                    definition,
+                    DungeonStageSourceMode.SavedBlueprint,
+                    DungeonStageBuildMode.BakedPrefab,
+                    blueprint,
+                    layout,
+                    root,
+                    definition.bakeManifest.sourceRuntimeSettings,
+                    buildResult,
+                    combinedValidation,
+                    report,
+                    context.RequestId);
+            }
+            catch
+            {
+                if (staging != null) DestroyGeneratedRoot(staging);
+                else if (root != null && root.name != GeneratedRootName)
+                    DestroyGeneratedRoot(root);
+                throw;
+            }
+        }
+
+        // Prefab 복제본에서 metadata가 사라진 비정상 상태를 안정적인 코드로 보고합니다.
+        private static DungeonValidationReport CreateMissingBakedMetadataReport()
+        {
+            DungeonValidationReport report = new DungeonValidationReport();
+            report.Add(
+                DungeonBakedStageMetadataValidationCodes.MissingMetadata,
+                DungeonValidationSeverity.Error,
+                "The baked Prefab root requires DungeonBakedStageMetadata.");
+            return report;
         }
 
         // Blueprint와 실제 구축 개수에서 기존 GenerationReport 호환 데이터를 계산합니다.

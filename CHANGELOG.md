@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.8.0
+
+- Editor-only `DungeonStageBaker`로 SavedBlueprint 기반 floor/wall Mesh, 콘텐츠 Prefab과 `DungeonBakeManifest` 영속 자산 생성
+- 알려진 built-in/fallback과 Content Catalog 직접 Prefab을 지원하고 runtime factory·Addressables·DI resolver Bake 차단
+- stage 전용 staging/commit, 실패 rollback과 manifest GUID·bake root 기반 이전 파생 산출물 정리
+- source/final Blueprint, planning/realization/gameplay/material/override hash와 builder version의 Editor stale 재검증
+- `SavedBlueprint + BakedPrefab` Loader가 Blueprint 생성, Mesh Builder와 resolver를 실행하지 않고 Prefab을 로드하도록 연결
+- `스테이지 자산` 탭에 영속 MaterialSet 생성·선택, Bake/재Bake 확인, 최신성 리포트와 Prefab·manifest Ping UI 추가
+- Catalog Prefab missing script·Editor-only component Player 안전성 검사, 직접 Prefab 클릭 대상 gameplay fingerprint와 Runtime 기본 DropTable canonical fingerprint 보강
+- 재Bake의 비가역 자산 정리 뒤 삭제된 참조를 복원하지 않도록 안전하지 않은 StageDefinition Undo 기록 제거
+- R6 전용 SavedBlueprint·DropTable·MaterialSet·BakedPrefab·검증 Scene 생성 및 실패 주입 rollback 메뉴·batchmode 진입점 추가
+- Unity `6000.5.3f1` compile, EditMode `74/74`, PlayMode `8/8` 통과
+- 분리된 임시 프로젝트에서 Baked 검증 장면 Windows Development Player 빌드 성공, 총 크기 `172,288,233 B`
+
+## 0.7.2
+
+- Play HUD가 프로젝트 settings와 Procedural StageDefinition recipe 대신 Generator 소유 `HideAndDontSave` 복제본을 편집하도록 변경
+- 별도 StageDefinition recipe의 구조 설정과 Generator settings의 드랍·런타임 옵션을 합쳐 같은 활성 시드·생성기 버전으로 재생성
+- 후보 런타임 설정을 Loader 성공 뒤에만 commit하고 실패한 source 전환은 기존 맵·활성 복제본을 유지
+- SavedBlueprint 활성 상태의 구조·시드 편집을 차단하고 같은 저장 논리 맵 재구축만 허용
+- Runtime-safe `DungeonBakeManifest`, `DungeonBakeMaterialSet`과 StageDefinition의 R6 Bake 참조 계약 추가
+- custom catalog, 완전한 재질 슬롯, source/final·planning·realization·gameplay·material hash, R6 Override 차단과 고유 `ownedArtifacts` 검증 추가
+- 덮어쓰기 Undo 후 저장·강제 재임포트, LegacyV1/custom catalog StableV2 정확 재생성과 snapshot 없는 기존 R5 자산 회귀 보강
+- RuntimeBuild 시간, thread allocation counter 지원 상태와 Profiler Mono 사용량 증분 p50/p95 기준선 테스트 추가
+- Unity `6000.5.3f1` batchmode compile, EditMode `58/58`, PlayMode `7/7` 통과; thread allocation counter 미지원 상태와 Profiler Mono 사용량 증분 기준선 기록
+
 ## 0.7.1
 
 - `DungeonBlueprintAsset`에 Blueprint 논리 hash와 분리된 선택적 authoring recipe snapshot을 추가하고 기존 snapshot 없는 R5 자산 호환 유지

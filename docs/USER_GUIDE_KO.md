@@ -32,7 +32,9 @@
 
 Play 모드에서 임시 캐릭터가 없을 때 `W/S`는 카메라가 실제로 바라보는 3차원 방향을 따라 이동하므로 위·아래를 바라보면 높이도 함께 변합니다. `A/D`는 카메라 기준 좌·우로 이동합니다. `Space`는 월드 위쪽 상승, `Ctrl`은 월드 아래쪽 하강이며, `Shift`를 함께 누르면 모든 키보드 이동이 가속됩니다. 우클릭 드래그는 현재 카메라 위치를 유지한 제자리 회전이며, 상하 시야는 거의 수직인 `-89°~89°`까지 움직입니다. 휠은 줌, 중클릭 드래그는 평행 이동입니다.
 
-Play HUD는 `스테이지 설정`, `탐험`, `드랍 통계` 탭으로 구성됩니다. `스테이지 설정`에서는 입력 시드와 프리셋뿐 아니라 스테이지 가로·세로 셀, 셀 크기, 벽 높이, 방 개수와 크기, 배치 시도, 복도 폭, 추가 연결 확률, 기믹·간격·입구 반경 및 적·파괴물·지형지물 밀도 설정을 편집할 수 있습니다. 슬라이더나 프리셋을 변경하면 현재 활성 시드를 유지한 채 자동 재생성되며, 드래그 중 발생하는 변경은 약 0.08초 간격으로 합쳐 처리됩니다. 시드 텍스트는 타이핑 도중의 중간 숫자를 생성하지 않도록 `설정 적용 및 입력 시드로 생성` 버튼으로 확정합니다. 진행도 `AnimationCurve` 자체는 계속 에디터의 분포 탭에서 편집합니다.
+Play HUD는 `스테이지 설정`, `탐험`, `드랍 통계` 탭으로 구성됩니다. `스테이지 설정`은 프로젝트의 settings 또는 Procedural StageDefinition recipe를 직접 바꾸지 않고 Generator가 소유한 Play 전용 복제본을 편집합니다. 입력 시드와 프리셋뿐 아니라 스테이지 가로·세로 셀, 셀 크기, 벽 높이, 방 개수와 크기, 배치 시도, 복도 폭, 추가 연결 확률, 기믹·간격·입구 반경 및 적·파괴물·지형지물 밀도 설정을 바꿀 수 있습니다. 슬라이더나 프리셋을 변경하면 현재 활성 시드를 유지한 채 자동 재생성되며, 드래그 중 발생하는 변경은 약 0.08초 간격으로 합쳐 처리됩니다. 시드 텍스트는 타이핑 도중의 중간 숫자를 생성하지 않도록 `설정 적용 및 입력 시드로 생성` 버튼으로 확정합니다. 진행도 `AnimationCurve` 자체는 계속 에디터의 분포 탭에서 편집합니다.
+
+Procedural StageDefinition이 별도 recipe를 사용하고 Generator settings에는 드랍·런타임 옵션이 들어 있어도, HUD의 구조 변경은 recipe 복제본에 적용되고 런타임 옵션은 함께 보존됩니다. 새 출처 로드가 실패하면 후보 복제본만 폐기하고 기존 맵과 활성 설정을 유지합니다. SavedBlueprint가 활성화되면 저장된 논리 맵을 보호하기 위해 구조와 시드 편집 탭을 비활성화하며, 탐험 탭의 재생성·새 시드는 같은 저장 Blueprint만 다시 구축합니다.
 
 HUD 패널은 현재 해상도와 가로·세로 비율을 기준으로 크기와 UI 배율을 계산합니다. 작은 화면에서는 화면 안쪽으로 폭과 높이를 제한하고, 세로 화면에서는 가용 폭을 사용하며, 탭 내용은 항상 스크롤할 수 있습니다.
 
@@ -41,3 +43,21 @@ HUD의 `임시 플레이어 생성 (WASD)` 버튼을 누르면 파란 캡슐 캐
 빨간 캡슐과 주황 큐브를 좌클릭하면 드랍 표본이 1회 추가됩니다. 빠른 표본 버튼은 물리 오브젝트를 소모하지 않습니다.
 
 표본이 적을 때 기대값과 큰 차이는 자연스럽습니다. 95% 구간이 충분히 좁아진 뒤에도 기대값이 구간 밖에 있으면 테이블이나 기록 로직을 점검합니다.
+
+## R6 배포용 Bake
+
+Bake는 임의로 바뀌는 Procedural 입력이 아니라 검수한 저장 Blueprint에서만 시작합니다.
+
+1. 위 제작 흐름으로 Blueprint와 `SavedBlueprint StageDefinition`을 준비합니다.
+2. `스테이지 자산` 탭의 `R6 배포용 Bake > Mesh·Prefab Bake`를 펼칩니다.
+3. Bake할 StageDefinition을 선택합니다. 현재 Generator에 연결한 자산이면 `현재 Generator Definition 사용`을 누를 수 있습니다. Procedural Definition을 선택하면 먼저 저장본을 만들라는 차단 안내가 표시됩니다.
+4. `영속 Bake 재질 세트`를 지정합니다. 처음이라면 `기본 Bake 재질 세트 자산 생성`을 누르고 프로젝트 안의 저장 위치를 선택합니다. 이 자산과 그 8개 Material 슬롯은 사용자 입력이므로 삭제하지 않고 다른 스테이지에서도 재사용할 수 있습니다.
+5. `배포용 Mesh·Prefab Bake`를 누릅니다. 기존 manifest와 Prefab이 있으면 재Bake 확인으로 바뀝니다. 성공 뒤 이전 파생 자산 정리는 비가역적이므로 Bake commit은 `Ctrl+Z` 대상이 아닙니다.
+6. Bake가 성공하면 StageDefinition이 생성된 Baked Prefab과 manifest를 참조하고 `BakedPrefab` 모드가 됩니다. 각 결과의 `Ping` 버튼으로 Project 창에서 위치를 찾을 수 있습니다.
+7. Blueprint, Catalog Prefab, drop/gameplay 설정, 재질·Shader 또는 builder 코드가 바뀌었다면 `최신성 다시 검사`를 누릅니다. 검증 리포트가 stale 의존성을 표시하면 재Bake해야 합니다.
+
+재Bake는 stage 전용 staging 영역에서 새 후보를 완성한 뒤 commit합니다. 생성·검증·저장 중 오류가 나면 후보만 제거하고 기존 정상 Prefab·manifest 참조를 유지합니다. 정리 대상도 이전 manifest가 소유한다고 기록한 stage bake root 안의 파생 Mesh·Prefab·manifest뿐이며, Blueprint, settings, Catalog, Catalog Prefab, 공유 Mesh·Material은 건드리지 않습니다.
+
+R6 MVP는 알려진 built-in/fallback 표현과 `DungeonContentCatalog`가 직접 참조하는 Prefab을 지원합니다. runtime factory, Addressables, DI·오브젝트 풀 resolver는 Bake하지 않으며 RuntimeBuild에서 사용해야 합니다. BakedPrefab Loader는 Blueprint 생성, Mesh Builder와 resolver를 실행하지 않고 manifest 검증 뒤 저장 Prefab을 인스턴스화합니다.
+
+R6 자동 회귀는 Unity `6000.5.3f1`에서 EditMode `74/74`, PlayMode `8/8`을 통과했습니다. 분리된 임시 프로젝트에서 전용 Baked 장면을 생성한 Windows Development Player 빌드도 성공했습니다. 직접 확인하려면 `Tools > Rogue Dungeon Lab > R6 수동 검증 환경 생성`을 실행하고 `Assets/R6ManualVerification/README_KO.md`의 Play·stale·rollback 순서를 따릅니다.

@@ -165,11 +165,275 @@ namespace RogueDungeonLab.Tests
             AssertPanelFitsScreen(3840, 1080);
 
             int activeSeedBeforeLiveRegeneration = _generator.ActiveSeed;
-            _settings.stageWidthCells = 24;
+            int sourceWidthBeforeLiveRegeneration = _settings.stageWidthCells;
+            RogueDungeonSettings runtimeSettings = _generator.ActiveRuntimeSettings;
+            Assert.That(runtimeSettings, Is.Not.Null);
+            Assert.That(runtimeSettings, Is.Not.SameAs(_settings));
+            Assert.That(
+                (runtimeSettings.hideFlags & HideFlags.HideAndDontSave),
+                Is.EqualTo(HideFlags.HideAndDontSave));
+            runtimeSettings.stageWidthCells = 24;
             InvokeHudMethod("RequestLiveRegeneration");
             InvokeHudMethod("ProcessLiveRegeneration");
             Assert.That(_generator.ActiveSeed, Is.EqualTo(activeSeedBeforeLiveRegeneration));
             Assert.That(_generator.CurrentLayout.Width, Is.EqualTo(24));
+            Assert.That(_settings.stageWidthCells, Is.EqualTo(sourceWidthBeforeLiveRegeneration));
+        }
+
+        // 별도 Generator settings가 있어도 Procedural StageDefinition recipe 복제본만 HUD가 편집하고 두 원본을 보존하는지 검증합니다.
+        [UnityTest]
+        public IEnumerator ProceduralStageDefinition_UsesIsolatedRecipeCloneWithSeparateGeneratorSettings()
+        {
+            RogueDungeonSettings recipe = ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            DungeonStageDefinition definition = ScriptableObject.CreateInstance<DungeonStageDefinition>();
+            WeightedDropTable runtimeDropTable = ScriptableObject.CreateInstance<WeightedDropTable>();
+            RogueDungeonSettings failingRecipe = ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            DungeonStageDefinition failingDefinition = ScriptableObject.CreateInstance<DungeonStageDefinition>();
+            try
+            {
+                recipe.ApplyPreset(DungeonPreset.Compact);
+                recipe.stageWidthCells = 30;
+                recipe.stageDepthCells = 28;
+                recipe.seed = 111111;
+                string recipeHashBefore = DungeonRecipeSnapshot.Capture(recipe).ComputeHash();
+                int generatorSettingsWidthBefore = _settings.stageWidthCells;
+                runtimeDropTable.entries.Add(new DropEntry
+                {
+                    itemId = "RuntimeOnlyDrop",
+                    weight = 1f
+                });
+                _settings.enemyDropTable = runtimeDropTable;
+
+                definition.sourceMode = DungeonStageSourceMode.Procedural;
+                definition.buildMode = DungeonStageBuildMode.RuntimeBuild;
+                definition.recipe = recipe;
+                definition.seedPolicy = DungeonStageSeedPolicy.FixedSeed;
+                definition.fixedSeed = 424242;
+                definition.generatorVersion = DungeonGeneratorVersions.StableV2;
+                RogueDungeonSettings previousRuntimeSettings = _generator.ActiveRuntimeSettings;
+                _generator.stageDefinition = definition;
+                _generator.LoadStageDefinition();
+                yield return null;
+
+                RogueDungeonSettings runtimeSettings = _generator.ActiveRuntimeSettings;
+                Assert.That(previousRuntimeSettings == null, Is.True);
+                Assert.That(_generator.CurrentStageInstance.Definition, Is.SameAs(definition));
+                Assert.That(_generator.CanEditActiveRuntimeRecipe, Is.True);
+                Assert.That(runtimeSettings, Is.Not.Null);
+                Assert.That(runtimeSettings, Is.Not.SameAs(recipe));
+                Assert.That(runtimeSettings, Is.Not.SameAs(_settings));
+                Assert.That(runtimeSettings.stageWidthCells, Is.EqualTo(30));
+                Assert.That(runtimeSettings.enemyDropTable, Is.SameAs(runtimeDropTable));
+                Assert.That(
+                    (runtimeSettings.hideFlags & HideFlags.HideAndDontSave),
+                    Is.EqualTo(HideFlags.HideAndDontSave));
+
+                runtimeSettings.stageWidthCells = 34;
+                _generator.GenerateActiveRecipeWithSeed(525252);
+                Assert.That(_generator.ActiveSeed, Is.EqualTo(525252));
+                Assert.That(_generator.CurrentLayout.Width, Is.EqualTo(34));
+                Assert.That(_generator.CurrentBlueprint.generatorVersion, Is.EqualTo(DungeonGeneratorVersions.StableV2));
+                Assert.That(_generator.CurrentStageInstance.Definition, Is.SameAs(definition));
+
+                InvokeHudMethod("RequestLiveRegeneration");
+                InvokeHudMethod("ProcessLiveRegeneration");
+
+                Assert.That(_generator.ActiveSeed, Is.EqualTo(525252));
+                Assert.That(_generator.CurrentLayout.Width, Is.EqualTo(34));
+                Assert.That(_generator.CurrentBlueprint.generatorVersion, Is.EqualTo(DungeonGeneratorVersions.StableV2));
+                Assert.That(_generator.CurrentStageInstance.Definition, Is.SameAs(definition));
+                Assert.That(recipe.stageWidthCells, Is.EqualTo(30));
+                Assert.That(DungeonRecipeSnapshot.Capture(recipe).ComputeHash(), Is.EqualTo(recipeHashBefore));
+                Assert.That(_settings.stageWidthCells, Is.EqualTo(generatorSettingsWidthBefore));
+
+                string activeHashBeforeFailure = _generator.CurrentBlueprint.blueprintHash;
+                GameObject activeRootBeforeFailure = _generator.CurrentStageInstance.Root;
+                failingRecipe.ApplyPreset(DungeonPreset.Chaos);
+                failingDefinition.sourceMode = DungeonStageSourceMode.Procedural;
+                failingDefinition.buildMode = DungeonStageBuildMode.BakedPrefab;
+                failingDefinition.recipe = failingRecipe;
+                _generator.stageDefinition = failingDefinition;
+
+                Assert.Throws<DungeonStageLoadException>(delegate
+                {
+                    _generator.LoadStageDefinition();
+                });
+                yield return null;
+
+                Assert.That(_generator.ActiveRuntimeSettings, Is.SameAs(runtimeSettings));
+                Assert.That(runtimeSettings == null, Is.False);
+                Assert.That(_generator.CurrentStageInstance.Root, Is.SameAs(activeRootBeforeFailure));
+                Assert.That(_generator.CurrentBlueprint.blueprintHash, Is.EqualTo(activeHashBeforeFailure));
+                FieldInfo pendingField = typeof(RogueDungeonGenerator).GetField(
+                    "_pendingRuntimeSettings",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(pendingField, Is.Not.Null);
+                Assert.That(pendingField.GetValue(_generator), Is.Null);
+                _generator.stageDefinition = definition;
+            }
+            finally
+            {
+                _generator.stageDefinition = null;
+                if (failingDefinition != null) Object.Destroy(failingDefinition);
+                if (failingRecipe != null) Object.Destroy(failingRecipe);
+                if (definition != null) Object.Destroy(definition);
+                if (runtimeDropTable != null) Object.Destroy(runtimeDropTable);
+                if (recipe != null) Object.Destroy(recipe);
+            }
+        }
+
+        // SavedBlueprint 활성화 중에는 HUD 구조 편집이 차단되고 새 시드 요청도 저장 논리 맵을 바꾸지 않는지 검증합니다.
+        [UnityTest]
+        public IEnumerator SavedBlueprint_DisablesRuntimeRecipeEditingAndKeepsLogicalMap()
+        {
+            RogueDungeonSettings sourceSettings = ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            DungeonBlueprintAsset asset = ScriptableObject.CreateInstance<DungeonBlueprintAsset>();
+            DungeonStageDefinition definition = ScriptableObject.CreateInstance<DungeonStageDefinition>();
+            try
+            {
+                sourceSettings.ApplyPreset(DungeonPreset.Compact);
+                DungeonBlueprint blueprint = DungeonBlueprintGenerator.Generate(
+                    DungeonGenerationRequest.Create(
+                        sourceSettings,
+                        717171,
+                        DungeonGeneratorVersions.LegacyV1,
+                        DungeonBuiltInContentKeys.LegacyCatalogPlanningHash)).Blueprint;
+                asset.Store(blueprint);
+                definition.sourceMode = DungeonStageSourceMode.SavedBlueprint;
+                definition.buildMode = DungeonStageBuildMode.RuntimeBuild;
+                definition.savedBlueprint = asset;
+                RogueDungeonSettings previousRuntimeSettings = _generator.ActiveRuntimeSettings;
+                _generator.stageDefinition = definition;
+                _generator.LoadStageDefinition();
+                yield return null;
+
+                string blueprintHash = _generator.CurrentBlueprint.blueprintHash;
+                int activeSeed = _generator.ActiveSeed;
+                Assert.That(previousRuntimeSettings == null, Is.True);
+                Assert.That(_generator.CanEditActiveRuntimeRecipe, Is.False);
+                Assert.That(_generator.ActiveRuntimeSettings, Is.Null);
+
+                LogAssert.Expect(LogType.Warning, "Saved Blueprint source does not allow runtime recipe editing.");
+                _generator.GenerateActiveRecipeWithSeed(999999);
+                _generator.GenerateNewSeed();
+
+                Assert.That(_generator.ActiveSeed, Is.EqualTo(activeSeed));
+                Assert.That(_generator.CurrentBlueprint.blueprintHash, Is.EqualTo(blueprintHash));
+                Assert.That(asset.blueprint.blueprintHash, Is.EqualTo(blueprintHash));
+                yield return null;
+            }
+            finally
+            {
+                _generator.stageDefinition = null;
+                if (definition != null) Object.Destroy(definition);
+                if (asset != null) Object.Destroy(asset);
+                if (sourceSettings != null) Object.Destroy(sourceSettings);
+            }
+        }
+
+        // Generator 수명이 끝나면 소유한 HideAndDontSave 설정 복제본도 함께 파괴되는지 검증합니다.
+        [UnityTest]
+        public IEnumerator RuntimeSettingsClone_IsDestroyedWithOwningGenerator()
+        {
+            RogueDungeonSettings source = ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            GameObject owner = new GameObject("Runtime Settings Clone Owner");
+            RogueDungeonSettings runtimeSettings = null;
+            try
+            {
+                source.ApplyPreset(DungeonPreset.Compact);
+                source.generateOnPlay = false;
+                RogueDungeonGenerator generator = owner.AddComponent<RogueDungeonGenerator>();
+                generator.settings = source;
+                generator.GenerateWithSeed(818181);
+                runtimeSettings = generator.ActiveRuntimeSettings;
+
+                Assert.That(runtimeSettings, Is.Not.Null);
+                Assert.That(runtimeSettings, Is.Not.SameAs(source));
+                Object.Destroy(owner);
+                owner = null;
+                yield return null;
+
+                Assert.That(runtimeSettings == null, Is.True);
+                Assert.That(source, Is.Not.Null);
+            }
+            finally
+            {
+                if (owner != null) Object.Destroy(owner);
+                if (source != null) Object.Destroy(source);
+            }
+        }
+
+        // 첫 로드 전에도 loadOnPlay Procedural Definition이 settings-only fallback보다 재생성·새 시드에서 우선되는지 검사합니다.
+        [UnityTest]
+        public IEnumerator ConfiguredProceduralDefinition_IsPreferredBeforeFirstLoad()
+        {
+            RogueDungeonSettings source = ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            RogueDungeonSettings recipe = ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            DungeonStageDefinition regenerateDefinition =
+                ScriptableObject.CreateInstance<DungeonStageDefinition>();
+            DungeonStageDefinition randomDefinition =
+                ScriptableObject.CreateInstance<DungeonStageDefinition>();
+            GameObject regenerateOwner = new GameObject("Definition First Regenerate Owner");
+            GameObject randomOwner = new GameObject("Definition First Random Owner");
+            try
+            {
+                source.ApplyPreset(DungeonPreset.Balanced);
+                source.generateOnPlay = false;
+                recipe.ApplyPreset(DungeonPreset.Compact);
+                regenerateDefinition.sourceMode = DungeonStageSourceMode.Procedural;
+                regenerateDefinition.buildMode = DungeonStageBuildMode.RuntimeBuild;
+                regenerateDefinition.recipe = recipe;
+                regenerateDefinition.seedPolicy = DungeonStageSeedPolicy.FixedSeed;
+                regenerateDefinition.fixedSeed = 1357911;
+                regenerateDefinition.loadOnPlay = true;
+
+                RogueDungeonGenerator regenerateGenerator =
+                    regenerateOwner.AddComponent<RogueDungeonGenerator>();
+                regenerateGenerator.settings = source;
+                regenerateGenerator.stageDefinition = regenerateDefinition;
+                regenerateGenerator.RegenerateActiveSeed();
+
+                Assert.That(
+                    regenerateGenerator.CurrentStageInstance.Definition,
+                    Is.SameAs(regenerateDefinition));
+                Assert.That(regenerateGenerator.ActiveSeed, Is.EqualTo(1357911));
+                Assert.That(
+                    regenerateGenerator.CurrentLayout.Width,
+                    Is.EqualTo(recipe.stageWidthCells));
+
+                randomDefinition.sourceMode = DungeonStageSourceMode.Procedural;
+                randomDefinition.buildMode = DungeonStageBuildMode.RuntimeBuild;
+                randomDefinition.recipe = recipe;
+                randomDefinition.seedPolicy = DungeonStageSeedPolicy.FixedSeed;
+                randomDefinition.fixedSeed = 2468022;
+                randomDefinition.loadOnPlay = true;
+
+                RogueDungeonGenerator randomGenerator =
+                    randomOwner.AddComponent<RogueDungeonGenerator>();
+                randomGenerator.settings = source;
+                randomGenerator.stageDefinition = randomDefinition;
+                randomGenerator.GenerateNewSeed();
+
+                Assert.That(
+                    randomGenerator.CurrentStageInstance.Definition,
+                    Is.SameAs(randomDefinition));
+                Assert.That(
+                    randomGenerator.ActiveSeed,
+                    Is.EqualTo(randomGenerator.CurrentBlueprint.seed));
+                Assert.That(
+                    randomGenerator.CurrentLayout.Width,
+                    Is.EqualTo(recipe.stageWidthCells));
+                yield return null;
+            }
+            finally
+            {
+                if (randomOwner != null) Object.Destroy(randomOwner);
+                if (regenerateOwner != null) Object.Destroy(regenerateOwner);
+                if (randomDefinition != null) Object.Destroy(randomDefinition);
+                if (regenerateDefinition != null) Object.Destroy(regenerateDefinition);
+                if (recipe != null) Object.Destroy(recipe);
+                if (source != null) Object.Destroy(source);
+            }
         }
 
         // 저장 Blueprint의 cellSize가 현재 settings와 달라도 플레이어가 저장된 입구 좌표에 생성되는지 검사합니다.
@@ -216,6 +480,257 @@ namespace RogueDungeonLab.Tests
                 PrototypePlayerController.DestroyActive();
                 if (definition != null) Object.Destroy(definition);
                 if (asset != null) Object.Destroy(asset);
+                if (sourceSettings != null) Object.Destroy(sourceSettings);
+            }
+        }
+
+        // 실제 BakedPrefab을 로드한 뒤 화면 클릭 한 번이 복제된 파괴 대상과 드랍 통계 1회를 처리하는지 검사합니다.
+        [UnityTest]
+        public IEnumerator BakedPrefab_ClickRecordsExactlyOneDropSample()
+        {
+            RogueDungeonSettings sourceSettings =
+                ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            DungeonBlueprintAsset blueprintAsset =
+                ScriptableObject.CreateInstance<DungeonBlueprintAsset>();
+            DungeonBakeMaterialSet materialSet =
+                ScriptableObject.CreateInstance<DungeonBakeMaterialSet>();
+            DungeonBakeManifest manifest =
+                ScriptableObject.CreateInstance<DungeonBakeManifest>();
+            DungeonStageDefinition definition =
+                ScriptableObject.CreateInstance<DungeonStageDefinition>();
+            WeightedDropTable dropTable =
+                ScriptableObject.CreateInstance<WeightedDropTable>();
+            Material material = null;
+            GameObject bakedTemplate = null;
+            try
+            {
+                sourceSettings.ApplyPreset(DungeonPreset.Compact);
+                sourceSettings.specialGimmickCount = 0;
+                sourceSettings.enemyProfile.baseDensity = 0f;
+                sourceSettings.destructibleProfile.baseDensity = 0f;
+                sourceSettings.propProfile.baseDensity = 0f;
+                sourceSettings.spawnDropMarkers = false;
+                sourceSettings.resetDropStatsOnGenerate = true;
+
+                _orbitCamera.enabled = false;
+                _cameraObject.transform.position = Vector3.zero;
+                _cameraObject.transform.rotation = Quaternion.identity;
+                Camera camera = _cameraObject.GetComponent<Camera>();
+                Vector2 clickPosition = new Vector2(
+                    Mathf.Max(1f, Screen.width - 1f),
+                    Mathf.Max(1f, Screen.height * 0.5f));
+                Assert.That(
+                    RuntimeLabHUD.IsPointerInside(clickPosition),
+                    Is.False);
+                Vector3 targetPosition =
+                    camera.ScreenPointToRay(clickPosition).GetPoint(8f);
+
+                DungeonBlueprint blueprint = DungeonBlueprintGenerator.Generate(
+                    DungeonGenerationRequest.Create(
+                        sourceSettings,
+                        606606,
+                        DungeonGeneratorVersions.LegacyV1,
+                        DungeonBuiltInContentKeys.LegacyCatalogPlanningHash,
+                        "r6-baked-click-playmode")).Blueprint;
+                DungeonCellRecord spawnCell = blueprint.cells.Find(
+                    cell => cell != null &&
+                            (cell.flags & DungeonCellFlags.Floor) != 0);
+                Assert.That(spawnCell, Is.Not.Null);
+                DungeonSpawnRecord spawnRecord = new DungeonSpawnRecord
+                {
+                    spawnId = "r6-baked-click-target",
+                    category = DungeonSpawnCategory.Destructible,
+                    contentKey = DungeonBuiltInContentKeys.Destructible,
+                    instanceName = "R6 Baked Click Target",
+                    cell = spawnCell.coordinate,
+                    localPosition = targetPosition,
+                    localScale = Vector3.one,
+                    roomId = spawnCell.roomId,
+                    progression = 0f,
+                    variantSeed = 606
+                };
+                blueprint.spawns.Add(spawnRecord);
+                blueprint.RefreshHash();
+                blueprintAsset.Store(blueprint);
+
+                dropTable.name = "R6 Baked Guaranteed Drop";
+                dropTable.entries.Add(new DropEntry
+                {
+                    itemId = "BakedGuaranteedDrop",
+                    weight = 1f,
+                    minQuantity = 1,
+                    maxQuantity = 1,
+                    representsNoDrop = false
+                });
+
+                Shader shader = Shader.Find("Hidden/InternalErrorShader");
+                Assert.That(shader, Is.Not.Null);
+                material = new Material(shader);
+                FillBakeMaterialSet(materialSet, material);
+
+                bakedTemplate = new GameObject("R6 Baked Click Template");
+                bakedTemplate.SetActive(false);
+                GameObject targetObject =
+                    GameObject.CreatePrimitive(PrimitiveType.Cube);
+                targetObject.name = spawnRecord.instanceName;
+                targetObject.transform.SetParent(
+                    bakedTemplate.transform,
+                    false);
+                targetObject.transform.localPosition =
+                    spawnRecord.localPosition;
+                DungeonSpawnIdentity identity =
+                    targetObject.AddComponent<DungeonSpawnIdentity>();
+                identity.Configure(spawnRecord);
+                DestructibleDropTarget target =
+                    targetObject.AddComponent<DestructibleDropTarget>();
+                target.Configure(
+                    "R6BakedClickTarget",
+                    DropSourceKind.Destructible,
+                    dropTable,
+                    false);
+
+                DungeonSceneBuildResult buildResult =
+                    new DungeonSceneBuildResult
+                    {
+                        MeshTriangleCount = 0,
+                        ContentCounts = new ContentSpawnCounts
+                        {
+                            DestructibleCount = 1
+                        },
+                        BuiltInFallbackCount = 1,
+                        ValidationReport = new DungeonValidationReport()
+                    };
+                DungeonBakedStageMetadata metadata =
+                    bakedTemplate.AddComponent<DungeonBakedStageMetadata>();
+                metadata.Configure(
+                    DungeonBakeFormat.Current,
+                    DungeonBakeBuilderVersions.Current,
+                    blueprintAsset.blueprint.blueprintHash,
+                    buildResult);
+
+                manifest.sourceBlueprint = blueprintAsset;
+                manifest.sourceRuntimeSettings = sourceSettings;
+                manifest.materialSet = materialSet;
+                manifest.bakedPrefab = bakedTemplate;
+                manifest.sourceBlueprintHash =
+                    blueprintAsset.blueprint.blueprintHash;
+                manifest.finalBlueprintHash =
+                    blueprintAsset.blueprint.blueprintHash;
+                manifest.catalogPlanningHash =
+                    blueprintAsset.blueprint.catalogPlanningHash;
+                manifest.contentRealizationHash =
+                    "r6-playmode-realization";
+                manifest.gameplayBuildConfigHash =
+                    "r6-playmode-gameplay";
+                manifest.materialDependencyHash =
+                    "r6-playmode-material";
+                manifest.ownedArtifacts.Add(new DungeonBakeArtifactRecord
+                {
+                    role = "prefab",
+                    assetGuid = "r6-playmode-prefab-guid",
+                    dependencyHash = "r6-playmode-prefab-dependency"
+                });
+
+                definition.sourceMode =
+                    DungeonStageSourceMode.SavedBlueprint;
+                definition.buildMode =
+                    DungeonStageBuildMode.BakedPrefab;
+                definition.savedBlueprint = blueprintAsset;
+                definition.bakedPrefab = bakedTemplate;
+                definition.bakeManifest = manifest;
+                _generator.stageDefinition = definition;
+                _generator.LoadStageDefinition();
+                yield return null;
+
+                Assert.That(
+                    _generator.CurrentStageInstance.BuildMode,
+                    Is.EqualTo(DungeonStageBuildMode.BakedPrefab));
+                DungeonSpawnIdentity loadedIdentity = null;
+                DungeonSpawnIdentity[] loadedIdentities =
+                    _generator.CurrentStageInstance.Root
+                        .GetComponentsInChildren<DungeonSpawnIdentity>(true);
+                for (int i = 0; i < loadedIdentities.Length; i++)
+                {
+                    if (loadedIdentities[i].SpawnId ==
+                        spawnRecord.spawnId)
+                    {
+                        loadedIdentity = loadedIdentities[i];
+                        break;
+                    }
+                }
+                Assert.That(loadedIdentity, Is.Not.Null);
+
+                DropValidationService service =
+                    DropValidationService.Active;
+                Assert.That(service, Is.Not.Null);
+                service.ResetStatistics();
+                RogueDungeonClickInteractor interactor =
+                    _cameraObject.GetComponent<RogueDungeonClickInteractor>();
+                if (interactor == null)
+                {
+                    interactor =
+                        _cameraObject.AddComponent<RogueDungeonClickInteractor>();
+                }
+                interactor.targetCamera = camera;
+                Physics.SyncTransforms();
+                RaycastHit clickHit;
+                Assert.That(
+                    Physics.Raycast(
+                        camera.ScreenPointToRay(clickPosition),
+                        out clickHit,
+                        interactor.maximumDistance,
+                        interactor.interactionMask,
+                        QueryTriggerInteraction.Ignore),
+                    Is.True);
+                Assert.That(
+                    clickHit.collider
+                        .GetComponentInParent<DestructibleDropTarget>(),
+                    Is.Not.Null);
+
+                _mouse.MakeCurrent();
+                InputState.Change(
+                    _mouse,
+                    new MouseState { position = clickPosition },
+                    InputUpdateType.Dynamic);
+                Assert.That(_mouse.leftButton.isPressed, Is.False);
+                Assert.That(
+                    _mouse.leftButton.wasPressedThisFrame,
+                    Is.False);
+                InputState.Change(
+                    _mouse,
+                    new MouseState { position = clickPosition }
+                        .WithButton(MouseButton.Left),
+                    InputUpdateType.Dynamic);
+                Assert.That(_mouse.leftButton.isPressed, Is.True);
+                Assert.That(_mouse.leftButton.wasPressedThisFrame, Is.True);
+                interactor.SendMessage(
+                    "Update",
+                    SendMessageOptions.RequireReceiver);
+
+                var snapshots = service.GetSnapshots();
+                Assert.That(snapshots.Count, Is.EqualTo(1));
+                Assert.That(snapshots[0].SourceKind,
+                    Is.EqualTo(DropSourceKind.Destructible));
+                Assert.That(snapshots[0].Attempts, Is.EqualTo(1));
+                Assert.That(snapshots[0].Entries.Count, Is.EqualTo(1));
+                Assert.That(
+                    snapshots[0].Entries[0].ItemId,
+                    Is.EqualTo("BakedGuaranteedDrop"));
+                Assert.That(snapshots[0].Entries[0].Hits, Is.EqualTo(1));
+                yield return null;
+                Assert.That(loadedIdentity == null, Is.True);
+            }
+            finally
+            {
+                _generator.stageDefinition = null;
+                _generator.ClearGenerated();
+                if (bakedTemplate != null) Object.Destroy(bakedTemplate);
+                if (definition != null) Object.Destroy(definition);
+                if (manifest != null) Object.Destroy(manifest);
+                if (materialSet != null) Object.Destroy(materialSet);
+                if (material != null) Object.Destroy(material);
+                if (dropTable != null) Object.Destroy(dropTable);
+                if (blueprintAsset != null) Object.Destroy(blueprintAsset);
                 if (sourceSettings != null) Object.Destroy(sourceSettings);
             }
         }
@@ -271,6 +786,21 @@ namespace RogueDungeonLab.Tests
                 if (targetObject != null) Object.Destroy(targetObject);
                 if (table != null) Object.Destroy(table);
             }
+        }
+
+        // 하나의 Material을 R6 BakedPrefab manifest의 모든 필수 재질 슬롯에 채웁니다.
+        private static void FillBakeMaterialSet(
+            DungeonBakeMaterialSet materialSet,
+            Material material)
+        {
+            materialSet.floor = material;
+            materialSet.wall = material;
+            materialSet.enemy = material;
+            materialSet.destructible = material;
+            materialSet.prop = material;
+            materialSet.gimmick = material;
+            materialSet.entrance = material;
+            materialSet.exit = material;
         }
 
         // 지정 해상도에서 계산한 HUD 패널이 화면의 네 경계를 벗어나지 않는지 확인합니다.

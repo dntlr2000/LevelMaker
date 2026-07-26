@@ -6,6 +6,7 @@ namespace RogueDungeonLab
     {
         public DungeonStageDefinition Definition { get; private set; }
         public DungeonStageSourceMode SourceMode { get; private set; }
+        public DungeonStageBuildMode BuildMode { get; private set; }
         public DungeonBlueprint Blueprint { get; private set; }
         public DungeonLayout Layout { get; private set; }
         public GameObject Root { get; private set; }
@@ -20,6 +21,7 @@ namespace RogueDungeonLab
         internal DungeonStageInstance(
             DungeonStageDefinition definition,
             DungeonStageSourceMode sourceMode,
+            DungeonStageBuildMode buildMode,
             DungeonBlueprint blueprint,
             DungeonLayout layout,
             GameObject root,
@@ -31,6 +33,7 @@ namespace RogueDungeonLab
         {
             Definition = definition;
             SourceMode = sourceMode;
+            BuildMode = buildMode;
             Blueprint = blueprint;
             Layout = layout;
             Root = root;
