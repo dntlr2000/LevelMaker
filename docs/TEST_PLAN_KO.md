@@ -1,8 +1,8 @@
 # 테스트 계획
 
-## R0·R1·R2·R3·R4·R5·R5.1·R5.2·R6 승인 기준
+## R0·R1·R2·R3·R4·R5·R5.1·R5.2·R6·R7 승인 기준
 
-Unity `6000.5.3f1`에서 compile 성공 후 EditMode 74개와 PlayMode 8개를 자동 실행했습니다.
+Unity `6000.5.3f1`에서 compile 성공 후 전체 EditMode 83개와 PlayMode 9개를 자동 실행했습니다.
 
 - Compact `12345`, Balanced `-987654321`, Chaos `20260719`의 방·floor·BFS·콘텐츠 셀 SHA-256 Golden 지문
 - 같은 프리셋·시드 반복 생성 지문 일치
@@ -68,18 +68,29 @@ Unity `6000.5.3f1`에서 compile 성공 후 EditMode 74개와 PlayMode 8개를 �
 - RuntimeBuild/BakedPrefab의 입구·출구, floor/wall Collider, spawn identity·transform, 클릭/drop marker와 구축 report parity
 - BakedPrefab 로드 중 Blueprint 생성기, `DungeonMeshBuilder`와 콘텐츠 resolver 미실행
 - Runtime assembly의 `UnityEditor` 참조 부재와 BakedPrefab 포함 Player build smoke
+- Stage Override disable/add/content/절대 Transform 적용, 원본 deep-copy 불변과 목록 순서·제작 메모 독립 canonical hash
+- Marker 편집, 중복 target·record ID, disable 상충 작업, 추가 stable ID 충돌과 잘못된 Transform의 코드 기반 차단
+- 원본 변경 뒤 exact·ChangedExact와 semantic unique 제안, missing·ambiguous·candidate/add ID 충돌 재결합 분류
+- R6 format/builder v1의 빈 Override 하위 호환과 v1 Override payload 차단
+- R7 v2 manifest의 source/override/final hash, RuntimeBuild/BakedPrefab identity·Transform·report parity
+- Override stale 검출과 실패 주입 재Bake 뒤 기존 Prefab·manifest·Override 입력 자산 보존
+- R7 v2 BakedPrefab의 실제 Physics Raycast·클릭 파괴와 드랍 통계 정확히 1회 누적
 
 R5.2 실행 결과는 compile 성공, EditMode `58/58`, PlayMode `7/7` 통과입니다. Balanced seed `73125`, warmup 3회 뒤 15회 RuntimeBuild의 이 환경 기준 시간은 p50 `7.390 ms`, p95 `7.744 ms`였습니다. Unity Mono가 `GC.GetAllocatedBytesForCurrentThread()`를 지원하지 않아 thread allocation은 p50/p95 모두 `0 B`와 `supported=False`로 기록했고, 대체 관측치인 `Profiler.GetMonoUsedSizeLong()` 증분은 p50 `2,252,800 B`, p95 `2,269,184 B`였습니다. 이 값은 절대 성능 제한이 아니라 같은 환경·설정에서 이후 R6 전후 회귀를 비교할 기준선입니다.
 
 R6 실행 결과는 compile 성공, EditMode `74/74`, PlayMode `8/8` 통과입니다. RuntimeBuild/BakedPrefab parity, 실제 Physics Raycast·마우스 클릭에 의한 Baked target 파괴와 드랍 1회, stale fingerprint, 재Bake 성공·실패 rollback·Undo 안전성, 소유 범위 변조 방어와 Player 비포함 assembly 분류를 포함합니다.
 
+R7 추가 회귀는 순수 Override 계약 EditMode `6/6`, Bake v1/v2 호환·동등성·stale/rollback EditMode `3/3`, Override v2 Baked 클릭/drop PlayMode `1/1`을 각각 통과했습니다. 이를 포함한 전체 R0~R7 회귀는 EditMode `83/83`, PlayMode `9/9` 통과이며 결과 파일은 `Logs/R7FullEditMode.xml`, `Logs/R7FullPlayMode.xml`입니다.
+
 분리된 임시 프로젝트에서 `R6ManualVerificationSetup.CreateAllFromBatch`로 SavedBlueprint·영속 Mesh·Prefab·manifest·Baked 검증 Scene을 만든 뒤 `R6PlayerBuildSmoke.BuildFromBatch` Windows Development Player 빌드가 성공했습니다. 총 빌드 크기는 `172,288,233 B`이며 `Logs/R6PlayerBuildSmoke.log`에 기록했습니다. `VerifyRollbackFromBatch`도 통과했고 로그는 `Logs/R6RollbackVerification.log`입니다.
 
-EditMode는 기존 생성·Blueprint·Loader·Catalog·자산 제작 회귀와 함께 manifest 계약, LegacyV1/custom catalog StableV2 정확 재생성, Undo 저장·재임포트, snapshot 없는 자산 호환을 확인합니다. PlayMode는 기존 카메라·임시 플레이어·클릭 드랍 외에 원본 비변경, 별도 StageDefinition recipe, source 전환 수명주기, 실패 rollback, SavedBlueprint 편집 차단과 첫 로드 전 Definition 우선을 확인합니다. 실제 Unity 프로세스 종료 후 재시작, Play 중 script/domain reload, HUD 화면 안내, 마우스 포인터 Raycast와 HUD 위 클릭 차단은 수동 검증 항목입니다.
+`R7ManualVerificationSetup.CreateAllFromBatch`는 전용 Override·RuntimeBuild/BakedPrefab Definition·v2 Bake·검증 Scene 생성을 완료했고, 장면 재개방 뒤 RuntimeBuild/BakedPrefab의 final hash와 stable spawn identity parity를 확인했습니다. Windows64 Development Player 빌드는 경고 `0`개, 총 크기 `172,176,046 B`로 성공했습니다. 로그는 `Logs/R7ManualSetup.log`, `Logs/R7PlayerBuildSmoke.log`입니다.
+
+EditMode는 기존 생성·Blueprint·Loader·Catalog·자산 제작 회귀와 함께 manifest 계약, LegacyV1/custom catalog StableV2 정확 재생성, Undo 저장·재임포트, snapshot 없는 자산 호환을 확인합니다. PlayMode는 기존 카메라·임시 플레이어·클릭 드랍 외에 원본 비변경, 별도 StageDefinition recipe, source 전환 수명주기, 실패 rollback, SavedBlueprint 편집 차단과 첫 로드 전 Definition 우선을 확인합니다. 실제 Unity 프로세스 종료 후 재시작, Play 중 script/domain reload, HUD/Scene 육안 확인, 마우스 포인터 Raycast와 HUD 위 클릭 차단은 수동 검증 항목입니다.
 
 ## 전체 기능 검증 목록
 
-아래는 자동 회귀 외에 수동·통합·제품화 단계까지 포함한 전체 체크리스트입니다. 체크리스트에 있다는 사실만으로 이번 R6 자동 실행에서 확인했다는 의미는 아닙니다.
+아래는 자동 회귀 외에 수동·통합·제품화 단계까지 포함한 전체 체크리스트입니다. 체크리스트에 있다는 사실만으로 이번 R7 자동 실행에서 확인했다는 의미는 아닙니다.
 
 - 신규 Unity 6 프로젝트 import 후 컴파일 오류 0개
 - 장면 자동 구성 3회 후 Generator/Systems/Camera/Light 중복 없음
@@ -125,5 +136,14 @@ EditMode는 기존 생성·Blueprint·Loader·Catalog·자산 제작 회귀와 �
 - 스테이지 자산 탭에서 SavedBlueprint Definition, 영속 MaterialSet을 선택하고 Bake·재Bake·최신성 검사·결과 Ping이 동작
 - Procedural Definition과 불완전한 MaterialSet은 Bake 버튼과 한국어 오류 안내로 차단
 - R6 재Bake 실패 시 staging만 제거되고 이전 정상 Prefab·manifest와 사용자·공유 자산이 유지
+- 성공한 재Bake는 사용자 자산이 없는 이전 빈 `Version_<guid>` 폴더까지 제거하고 현재 Bake와 비소유 자산은 유지
 - RuntimeBuild/BakedPrefab의 입구·출구·floor/Collider, stable spawn ID, 클릭/drop과 구축 report 동등
 - BakedPrefab을 연결한 빈 Player 씬에서 생성기·Mesh Builder·resolver 호출 없이 `__RogueDungeonLab_Generated` 하나를 로드
+- Stage Override Preview에서 Scene Spawn 선택이 stable ID로 해석되고 generated hierarchy 직접 수정 없이 전체 재구축
+- disable/add/content/절대 Transform을 하나씩 적용·원복하며 원본 Blueprint JSON과 hash가 유지
+- Override Preview 중 원본 Blueprint 새 저장·덮어쓰기 버튼이 차단되고 원본 미리보기로 돌아오면 다시 활성화
+- Marker 편집과 disabled Spawn의 content/Transform 변경이 자산을 손상시키기 전에 한국어 오류로 차단
+- 원본 덮어쓰기 뒤 재결합 분석이 exact/unique/missing/ambiguous/collision을 구분하고 승인 전에는 자산을 바꾸지 않음
+- 미해결 재결합, stale base hash와 잘못된 Override hash가 Preview와 Bake를 모두 차단
+- R7 v2 최신 Bake 뒤 Override 변경이 source가 아닌 override/final stale 코드로 표시되고 재Bake로 해소
+- R7 수동 검증 장면에서 RuntimeBuild와 Baked Generator를 각각 활성화해 같은 최종 Spawn과 클릭/drop 동작 확인

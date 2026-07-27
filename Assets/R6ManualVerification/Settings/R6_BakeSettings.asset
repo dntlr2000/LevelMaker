@@ -1,0 +1,147 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f57d21f693698ae45a79e1bc828f800d, type: 3}
+  m_Name: R6_BakeSettings
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.RogueDungeonSettings
+  seed: 73125
+  stageWidthCells: 48
+  stageDepthCells: 40
+  cellSize: 3
+  wallHeight: 3.2
+  desiredRoomCount: 14
+  roomSizeMin: {x: 4, y: 4}
+  roomSizeMax: {x: 9, y: 9}
+  roomPlacementAttempts: 35
+  corridorWidthCells: 1
+  extraConnectionChance: 0.2
+  specialGimmickCount: 4
+  contentSpacingCells: 0
+  reservedEntranceRadiusCells: 2
+  enemyProfile:
+    baseDensity: 0.16
+    overProgression:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.45
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.35
+        value: 0.9
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1.55
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    roomBias: 0.78
+    clustering: 0.2
+    maxCount: 48
+  destructibleProfile:
+    baseDensity: 0.14
+    overProgression:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1.15
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.55
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0.75
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    roomBias: 0.82
+    clustering: 0.42
+    maxCount: 44
+  propProfile:
+    baseDensity: 0.06
+    overProgression:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.8
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1.25
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0.95
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    roomBias: 0.35
+    clustering: 0.7
+    maxCount: 36
+  enemyDropTable: {fileID: 11400000, guid: 911a148a8fd651d49a1f9654e35cd1c3, type: 2}
+  destructibleDropTable: {fileID: 11400000, guid: 00bd62cc57dc7ff488afee9f81d65a93, type: 2}
+  spawnDropMarkers: 1
+  resetDropStatsOnGenerate: 1
+  generateOnPlay: 0

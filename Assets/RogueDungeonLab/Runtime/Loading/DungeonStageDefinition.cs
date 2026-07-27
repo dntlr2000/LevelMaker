@@ -29,6 +29,7 @@ namespace RogueDungeonLab
         public DungeonStageBuildMode buildMode = DungeonStageBuildMode.RuntimeBuild;
         public RogueDungeonSettings recipe;
         public DungeonBlueprintAsset savedBlueprint;
+        public DungeonStageOverrides stageOverrides;
 
         [Header("Procedural Seed")]
         public DungeonStageSeedPolicy seedPolicy = DungeonStageSeedPolicy.FixedSeed;

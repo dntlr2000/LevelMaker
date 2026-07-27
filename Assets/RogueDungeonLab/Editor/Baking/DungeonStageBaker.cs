@@ -37,6 +37,10 @@ namespace RogueDungeonLab.Editor
         public const string MissingSourceCatalog = "RDL-BAKER-022";
         public const string PreviousBakeCleanupFailed = "RDL-BAKER-023";
         public const string PlayerUnsafeCatalogPrefab = "RDL-BAKER-024";
+        public const string OverrideNotPersistent = "RDL-BAKER-025";
+        public const string StaleSourceBlueprint = "RDL-BAKER-026";
+        public const string StaleStageOverrides = "RDL-BAKER-027";
+        public const string StaleFinalBlueprint = "RDL-BAKER-028";
     }
 
     public sealed class DungeonStageBakeException : InvalidOperationException
@@ -125,7 +129,15 @@ namespace RogueDungeonLab.Editor
 
             try
             {
-                DungeonBlueprint blueprint = definition.savedBlueprint.blueprint.DeepClone();
+                DungeonStageOverrideApplyResult overrideApplication =
+                    DungeonStageOverrideApplier.Apply(
+                        definition.savedBlueprint,
+                        definition.stageOverrides);
+                ThrowIfInvalid(
+                    "Dungeon stage Overrides are invalid.",
+                    overrideApplication.ValidationReport);
+                DungeonBlueprint blueprint =
+                    overrideApplication.FinalBlueprint;
                 IDungeonContentResolver resolver = definition.contentCatalog != null
                     ? new DungeonPrefabContentResolver(definition.contentCatalog)
                     : null;
@@ -188,6 +200,7 @@ namespace RogueDungeonLab.Editor
                     definition,
                     materialSet,
                     runtimeSettings,
+                    blueprint,
                     bakedPrefab,
                     floorMeshPath,
                     wallMeshPath,
@@ -229,6 +242,9 @@ namespace RogueDungeonLab.Editor
                         oldManifest,
                         oldPrefab,
                         manifest);
+                    CleanupEmptyVersionFolders(
+                        bakeRoot,
+                        outputFolder);
                 }
                 catch (Exception cleanupException)
                 {
@@ -374,13 +390,14 @@ namespace RogueDungeonLab.Editor
             return AssetDatabase.LoadAssetAtPath<DungeonBakeMaterialSet>(normalizedPath);
         }
 
-        // Bake가 지원하는 SavedBlueprint+BakedPrefab 계약과 모든 영속 입력을 사전 검증합니다.
+        // Bake가 지원하는 SavedBlueprint·선택적 Override와 모든 영속 입력을 사전 검증합니다.
         private static DungeonValidationReport ValidateBakeInputs(
             DungeonStageDefinition definition,
             DungeonBakeMaterialSet materialSet,
             RogueDungeonSettings runtimeSettings)
         {
             DungeonValidationReport report = new DungeonValidationReport();
+            DungeonBlueprint finalBlueprint = null;
             if (definition == null)
             {
                 report.Add(
@@ -401,7 +418,7 @@ namespace RogueDungeonLab.Editor
                 report.Add(
                     DungeonStageBakeValidationCodes.UnsupportedStageContract,
                     DungeonValidationSeverity.Error,
-                    "R6 Bake requires a SavedBlueprint source. RuntimeBuild is promoted to BakedPrefab only after a successful commit.");
+                    "Stage Bake requires a SavedBlueprint source. RuntimeBuild is promoted to BakedPrefab only after a successful commit.");
             }
             if (definition.savedBlueprint == null ||
                 definition.savedBlueprint.blueprint == null)
@@ -409,7 +426,7 @@ namespace RogueDungeonLab.Editor
                 report.Add(
                     DungeonStageBakeValidationCodes.MissingBlueprint,
                     DungeonValidationSeverity.Error,
-                    "R6 Bake requires a saved Blueprint.");
+                    "Stage Bake requires a saved Blueprint.");
             }
             else
             {
@@ -424,9 +441,27 @@ namespace RogueDungeonLab.Editor
                         DungeonValidationSeverity.Error,
                         "The source Blueprint must be a persistent project asset.");
                 }
+                DungeonStageOverrideApplyResult overrideApplication =
+                    DungeonStageOverrideApplier.Apply(
+                        definition.savedBlueprint,
+                        definition.stageOverrides);
+                Merge(report, overrideApplication.ValidationReport);
+                finalBlueprint = overrideApplication.FinalBlueprint;
             }
 
-            ValidateCatalogInput(definition, report);
+            if (definition.stageOverrides != null &&
+                !AssetDatabase.Contains(definition.stageOverrides))
+            {
+                report.Add(
+                    DungeonStageBakeValidationCodes.OverrideNotPersistent,
+                    DungeonValidationSeverity.Error,
+                    "Stage Overrides must be a persistent project asset.");
+            }
+
+            ValidateCatalogInput(
+                definition,
+                finalBlueprint,
+                report);
             ValidateMaterialSetInput(materialSet, report);
             if (runtimeSettings != null && !AssetDatabase.Contains(runtimeSettings))
             {
@@ -452,12 +487,15 @@ namespace RogueDungeonLab.Editor
         // Blueprint planning hash와 원본 Catalog 및 직접 Prefab 참조의 영속성을 검증합니다.
         private static void ValidateCatalogInput(
             DungeonStageDefinition definition,
+            DungeonBlueprint finalBlueprint,
             DungeonValidationReport report)
         {
-            DungeonBlueprint blueprint =
+            DungeonBlueprint sourceBlueprint =
                 definition.savedBlueprint != null
                     ? definition.savedBlueprint.blueprint
                     : null;
+            DungeonBlueprint blueprint =
+                finalBlueprint ?? sourceBlueprint;
             DungeonContentCatalog catalog = definition.contentCatalog;
             if (catalog != null)
             {
@@ -469,9 +507,9 @@ namespace RogueDungeonLab.Editor
                         DungeonValidationSeverity.Error,
                         "The source Content Catalog must be a persistent project asset.");
                 }
-                if (blueprint != null &&
+                if (sourceBlueprint != null &&
                     !string.Equals(
-                        blueprint.catalogPlanningHash,
+                        sourceBlueprint.catalogPlanningHash,
                         catalog.ComputePlanningHash(),
                         StringComparison.Ordinal))
                 {
@@ -482,8 +520,9 @@ namespace RogueDungeonLab.Editor
                 }
                 ValidateCatalogReferences(catalog, report);
             }
-            else if (blueprint != null &&
-                     RequiresSourceCatalog(blueprint.catalogPlanningHash))
+            else if (sourceBlueprint != null &&
+                     RequiresSourceCatalog(
+                         sourceBlueprint.catalogPlanningHash))
             {
                 report.Add(
                     DungeonStageBakeValidationCodes.MissingSourceCatalog,
@@ -797,6 +836,7 @@ namespace RogueDungeonLab.Editor
             DungeonStageDefinition definition,
             DungeonBakeMaterialSet materialSet,
             RogueDungeonSettings runtimeSettings,
+            DungeonBlueprint finalBlueprint,
             GameObject bakedPrefab,
             string floorMeshPath,
             string wallMeshPath,
@@ -806,15 +846,19 @@ namespace RogueDungeonLab.Editor
             DungeonBakeFingerprints fingerprints =
                 DungeonBakeFingerprintUtility.Compute(
                     definition.savedBlueprint,
+                    definition.stageOverrides,
+                    finalBlueprint,
                     definition.contentCatalog,
                     materialSet,
                     runtimeSettings,
-                    definition.missingContentPolicy);
+                    definition.missingContentPolicy,
+                    DungeonBakeBuilderVersions.Current);
             DungeonBakeManifest manifest =
                 ScriptableObject.CreateInstance<DungeonBakeManifest>();
             manifest.formatVersion = DungeonBakeFormat.Current;
             manifest.builderVersion = DungeonBakeBuilderVersions.Current;
             manifest.sourceBlueprint = definition.savedBlueprint;
+            manifest.sourceOverrides = definition.stageOverrides;
             manifest.sourceCatalog = definition.contentCatalog;
             manifest.sourceRuntimeSettings = runtimeSettings;
             manifest.materialSet = materialSet;
@@ -825,7 +869,7 @@ namespace RogueDungeonLab.Editor
             manifest.contentRealizationHash = fingerprints.ContentRealizationHash;
             manifest.gameplayBuildConfigHash = fingerprints.GameplayBuildConfigHash;
             manifest.materialDependencyHash = fingerprints.MaterialDependencyHash;
-            manifest.overrideHash = string.Empty;
+            manifest.overrideHash = fingerprints.OverrideHash;
             AssetDatabase.CreateAsset(manifest, manifestPath);
             AssetDatabase.SaveAssets();
 
@@ -884,16 +928,57 @@ namespace RogueDungeonLab.Editor
                 ? DungeonBakeManifestValidator.Validate(
                     manifest,
                     definition != null ? definition.savedBlueprint : null,
-                    bakedPrefab)
+                    bakedPrefab,
+                    definition != null ? definition.stageOverrides : null)
                 : new DungeonValidationReport();
             if (manifest == null || definition == null) return report;
 
+            DungeonStageOverrideApplyResult overrideApplication =
+                DungeonStageOverrideApplier.Apply(
+                    definition.savedBlueprint,
+                    definition.stageOverrides);
+            Merge(report, overrideApplication.ValidationReport);
+            if (!overrideApplication.IsValid) return report;
+
             DungeonBakeFingerprints current = DungeonBakeFingerprintUtility.Compute(
                 definition.savedBlueprint,
+                definition.stageOverrides,
+                overrideApplication.FinalBlueprint,
                 definition.contentCatalog,
                 materialSet,
                 runtimeSettings,
-                definition.missingContentPolicy);
+                definition.missingContentPolicy,
+                manifest.builderVersion);
+            if (!string.Equals(
+                    manifest.sourceBlueprintHash,
+                    current.SourceBlueprintHash,
+                    StringComparison.Ordinal))
+            {
+                report.Add(
+                    DungeonStageBakeValidationCodes.StaleSourceBlueprint,
+                    DungeonValidationSeverity.Error,
+                    "Baked source Blueprint hash is stale.");
+            }
+            if (!string.Equals(
+                    manifest.overrideHash,
+                    current.OverrideHash,
+                    StringComparison.Ordinal))
+            {
+                report.Add(
+                    DungeonStageBakeValidationCodes.StaleStageOverrides,
+                    DungeonValidationSeverity.Error,
+                    "Baked Stage Overrides hash is stale.");
+            }
+            if (!string.Equals(
+                    manifest.finalBlueprintHash,
+                    current.FinalBlueprintHash,
+                    StringComparison.Ordinal))
+            {
+                report.Add(
+                    DungeonStageBakeValidationCodes.StaleFinalBlueprint,
+                    DungeonValidationSeverity.Error,
+                    "Baked final Blueprint hash is stale.");
+            }
             if (!string.Equals(
                     manifest.contentRealizationHash,
                     current.ContentRealizationHash,
@@ -1233,6 +1318,49 @@ namespace RogueDungeonLab.Editor
             AssetDatabase.SaveAssets();
         }
 
+        // 현재 결과와 사용자 자산이 든 폴더는 보존하고, Baker가 남긴 빈 version 폴더만 정리합니다.
+        private static void CleanupEmptyVersionFolders(
+            string bakeRoot,
+            string currentOutputFolder)
+        {
+            if (!AssetDatabase.IsValidFolder(bakeRoot)) return;
+            string[] folders = AssetDatabase.GetSubFolders(bakeRoot);
+            Array.Sort(folders, StringComparer.Ordinal);
+            string projectRoot = Path.GetFullPath(
+                Path.Combine(Application.dataPath, ".."));
+            for (int i = 0; i < folders.Length; i++)
+            {
+                string folder = NormalizeAssetPath(folders[i]);
+                if (string.Equals(
+                        folder,
+                        NormalizeAssetPath(currentOutputFolder),
+                        StringComparison.OrdinalIgnoreCase) ||
+                    !IsVersionFolderInsideBakeRoot(folder, bakeRoot))
+                {
+                    continue;
+                }
+
+                string absoluteFolder = Path.GetFullPath(
+                    Path.Combine(
+                        projectRoot,
+                        folder.Replace(
+                            '/',
+                            Path.DirectorySeparatorChar)));
+                if (!Directory.Exists(absoluteFolder) ||
+                    Directory.GetFileSystemEntries(absoluteFolder).Length != 0)
+                {
+                    continue;
+                }
+                if (!AssetDatabase.DeleteAsset(folder))
+                {
+                    throw new IOException(
+                        "Could not remove the empty previous Bake folder: " +
+                        folder);
+                }
+            }
+            AssetDatabase.SaveAssets();
+        }
+
         // Blueprint, Catalog, Catalog 의존성, settings, Material Set, 현재 산출물을 cleanup 보호 GUID로 수집합니다.
         private static HashSet<string> CollectProtectedAssetGuids(
             DungeonStageDefinition definition,
@@ -1242,6 +1370,7 @@ namespace RogueDungeonLab.Editor
                 new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             AddAssetGuid(result, definition);
             AddAssetGuid(result, definition != null ? definition.savedBlueprint : null);
+            AddAssetGuid(result, definition != null ? definition.stageOverrides : null);
             AddAssetGuid(result, definition != null ? definition.recipe : null);
             AddAssetGuid(result, definition != null ? definition.contentCatalog : null);
             if (definition != null && definition.contentCatalog != null &&
@@ -1260,6 +1389,7 @@ namespace RogueDungeonLab.Editor
             {
                 AddAssetGuid(result, currentManifest);
                 AddAssetGuid(result, currentManifest.bakedPrefab);
+                AddAssetGuid(result, currentManifest.sourceOverrides);
                 AddAssetGuid(result, currentManifest.materialSet);
                 AddAssetGuid(result, currentManifest.sourceRuntimeSettings);
                 AddMaterialSetGuids(result, currentManifest.materialSet);
@@ -1287,6 +1417,7 @@ namespace RogueDungeonLab.Editor
         {
             if (manifest == null) return;
             AddAssetGuid(guids, manifest.sourceBlueprint);
+            AddAssetGuid(guids, manifest.sourceOverrides);
             AddAssetGuid(guids, manifest.sourceCatalog);
             AddAssetGuid(guids, manifest.sourceRuntimeSettings);
             AddAssetGuid(guids, manifest.materialSet);
@@ -1573,6 +1704,7 @@ namespace RogueDungeonLab.Editor
     {
         public string SourceBlueprintHash;
         public string FinalBlueprintHash;
+        public string OverrideHash;
         public string CatalogPlanningHash;
         public string ContentRealizationHash;
         public string GameplayBuildConfigHash;
@@ -1581,33 +1713,50 @@ namespace RogueDungeonLab.Editor
 
     internal static class DungeonBakeFingerprintUtility
     {
-        // Bake manifest에 기록할 독립 fingerprint 여섯 개를 현재 Editor 의존성에서 계산합니다.
+        // Bake manifest에 기록할 source·Override·final 및 Editor 의존성 fingerprint를 계산합니다.
         public static DungeonBakeFingerprints Compute(
             DungeonBlueprintAsset blueprintAsset,
+            DungeonStageOverrides stageOverrides,
+            DungeonBlueprint finalBlueprint,
             DungeonContentCatalog catalog,
             DungeonBakeMaterialSet materialSet,
             RogueDungeonSettings runtimeSettings,
-            DungeonMissingContentPolicy missingPolicy)
+            DungeonMissingContentPolicy missingPolicy,
+            int builderVersion)
         {
-            DungeonBlueprint blueprint =
+            DungeonBlueprint sourceBlueprint =
                 blueprintAsset != null ? blueprintAsset.blueprint : null;
             return new DungeonBakeFingerprints
             {
                 SourceBlueprintHash =
-                    blueprint != null ? blueprint.blueprintHash ?? string.Empty : string.Empty,
+                    sourceBlueprint != null
+                        ? sourceBlueprint.blueprintHash ?? string.Empty
+                        : string.Empty,
                 FinalBlueprintHash =
-                    blueprint != null ? blueprint.blueprintHash ?? string.Empty : string.Empty,
+                    finalBlueprint != null
+                        ? finalBlueprint.blueprintHash ?? string.Empty
+                        : string.Empty,
+                OverrideHash =
+                    stageOverrides != null
+                        ? DungeonStageOverridesHasher.Compute(
+                            stageOverrides)
+                        : string.Empty,
                 CatalogPlanningHash =
-                    blueprint != null
-                        ? blueprint.catalogPlanningHash ?? string.Empty
+                    sourceBlueprint != null
+                        ? sourceBlueprint.catalogPlanningHash ?? string.Empty
                         : string.Empty,
                 ContentRealizationHash =
-                    ComputeContentRealization(blueprint, catalog, missingPolicy),
+                    ComputeContentRealization(
+                        finalBlueprint,
+                        catalog,
+                        missingPolicy,
+                        builderVersion),
                 GameplayBuildConfigHash =
                     ComputeGameplayConfiguration(
                         catalog,
                         runtimeSettings,
-                        missingPolicy),
+                        missingPolicy,
+                        builderVersion),
                 MaterialDependencyHash =
                     ComputeMaterialDependencies(materialSet, catalog)
             };
@@ -1617,11 +1766,12 @@ namespace RogueDungeonLab.Editor
         private static string ComputeContentRealization(
             DungeonBlueprint blueprint,
             DungeonContentCatalog catalog,
-            DungeonMissingContentPolicy missingPolicy)
+            DungeonMissingContentPolicy missingPolicy,
+            int builderVersion)
         {
             CanonicalHashWriter writer = new CanonicalHashWriter();
             writer.Add("rdl-content-realization-v1");
-            writer.Add(DungeonBakeBuilderVersions.Current);
+            writer.Add(builderVersion);
             writer.Add((int)missingPolicy);
 
             Dictionary<string, DungeonContentCatalogEntry> entries =
@@ -1674,11 +1824,12 @@ namespace RogueDungeonLab.Editor
         private static string ComputeGameplayConfiguration(
             DungeonContentCatalog catalog,
             RogueDungeonSettings runtimeSettings,
-            DungeonMissingContentPolicy missingPolicy)
+            DungeonMissingContentPolicy missingPolicy,
+            int builderVersion)
         {
             CanonicalHashWriter writer = new CanonicalHashWriter();
             writer.Add("rdl-gameplay-build-v1");
-            writer.Add(DungeonBakeBuilderVersions.Current);
+            writer.Add(builderVersion);
             writer.Add((int)missingPolicy);
             writer.Add(runtimeSettings == null || runtimeSettings.spawnDropMarkers);
             AddEffectiveRuntimeDropTable(writer, runtimeSettings, true);

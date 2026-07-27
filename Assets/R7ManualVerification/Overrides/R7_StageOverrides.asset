@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c67cf908a82499c8e3b5356d4fe4f32, type: 3}
+  m_Name: R7_StageOverrides
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.DungeonStageOverrides
+  formatVersion: 1
+  baseBlueprint: {fileID: 11400000, guid: 1c530af0f1f806548b3b370046020e83, type: 2}
+  baseBlueprintHash: 8cf25188ecb6544e212069724a0007fa65f2c6f9b49bf4ae9bbf887f0c9f9834
+  disabledSpawns:
+  - recordId: r7-manual-disable-enemy
+    binding:
+      spawnId: stable-v2:enemy:10:28:5
+      category: 2
+      contentKey: builtin/enemy
+      cell: {x: 10, y: 28}
+      roomId: 
+      variantSeed: 1091022805
+  addedSpawns:
+  - spawnId: override:v1:r7-manual-added-destructible
+    category: 3
+    contentKey: builtin/destructible
+    instanceName: R7_Added_Destructible
+    cell: {x: 1, y: 23}
+    localPosition: {x: -67.5, y: 0.45, z: 10.5}
+    pitchDegrees: 0
+    yawDegrees: 25
+    rollDegrees: 0
+    localScale: {x: 0.9, y: 0.9, z: 0.9}
+    roomId: stable-v2:room:11
+    progression: 1
+    tags:
+    - r7-manual-added
+    variantSeed: 77001
+  contentOverrides:
+  - recordId: r7-manual-replace-prop
+    binding:
+      spawnId: stable-v2:prop:11:6:12
+      category: 4
+      contentKey: builtin/prop/cube
+      cell: {x: 11, y: 6}
+      roomId: stable-v2:room:9
+      variantSeed: -20383823
+    replacementContentKey: builtin/prop/cylinder
+  transformOverrides:
+  - recordId: r7-manual-transform-destructible
+    binding:
+      spawnId: stable-v2:destructible:11:15:16
+      category: 3
+      contentKey: builtin/destructible
+      cell: {x: 11, y: 15}
+      roomId: stable-v2:room:1
+      variantSeed: -482851327
+    localPosition: {x: -37.1, y: 0.8, z: -13.25}
+    pitchDegrees: 0
+    yawDegrees: 91.017006
+    rollDegrees: 0
+    localScale: {x: 1.104, y: 1.38, z: 1.104}
+  authoringNote: "R7 \uC218\uB3D9 \uAC80\uC99D \uAE30\uC900: enemy disable, prop
+    replacement, destructible absolute transform, added destructible"
+  overrideHash: 6bff7716977ad82d2aff484c8f3482d5802164f459a43c07b1a0dba90585fc0d

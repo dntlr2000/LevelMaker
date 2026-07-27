@@ -1,6 +1,6 @@
 # 아키텍처
 
-이 문서는 R5.2 승인 기준선과 검증 완료된 R6 Mesh·Prefab Bake 구현 경계를 설명합니다. 후속 단계는 [스테이지 제작·배포 통합 로드맵](STAGE_PIPELINE_ROADMAP_KO.md)을 참고합니다.
+이 문서는 R5.2 승인 기준선, 검증 완료된 R6 Mesh·Prefab Bake와 R7 비파괴 Stage Override의 구현·통합 검증 경계를 설명합니다. 후속 단계는 [스테이지 제작·배포 통합 로드맵](STAGE_PIPELINE_ROADMAP_KO.md)을 참고합니다.
 
 ## 파이프라인
 
@@ -17,6 +17,10 @@ DungeonStageDefinition
   └─ SavedBlueprint
        └─ DungeonBlueprintAsset의 deep copy (재계산 없음)
   → DungeonBlueprintValidator
+  → DungeonStageOverrideApplier(선택, SavedBlueprint 전용)
+       ├─ source Blueprint 불변
+       └─ Disable → Content → Absolute Transform → Add
+            → final DungeonBlueprint + source/override/final hash
   → DungeonContentCatalogValidator
   → buildMode
        ├─ RuntimeBuild
@@ -34,6 +38,10 @@ RogueDungeonLabWindow / 스테이지 자산
        ├─ 절차 원본 ↔ 저장본 provenance/hash 비교
        ├─ 저장 Blueprint 무재계산 RuntimeBuild 미리보기
        ├─ SavedBlueprint DungeonStageDefinition 생성·Generator 연결
+       ├─ DungeonStageOverrideAuthoringService
+       │    ├─ Override 생성·Definition 연결·Undo 편집
+       │    ├─ Scene 선택 Spawn → Disable/Add/Content/Transform 기록
+       │    └─ exact·semantic unique 재결합 분석 → 명시적 승인
        └─ DungeonStageBaker
             ├─ stage 전용 staging → 영속 Mesh·Prefab·manifest
             └─ fingerprint·parity 검증 → commit 또는 rollback
@@ -70,38 +78,83 @@ Legacy 콘텐츠 planner는 입구·출구, 기믹, 적, 파괴물, cube/cylinde
 
 ## StageDefinition과 Loader
 
-`DungeonStageLoader`는 `DungeonLoadContext`에서 source와 시드를 해석합니다. Procedural은 `explicitSeed → RunSeed → FixedSeed → RandomPerLoad` 우선순위를 적용하고, SavedBlueprint는 모든 시드 입력과 recipe 변경을 무시한 채 자산의 깊은 복사본을 검증·구축합니다. 실제 사용 시드, Blueprint, 호환 layout, generated root, 구축 개수와 report는 `DungeonStageInstance`에 함께 기록됩니다.
+`DungeonStageLoader`는 `DungeonLoadContext`에서 source와 시드를 해석합니다. Procedural은 `explicitSeed → RunSeed → FixedSeed → RandomPerLoad` 우선순위를 적용하고, SavedBlueprint는 모든 시드 입력과 recipe 변경을 무시한 채 자산을 검증합니다. 선택적 `DungeonStageOverrides`가 있으면 원본을 바꾸지 않는 깊은 복사본에 적용하고, 그 최종 Blueprint를 layout 변환·콘텐츠 검증·구축 입력으로 사용합니다. 실제 사용 시드, 최종 Blueprint, 호환 layout, generated root, 구축 개수와 report는 `DungeonStageInstance`에 함께 기록됩니다.
 
 `RogueDungeonGenerator`에 StageDefinition이 없으면 기존 settings-only `GenerateWithSeed`가 같은 Loader의 Procedural 경로를 사용합니다. Definition이 있으면 Play 시작 또는 컨텍스트 메뉴에서 두 source를 전환할 수 있습니다. `CurrentCellSize`는 활성 Blueprint grid를 기준으로 하므로 저장 맵과 현재 settings의 cellSize가 달라도 임시 플레이어가 올바른 입구에 배치됩니다.
 
-R6에서는 기존 `RuntimeBuild`와 함께 `SavedBlueprint + BakedPrefab`을 로드할 수 있습니다. `DungeonStageDefinition`의 `bakedPrefab`과 Runtime-safe `DungeonBakeManifest` 참조가 모두 유효해야 하며, `Procedural + BakedPrefab`은 validator가 차단합니다.
+R6에서는 기존 `RuntimeBuild`와 함께 `SavedBlueprint + BakedPrefab`을 로드할 수 있습니다. R7의 `DungeonStageDefinition.stageOverrides`도 SavedBlueprint에서만 허용하며, `Procedural + BakedPrefab`과 `Procedural + Stage Override`는 validator가 차단합니다. Baked 모드에서는 Definition의 Blueprint·Override·Catalog·Prefab과 Runtime-safe `DungeonBakeManifest` 참조가 모두 일치해야 합니다.
 
-## R5.2 런타임 레시피 격리와 R6 Bake 계약
+## R7 비파괴 Stage Override 계약
+
+### Runtime 데이터와 canonical 적용
+
+`DungeonStageOverrides`는 저장 Blueprint와 분리된 Runtime-safe `ScriptableObject`입니다.
+
+- `baseBlueprint`, `baseBlueprintHash`: 변경 집합이 작성된 정확한 원본과 canonical hash
+- `disabledSpawns`: 원본 Spawn을 최종 목록에서 제외
+- `addedSpawns`: 사용자가 만든 완전한 `DungeonSpawnRecord`
+- `contentOverrides`: 원본 stable ID의 `contentKey`만 교체
+- `transformOverrides`: 원본 stable ID의 로컬 위치·세 축 회전·scale을 절대값으로 교체
+- `overrideHash`: format, `baseBlueprintHash`와 네 변경 목록의 canonical SHA-256
+
+원본을 참조하는 작업은 stable `spawnId`와 category·기존 content key·cell·room ID·variant seed를 `DungeonSpawnBindingSnapshot`으로 함께 보존합니다. 직접 Unity 자산 참조, 작업 관리용 `recordId`와 제작 메모는 논리 결과에 영향을 주지 않으므로 `overrideHash`에서 제외됩니다. 각 목록과 추가 Spawn의 tag는 ordinal canonical 순서로 기록되므로 Inspector 표시 순서만 바꿔도 hash가 변하지 않습니다.
+
+`DungeonStageOverridesValidator`는 format, 기준 자산·hash, 저장 override hash, 중복 작업 ID·target, 사라진 target, Binding 불일치, 추가 stable ID 충돌과 transform 유효성을 검사합니다. Disable과 Content/Transform이 같은 target에 함께 존재하는 모호한 상태는 오류입니다. Content와 Transform을 같은 target에 함께 적용하는 것은 허용합니다.
+
+입구·출구 `Marker`는 Disable/Add/Content/Transform 대상이 될 수 없습니다. R7 Transform은 위치·회전·scale만 바꾸고 Spawn의 논리 cell·room·progression을 바꾸지 않습니다. 셀과 endpoint 편집은 별도 후속 범위입니다.
+
+`DungeonStageOverrideApplier`는 다음 순서를 지킵니다.
+
+1. 원본 Blueprint와 Override 계약 검증
+2. 원본의 깊은 복사본 생성
+3. Disable → Content → Absolute Transform → Add 적용
+4. 최종 Spawn을 stable ID 순으로 정렬
+5. 최종 Blueprint hash 갱신과 `DungeonBlueprintValidator` 재검증
+
+Loader는 이 결과에 `DungeonContentCatalogValidator`를 추가 적용하므로 교체·추가 콘텐츠의 category, progression, room/corridor·tag, footprint·간격과 누락 정책도 기존과 동일하게 검사됩니다. 원본 `DungeonBlueprintAsset`과 그 중첩 목록은 적용·미리보기·Bake 과정에서 수정되지 않습니다.
+
+`DungeonStageInstance`는 실제 소비 데이터인 최종 `Blueprint` 외에도 `AppliedOverrides`, `SourceBlueprintHash`, `OverrideHash`, `FinalBlueprintHash`를 노출합니다. Override가 없는 기존 호출은 빈 override hash와 source와 같은 final hash를 사용하므로 기존 RuntimeBuild 동작을 유지합니다.
+
+### 재결합과 Editor 경계
+
+원본 Blueprint hash가 달라지면 RuntimeBuild 미리보기와 Bake는 자동으로 변경 집합을 옮기지 않고 오류로 중단합니다. `DungeonStageOverrideRebaser.Analyze`는 자산을 변경하지 않은 채 다음 상태를 계산합니다.
+
+1. 같은 stable ID를 먼저 찾고 Binding 의미 anchor가 그대로인지 `Exact` 또는 `ChangedExact`로 구분
+2. ID가 사라졌을 때 category·content key·cell·room ID·variant seed가 정확히 일치하는 후보가 하나뿐이면 `UniqueSuggestion`
+3. 후보 없음, 복수 후보, 서로 다른 target의 동일 후보 점유 또는 추가 ID 충돌은 미해결 오류
+
+해결 가능한 계획도 자동 commit하지 않습니다. Editor-only `DungeonStageOverrideAuthoringService.CommitRebind`가 승인 직전 계획을 다시 계산해 동일성을 확인하고, 사용자의 확인 뒤 Binding·기준 자산·base hash·override hash를 하나의 Unity Undo 단위로 갱신합니다.
+
+Editor 제작 UI는 generated hierarchy를 원본으로 취급하지 않습니다. 선택한 `DungeonSpawnIdentity`의 stable ID로 Override 자산을 수정하고 전체 RuntimeBuild 미리보기를 다시 구축합니다. 추가 Spawn ID는 Editor에서 한 번 생성한 `override:v1:` GUID를 자산에 보존하며 Runtime applier는 난수나 새 ID를 만들지 않습니다. `SerializedObject`, Undo, `EditorUtility.SetDirty`와 AssetDatabase 저장은 Editor 서비스에만 있고 Runtime의 데이터·hash·validator·applier·rebaser는 `UnityEditor`를 참조하지 않습니다.
+
+## R5.2 런타임 레시피 격리와 R6·R7 Bake 계약
 
 ### 현재 R5.2 구현
 
 Play의 Generator는 settings-only 레시피와 Procedural StageDefinition 레시피를 프로젝트 자산 그대로 편집하지 않고 `HideAndDontSave` 런타임 복제본으로 사용합니다. 활성 StageDefinition source가 바뀌거나 Generator가 해제될 때 복제본의 소유권도 Generator 수명주기에 맞춰 교체·해제합니다. 새 source의 복제본은 후보 상태로 Loader에 전달하고 구축 성공 뒤에만 활성 소유권으로 승격합니다. 검증·구축이 실패하면 후보만 폐기하고 기존 StageInstance, generated root와 활성 복제본을 유지합니다. Generator는 현재 복제본을 `ActiveRuntimeSettings`, 편집 가능 여부를 `CanEditActiveRuntimeRecipe`로 노출하고 Procedural StageDefinition 로드는 `DungeonLoadContext.ProceduralRecipeOverride`로 같은 복제본을 전달합니다. Runtime HUD는 이 활성 복제본을 편집하고 같은 시드로 재생성하므로 Play 중 구조·밀도 변경은 실제 Procedural Blueprint에 반영되지만 원본 `RogueDungeonSettings` 자산은 바뀌지 않습니다. SavedBlueprint는 계속 저장 논리 데이터를 무재계산 로드하며 HUD 설정 편집으로 Blueprint를 변형하지 않습니다.
 
-R5.2는 R6이 사용할 두 Runtime 타입도 먼저 고정합니다.
+R5.2는 R6이 사용할 두 Runtime 타입도 먼저 고정했고 R7이 기존 manifest를 버전 확장했습니다.
 
 - `DungeonBakeManifest`: source/final Blueprint, planning/realization/gameplay/material/override hash, builder version, baked Prefab과 Baker 소유 파생 자산 레코드를 직렬화하는 Runtime-safe `ScriptableObject`
 - `DungeonBakeMaterialSet`: floor·wall과 built-in 콘텐츠 범주가 사용할 영속 `Material` 참조를 직렬화하는 Runtime-safe `ScriptableObject`
-- `DungeonBakeManifestValidator`: `UnityEditor` 없이 format/builder version, 저장 Blueprint 무결성, custom catalog, source/final·필수 의존성 hash, 완전한 재질 슬롯, R6 Override 미지원, Prefab 참조와 고유 owned artifact를 검사하는 기본 검증기
+- `DungeonBakeManifestValidator`: `UnityEditor` 없이 format/builder version, 저장 Blueprint·선택적 Override 무결성, custom catalog, source/final·필수 의존성 hash, 완전한 재질 슬롯, Prefab 참조와 고유 owned artifact를 검사하는 기본 검증기
 
 `DungeonBakeManifest`와 `DungeonBakeMaterialSet`은 Runtime 어셈블리에 있으므로 `DungeonStageDefinition`, Loader와 Player build가 직접 참조할 수 있습니다. Asset GUID/dependency hash 계산, `AssetDatabase`, `PrefabUtility`, 저장 경로와 Undo는 여기에 들어가지 않습니다.
 
-### R6 구현 경계
+### R6·R7 구현 경계
 
 Editor-only `DungeonStageBaker`는 다음 동작을 담당합니다.
 
-- 저장된 SavedBlueprint에서 floor/wall Mesh와 known built-in/fallback·Catalog 직접 Prefab을 영속 자산으로 생성
+- 저장된 SavedBlueprint에 검증된 Override를 적용한 최종 Blueprint에서 floor/wall Mesh와 known built-in/fallback·Catalog 직접 Prefab을 영속 자산으로 생성
 - Prefab·Mesh·Material·drop table 의존성 fingerprint와 manifest 필드 계산
 - stage 전용 staging/commit, 실패 rollback과 이전 manifest 소유 파생 산출물 정리
 - 제작 UI의 Bake/재Bake와 `ValidateCurrentBake` 최신성 리포트
 
-Runtime의 StageDefinition validator와 Loader는 `SavedBlueprint + BakedPrefab`의 저장 manifest·Prefab 관계를 검사하고 Prefab 인스턴스화 경로를 사용합니다. 이 분기는 Blueprint 생성기, Mesh Builder와 resolver를 재실행하지 않습니다. manifest에 기록된 `ownedArtifacts`만 Baker 소유로 보며 Blueprint·settings·catalog, Catalog Prefab과 공유 Mesh·Material은 정리 대상에서 제외합니다.
+Runtime의 StageDefinition validator와 Loader는 `SavedBlueprint + BakedPrefab`의 저장 manifest·Prefab·Override 관계를 검사하고 Prefab 인스턴스화 경로를 사용합니다. Baked Loader는 순수 Override applier로 최종 논리 Blueprint와 layout·report 출처를 복원하지만 Blueprint 생성기, Mesh Builder와 resolver는 재실행하지 않습니다. manifest에 기록된 `ownedArtifacts`만 Baker 소유로 보며 Blueprint·Override·settings·catalog, Catalog Prefab과 공유 Mesh·Material은 정리 대상에서 제외합니다.
 
 RuntimeBuild/BakedPrefab parity, 실패 주입 재Bake와 BakedPrefab Player build smoke를 R6 통합 검증으로 실행했습니다. Unity `6000.5.3f1`에서 EditMode `74/74`, PlayMode `8/8`과 분리된 임시 프로젝트의 Windows Development Player 빌드가 통과했으며 상세 결과는 테스트 문서에 기록합니다.
+
+R7 통합 검증에서는 전용 Override와 v2 Bake 검증 장면을 생성하고 장면 재개방 뒤 RuntimeBuild/BakedPrefab의 final hash와 stable identity parity를 다시 확인했습니다. 같은 Unity 버전에서 전체 EditMode `83/83`, PlayMode `9/9`, 경고 `0`개의 Windows64 Development Player 빌드가 통과했으며 빌드 크기는 `172,176,046 B`입니다. 실제 HUD/Scene 육안과 Play 중 script/domain reload는 자동 검증이 아닌 수동 확인 범위로 유지합니다.
 
 ## R5 저장 제작 계약
 
@@ -146,15 +199,17 @@ planning hash는 Blueprint 생성 결정성의 입력이지 Bake 최신성의 �
 | Manifest 값 | 의미 |
 |---|---|
 | `sourceBlueprintHash` | 저장 원본 Blueprint |
-| `overrideHash` | R7에서 적용할 비파괴 변경 집합. R6 format v1에서는 빈 값만 허용하며 validator가 비어 있지 않은 값을 차단 |
-| `finalBlueprintHash` | Override 적용 뒤 실제 구축한 논리 결과. R6에서는 source와 동일 |
+| `overrideHash` | 적용한 비파괴 변경 집합. format v1과 v2의 Override 없는 Bake에서는 빈 값, v2 Override Bake에서는 canonical hash |
+| `finalBlueprintHash` | Override 적용 뒤 실제 구축한 논리 결과. v1과 v2의 Override 없는 Bake에서는 source와 동일 |
 | `catalogPlanningHash` | 후보 key 선택에 사용한 출처 |
 | `contentRealizationHash` | 최종 key를 해석한 resolver 버전, 직접 Prefab identity·hierarchy·component와 source Mesh 의존성 |
 | `gameplayBuildConfigHash` | 누락 정책, gameplay ID, canonical drop table과 drop marker 구축 설정 |
 | `materialDependencyHash` | 영속 Bake material set, Prefab Renderer Material과 Shader 의존성 |
 | `builderVersion` | hierarchy, Collider, component와 생성 Mesh 포맷 규칙 |
 
-R6의 Editor-only `DungeonStageBaker`는 위 값을 계산해 Runtime manifest에 문자열·자산 참조로 저장합니다. 하나의 광범위한 Asset dependency hash를 planning 또는 realization 값으로 재사용하지 않고, Prefab 구조·gameplay 직렬화 값·Material/Shader를 각 필드의 canonical projection으로 분리합니다. Runtime은 `AssetDatabase`로 재계산하지 않고 manifest 형식, 지원 builder version과 저장된 참조 관계를 검사합니다. `DungeonStageBaker.ValidateCurrentBake`는 현재 프로젝트 의존성을 다시 fingerprint해 모든 값을 비교하므로 제작 UI의 stale 판정에 사용합니다.
+Editor-only `DungeonStageBaker`는 위 값을 계산해 Runtime manifest에 문자열·자산 참조로 저장합니다. R6 format/builder v1은 `sourceOverrides == null`, 빈 `overrideHash`, source와 같은 final hash 계약으로 계속 지원합니다. 새 Baker는 Stage Override를 표현할 수 있는 format/builder v2를 기록합니다. v2도 Override가 없으면 빈 hash와 source=final을 요구하고, Override가 있으면 정확한 `sourceOverrides` 참조·canonical hash·순수 적용 결과의 final hash가 모두 일치해야 합니다.
+
+하나의 광범위한 Asset dependency hash를 planning 또는 realization 값으로 재사용하지 않고, 최종 Blueprint의 Spawn 실현, Prefab 구조·gameplay 직렬화 값·Material/Shader를 각 필드의 canonical projection으로 분리합니다. Runtime은 `AssetDatabase`로 재계산하지 않고 지원되는 v1/v2 형식, builder version과 저장된 참조 관계를 검사합니다. `DungeonStageBaker.ValidateCurrentBake`는 현재 source·Override·final과 프로젝트 의존성을 다시 fingerprint해 모든 값을 비교하므로 제작 UI의 stale 판정에 사용합니다.
 
 ## StableV2 결정성
 
@@ -168,11 +223,11 @@ R6의 Editor-only `DungeonStageBaker`는 위 값을 계산해 Runtime manifest�
 
 Catalog나 resolver가 반환하지 않은 알려진 built-in key는 누락 정책과 무관하게 기존 primitive로 구축됩니다. 그 밖의 해석 실패에는 `Error`가 생성 부작용 전에 중단하고, `BuiltInFallback`이 category별 임시 표현을 만들며, `Skip`이 경고와 함께 해당 spawn을 생략합니다. `DungeonLoadContext.ContentResolver`와 `MissingContentPolicyOverride`를 사용하면 Stage Definition 자산을 바꾸지 않고 실행별 resolver와 정책을 주입할 수 있습니다.
 
-R6 MVP는 이 RuntimeBuild resolver 전체를 Bake하려 하지 않습니다. Editor에서 결정적으로 재현할 수 있는 known built-in 표현과 직접 `DungeonContentCatalog` Prefab만 지원합니다. built-in floor·wall·범주 표현은 `DungeonBakeMaterialSet`의 영속 Material을 사용하며 현재 `HideAndDontSave` 미리보기 Material을 저장하지 않습니다. factory, Addressables, DI·오브젝트 풀 resolver는 RuntimeBuild 전용이고, 별도 Editor bake adapter 계약이 생기기 전에는 Bake를 오류로 차단합니다.
+R6·R7 Baker는 이 RuntimeBuild resolver 전체를 Bake하려 하지 않습니다. Editor에서 결정적으로 재현할 수 있는 known built-in 표현과 직접 `DungeonContentCatalog` Prefab만 지원합니다. built-in floor·wall·범주 표현은 `DungeonBakeMaterialSet`의 영속 Material을 사용하며 현재 `HideAndDontSave` 미리보기 Material을 저장하지 않습니다. factory, Addressables, DI·오브젝트 풀 resolver는 RuntimeBuild 전용이고, 별도 Editor bake adapter 계약이 생기기 전에는 Bake를 오류로 차단합니다.
 
-R6 재Bake는 활성 자산을 직접 덮는 방식이 아니라 stage 전용 staging에서 후보 Mesh·Prefab·manifest를 만든 뒤 hash와 parity 검증에 성공한 결과만 commit합니다. commit 뒤 정리는 이전 manifest의 정확한 role·GUID, 예약 파일명, main asset과 stage bake root를 모두 만족하는 파생 자산에만 적용합니다. 실패하면 staging만 제거하고 이전 정상 manifest와 Prefab 참조를 유지합니다. 이전 파생 파일 삭제는 Unity Undo로 복구할 수 없으므로 commit 확인 뒤 StageDefinition의 해당 Undo 기록도 제거해 삭제된 참조가 되살아나는 상태를 막습니다.
+재Bake는 활성 자산을 직접 덮는 방식이 아니라 stage 전용 staging에서 후보 Mesh·Prefab·manifest를 만든 뒤 source·Override·final hash와 parity 검증에 성공한 결과만 commit합니다. commit 뒤 정리는 이전 manifest의 정확한 role·GUID, 예약 파일명, main asset과 stage bake root를 모두 만족하는 파생 자산에만 적용합니다. 실패하면 staging만 제거하고 이전 정상 manifest와 Prefab 참조를 유지합니다. 이전 파생 파일 삭제는 Unity Undo로 복구할 수 없으므로 commit 확인 뒤 StageDefinition의 해당 Undo 기록도 제거해 삭제된 참조가 되살아나는 상태를 막습니다. 사용자 소유 Stage Override 자산은 보호 참조에 포함되며 Baker 소유 산출물로 삭제하지 않습니다.
 
-RuntimeBuild/BakedPrefab parity는 최종 Blueprint hash, 입구·출구, floor 셀과 floor/wall Collider, `DungeonSpawnIdentity`의 stable ID·category·contentKey·transform, 클릭 대상 gameplay ID·drop table, drop marker 정책과 구축 report를 비교합니다. R6 BakedPrefab 로드는 생성기·Mesh Builder·resolver를 재실행하지 않고 Prefab을 인스턴스화하지만 `__RogueDungeonLab_Generated`, `DungeonStageInstance`와 `GenerationCompleted`의 소비자 계약은 유지해야 합니다.
+RuntimeBuild/BakedPrefab parity는 동일 source·Override에서 계산한 최종 Blueprint hash, 입구·출구, floor 셀과 floor/wall Collider, `DungeonSpawnIdentity`의 stable ID·category·contentKey·transform, 클릭 대상 gameplay ID·drop table, drop marker 정책과 구축 report를 비교합니다. BakedPrefab 로드는 생성기·Mesh Builder·resolver를 재실행하지 않고 Prefab을 인스턴스화하지만 `__RogueDungeonLab_Generated`, `DungeonStageInstance`와 `GenerationCompleted`의 소비자 계약은 유지해야 합니다.
 
 에디터의 `스테이지 자산` 탭은 저장된 `SavedBlueprint StageDefinition`, 사용자 소유 `DungeonBakeMaterialSet`과 선택적 gameplay settings를 Baker 입력으로 전달합니다. gameplay 입력은 현재 Generator의 활성 settings, 기존 manifest의 `sourceRuntimeSettings`, Generator 원본 settings 순으로 해결하므로 재Bake는 기존 출처를 우선 보존하고 SavedBlueprint 첫 Bake도 장면 설정을 사용할 수 있습니다. 기본 재질 세트 생성 도구는 입력 자산을 명시적으로 만들 뿐 Baker 소유 산출물로 등록하지 않습니다.
 

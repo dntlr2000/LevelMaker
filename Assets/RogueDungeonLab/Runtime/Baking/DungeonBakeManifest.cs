@@ -6,17 +6,29 @@ namespace RogueDungeonLab
 {
     public static class DungeonBakeFormat
     {
-        public const int Current = 1;
+        public const int LegacyV1 = 1;
+        public const int StageOverridesV2 = 2;
+        public const int Current = StageOverridesV2;
+
+        // Runtime이 하위 호환으로 읽을 수 있는 Bake manifest 형식인지 확인합니다.
+        public static bool IsSupported(int version)
+        {
+            return version == LegacyV1 ||
+                   version == StageOverridesV2;
+        }
     }
 
     public static class DungeonBakeBuilderVersions
     {
-        public const int Current = 1;
+        public const int LegacyV1 = 1;
+        public const int StageOverridesV2 = 2;
+        public const int Current = StageOverridesV2;
 
         // 현재 Runtime이 검증할 수 있는 Bake builder 버전인지 확인합니다.
         public static bool IsSupported(int version)
         {
-            return version == Current;
+            return version == LegacyV1 ||
+                   version == StageOverridesV2;
         }
     }
 
@@ -37,6 +49,7 @@ namespace RogueDungeonLab
 
         [Header("원본")]
         public DungeonBlueprintAsset sourceBlueprint;
+        public DungeonStageOverrides sourceOverrides;
         public DungeonContentCatalog sourceCatalog;
         public RogueDungeonSettings sourceRuntimeSettings;
         public DungeonBakeMaterialSet materialSet;
@@ -80,15 +93,32 @@ namespace RogueDungeonLab
         public const string DuplicateOwnedArtifact = "RDL-BAKE-020";
         public const string UnsupportedOverrideHash = "RDL-BAKE-021";
         public const string IncompleteMaterialSet = "RDL-BAKE-022";
+        public const string InvalidSourceOverrides = "RDL-BAKE-023";
+        public const string OverrideHashMismatch = "RDL-BAKE-024";
+        public const string ExpectedOverridesMismatch = "RDL-BAKE-025";
     }
 
     public static class DungeonBakeManifestValidator
     {
-        // Runtime-safe manifest 필드와 저장 Blueprint의 논리 hash가 서로 일치하는지 검사합니다.
+        // 기존 공개 시그니처로 Runtime-safe manifest와 저장 Blueprint의 논리 hash를 검사합니다.
         public static DungeonValidationReport Validate(
             DungeonBakeManifest manifest,
             DungeonBlueprintAsset expectedSource = null,
             GameObject expectedPrefab = null)
+        {
+            return Validate(
+                manifest,
+                expectedSource,
+                expectedPrefab,
+                null);
+        }
+
+        // Runtime-safe manifest와 기대 Override를 포함한 저장 Blueprint 논리 hash를 검사합니다.
+        public static DungeonValidationReport Validate(
+            DungeonBakeManifest manifest,
+            DungeonBlueprintAsset expectedSource,
+            GameObject expectedPrefab,
+            DungeonStageOverrides expectedOverrides)
         {
             DungeonValidationReport report = new DungeonValidationReport();
             if (manifest == null)
@@ -100,7 +130,7 @@ namespace RogueDungeonLab
                 return report;
             }
 
-            if (manifest.formatVersion != DungeonBakeFormat.Current)
+            if (!DungeonBakeFormat.IsSupported(manifest.formatVersion))
             {
                 report.Add(
                     DungeonBakeManifestValidationCodes.InvalidFormatVersion,
@@ -220,24 +250,7 @@ namespace RogueDungeonLab
                     DungeonValidationSeverity.Error,
                     "Bake material set must assign floor, wall, and every built-in content material.");
             }
-            if (!string.IsNullOrEmpty(manifest.overrideHash))
-            {
-                report.Add(
-                    DungeonBakeManifestValidationCodes.UnsupportedOverrideHash,
-                    DungeonValidationSeverity.Error,
-                    "Bake format v1 does not support stage overrides.");
-            }
-            if (blueprint != null &&
-                !string.Equals(
-                    manifest.finalBlueprintHash,
-                    blueprint.blueprintHash,
-                    StringComparison.Ordinal))
-            {
-                report.Add(
-                    DungeonBakeManifestValidationCodes.FinalBlueprintHashMismatch,
-                    DungeonValidationSeverity.Error,
-                    "Bake format v1 requires the final Blueprint hash to match its source.");
-            }
+            ValidateOverrides(report, manifest, blueprint);
             if (manifest.bakedPrefab == null)
             {
                 report.Add(
@@ -259,8 +272,108 @@ namespace RogueDungeonLab
                     DungeonValidationSeverity.Error,
                     "Bake manifest belongs to a different Prefab.");
             }
+            if (expectedOverrides != null &&
+                manifest.sourceOverrides != expectedOverrides)
+            {
+                report.Add(
+                    DungeonBakeManifestValidationCodes.ExpectedOverridesMismatch,
+                    DungeonValidationSeverity.Error,
+                    "Bake manifest belongs to a different Stage Overrides asset.");
+            }
             ValidateOwnedArtifacts(report, manifest.ownedArtifacts);
             return report;
+        }
+
+        // format v1의 빈 Override 계약과 format v2의 source·hash·최종 Blueprint 관계를 검증합니다.
+        private static void ValidateOverrides(
+            DungeonValidationReport report,
+            DungeonBakeManifest manifest,
+            DungeonBlueprint sourceBlueprint)
+        {
+            if (manifest.formatVersion == DungeonBakeFormat.LegacyV1)
+            {
+                if (manifest.sourceOverrides != null ||
+                    !string.IsNullOrEmpty(manifest.overrideHash))
+                {
+                    report.Add(
+                        DungeonBakeManifestValidationCodes.UnsupportedOverrideHash,
+                        DungeonValidationSeverity.Error,
+                        "Bake format v1 does not support Stage Overrides.");
+                }
+                if (sourceBlueprint != null &&
+                    !string.Equals(
+                        manifest.finalBlueprintHash,
+                        sourceBlueprint.blueprintHash,
+                        StringComparison.Ordinal))
+                {
+                    report.Add(
+                        DungeonBakeManifestValidationCodes.FinalBlueprintHashMismatch,
+                        DungeonValidationSeverity.Error,
+                        "Bake format v1 requires the final Blueprint hash to match its source.");
+                }
+                return;
+            }
+            if (manifest.formatVersion !=
+                DungeonBakeFormat.StageOverridesV2)
+            {
+                return;
+            }
+            if (manifest.sourceOverrides == null)
+            {
+                if (!string.IsNullOrEmpty(manifest.overrideHash))
+                {
+                    report.Add(
+                        DungeonBakeManifestValidationCodes.OverrideHashMismatch,
+                        DungeonValidationSeverity.Error,
+                        "A Bake without Stage Overrides must store an empty override hash.");
+                }
+                if (sourceBlueprint != null &&
+                    !string.Equals(
+                        manifest.finalBlueprintHash,
+                        sourceBlueprint.blueprintHash,
+                        StringComparison.Ordinal))
+                {
+                    report.Add(
+                        DungeonBakeManifestValidationCodes.FinalBlueprintHashMismatch,
+                        DungeonValidationSeverity.Error,
+                        "A Bake without Stage Overrides must keep source and final Blueprint hashes equal.");
+                }
+                return;
+            }
+
+            DungeonStageOverrideApplyResult application =
+                DungeonStageOverrideApplier.Apply(
+                    manifest.sourceBlueprint,
+                    manifest.sourceOverrides);
+            Merge(report, application.ValidationReport);
+            if (!application.IsValid)
+            {
+                report.Add(
+                    DungeonBakeManifestValidationCodes.InvalidSourceOverrides,
+                    DungeonValidationSeverity.Error,
+                    "Bake manifest Stage Overrides are invalid.");
+                return;
+            }
+            if (!string.Equals(
+                    manifest.overrideHash,
+                    application.OverrideHash,
+                    StringComparison.Ordinal))
+            {
+                report.Add(
+                    DungeonBakeManifestValidationCodes.OverrideHashMismatch,
+                    DungeonValidationSeverity.Error,
+                    "Bake manifest Stage Overrides hash is stale.");
+            }
+            if (!string.Equals(
+                    manifest.finalBlueprintHash,
+                    application.FinalBlueprintHash,
+                    StringComparison.Ordinal))
+            {
+                report.Add(
+                    DungeonBakeManifestValidationCodes.FinalBlueprintHashMismatch,
+                    DungeonValidationSeverity.Error,
+                    "Bake manifest final Blueprint hash does not match its applied Overrides.");
+            }
         }
 
         // R6 MVP가 생성하는 geometry와 모든 built-in 콘텐츠 범주에 영속 재질 참조가 있는지 확인합니다.

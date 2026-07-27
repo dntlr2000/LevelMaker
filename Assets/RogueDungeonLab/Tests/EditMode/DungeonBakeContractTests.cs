@@ -95,6 +95,9 @@ namespace RogueDungeonLab.Tests
                     Is.True);
                 manifest.ownedArtifacts.RemoveAt(manifest.ownedArtifacts.Count - 1);
 
+                manifest.formatVersion = DungeonBakeFormat.LegacyV1;
+                manifest.builderVersion =
+                    DungeonBakeBuilderVersions.LegacyV1;
                 manifest.overrideHash = "unsupported-r6-override";
                 manifest.finalBlueprintHash = "different-final-blueprint";
                 DungeonValidationReport unsupportedOverride =
@@ -109,6 +112,9 @@ namespace RogueDungeonLab.Tests
                     Is.True);
                 manifest.overrideHash = string.Empty;
                 manifest.finalBlueprintHash = source.blueprint.blueprintHash;
+                manifest.formatVersion = DungeonBakeFormat.Current;
+                manifest.builderVersion =
+                    DungeonBakeBuilderVersions.Current;
 
                 source.blueprint.seed++;
                 source.blueprint.RefreshHash();

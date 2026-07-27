@@ -8,7 +8,7 @@
 - [제품화 확장 가이드](docs/EXTENSION_GUIDE_KO.md)
 - [테스트 계획](docs/TEST_PLAN_KO.md)
 
-현재 통합 로드맵의 R0부터 R6까지 구현했습니다. 기존 생성 결과와 저장 당시 레시피를 `DungeonBlueprintAsset`으로 보존하고, `DungeonStageDefinition` 하나로 절차 생성, 저장 Blueprint RuntimeBuild 또는 검수 완료 BakedPrefab 로드를 선택할 수 있습니다. `DungeonContentCatalog` 또는 프로젝트별 resolver로 RuntimeBuild 콘텐츠를 연결하며, R6 Bake는 알려진 built-in/fallback과 Catalog 직접 Prefab을 영속 자산으로 확정합니다.
+현재 통합 로드맵의 R0부터 R7까지 구현과 통합 검증을 완료했습니다. 기존 생성 결과와 저장 당시 레시피는 `DungeonBlueprintAsset`으로 보존하며, 별도 `DungeonStageOverrides` 자산으로 Spawn 비활성화·추가·콘텐츠 교체·절대 Transform을 기록할 수 있습니다. `DungeonStageDefinition` 하나로 절차 생성, 저장 Blueprint RuntimeBuild 또는 검수 완료 BakedPrefab 로드를 선택하며, R7 Override는 SavedBlueprint에만 적용됩니다. `DungeonContentCatalog` 또는 프로젝트별 resolver로 RuntimeBuild 콘텐츠를 연결하고, Bake는 알려진 built-in/fallback과 Catalog 직접 Prefab을 영속 자산으로 확정합니다.
 
 ## Stage Definition과 콘텐츠 카탈로그 (R3·R4)
 
@@ -50,9 +50,9 @@ DungeonLoadContext context = new DungeonLoadContext(stageDefinition, parent)
 DungeonStageInstance instance = DungeonStageLoader.Load(context);
 ```
 
-`SavedBlueprint + BakedPrefab`은 R6 배포 경로입니다. Runtime-safe `DungeonBakeManifest`는 저장 Blueprint, custom catalog, 완전한 영속 재질 세트, source/final·planning·realization·gameplay·material hash와 Baker 소유 산출물 목록을 검증합니다. Editor-only Baker가 floor/wall Mesh와 Prefab을 저장하고, 런타임 Loader는 Blueprint 생성, Mesh Builder 또는 콘텐츠 resolver를 다시 실행하지 않고 검증된 Prefab을 인스턴스화합니다. `Procedural + BakedPrefab`과 R6 Override는 명시적으로 차단됩니다.
+`SavedBlueprint + BakedPrefab`은 R6·R7 배포 경로입니다. Runtime-safe `DungeonBakeManifest`는 저장 Blueprint, 선택적 Stage Override, custom catalog, 완전한 영속 재질 세트, source/final·planning·realization·gameplay·material·override hash와 Baker 소유 산출물 목록을 검증합니다. Editor-only Baker가 최종 Blueprint의 floor/wall Mesh와 Prefab을 저장하고, 런타임 Loader는 Blueprint 생성, Mesh Builder 또는 콘텐츠 resolver를 다시 실행하지 않고 검증된 Prefab을 인스턴스화합니다. `Procedural + BakedPrefab`과 `Procedural + Stage Override`는 명시적으로 차단됩니다.
 
-## 스테이지 자산 제작 (R5·R5.1·R6)
+## 스테이지 자산 제작 (R5·R5.1·R6·R7)
 
 `Tools > Rogue Dungeon Lab > 실험실 열기`의 `스테이지 자산` 탭에서 다음 흐름을 사용합니다.
 
@@ -68,18 +68,42 @@ DungeonStageInstance instance = DungeonStageLoader.Load(context);
 
 검증 오류가 있는 현재 결과나 저장본은 저장·미리보기·StageDefinition 생성을 진행할 수 없습니다. 저장 레시피 버전·hash·정규화가 맞지 않으면 설정 복원을 별도로 차단합니다. 설정 스냅샷이 없는 기존 R5 자산은 맵 미리보기와 로드는 그대로 가능하고 설정 복원 버튼만 비활성화됩니다. 저장 시각·제작 메모·선택적 제작 레시피는 논리 Blueprint hash에 영향을 주지 않습니다. 생성된 `__RogueDungeonLab_Generated` 계층은 계속 미리보기 산출물이므로 직접 수정하지 않습니다.
 
-## 배포용 BakedPrefab 만들기 (R6)
+## 비파괴 Stage Override 제작 (R7)
 
-`스테이지 자산` 탭의 접을 수 있는 `R6 배포용 Bake` 영역을 사용합니다.
+`스테이지 자산` 탭의 `R7 비파괴 Stage Override` 영역은 저장 Blueprint를 바꾸지 않고 제작 변형을 별도 자산에 기록합니다.
+
+1. 검증된 Blueprint를 선택하고 `새 Override 생성`을 눌러 `DungeonStageOverrides` 자산을 만듭니다.
+2. 같은 Blueprint를 사용하는 SavedBlueprint StageDefinition이 있다면 `현재 Definition에 연결`로 Override를 연결합니다. Procedural Definition에는 연결할 수 없습니다.
+3. `원본 미리보기`와 `Override 미리보기`로 적용 전후를 비교합니다. Override 미리보기는 레시피나 시드를 다시 계산하지 않고 전체 RuntimeBuild를 재구축합니다.
+4. 미리보기의 Spawn 오브젝트를 Scene에서 선택해 비활성화, `contentKey` 교체 또는 로컬 위치·세 축 회전·scale의 `절대 Transform`을 기록합니다. 이 Transform 작업은 Spawn의 논리 cell을 바꾸지 않습니다.
+5. `수동 Spawn 추가`에서 category, `contentKey`, 원본의 floor cell과 절대 Transform을 입력하면 `override:v1:` stable ID를 가진 레코드가 추가됩니다. 추가 레코드의 콘텐츠와 Transform은 본문을 직접 갱신하고 삭제할 수 있습니다.
+6. 변경 목록에서 개별 작업을 제거하면 원본 상태로 돌아갑니다. 생성된 hierarchy를 직접 옮기거나 삭제한 결과는 원본 데이터가 아니며 저장되지 않습니다.
+
+입구·출구 `Marker`는 R7 Spawn 단계에서 비활성화·추가·콘텐츠 교체·Transform 변경을 모두 금지합니다. 셀, 입구·출구와 지형 구조 변경은 현재 범위가 아닙니다. 콘텐츠 교체와 추가는 최종 Blueprint의 category, floor, progression, room 조건, footprint와 간격 검증을 통과해야 합니다.
+
+Override는 기준 Blueprint 참조와 `baseBlueprintHash`를 보존합니다. 변경 목록은 표시 순서와 무관하게 canonical `overrideHash`를 만들고, 적용 결과는 별도의 `finalBlueprintHash`를 가집니다. 원본 Blueprint가 덮어쓰기나 재생성으로 바뀌면 미리보기와 Bake를 조용히 계속하지 않습니다.
+
+`원본 변경 재결합`은 자산을 바꾸지 않고 다음 순서로 분석합니다.
+
+- 먼저 같은 stable Spawn ID를 찾고 저장된 category·content key·cell·room·variant 의미 anchor를 비교합니다.
+- ID가 사라졌을 때만 의미 anchor가 정확히 일치하는 유일 후보를 제안합니다.
+- 후보가 없거나 여러 개이거나, 서로 다른 작업이 같은 후보에 결합되거나, 추가 Spawn ID가 새 원본과 충돌하면 승인을 차단합니다.
+- 해결 가능한 분석 결과도 `분석 결과 승인 및 재결합` 확인 후에만 기준 자산·hash와 Binding을 하나의 Unity Undo 단위로 갱신합니다.
+
+## 배포용 BakedPrefab 만들기 (R6·R7)
+
+`스테이지 자산` 탭의 접을 수 있는 `R6·R7 배포용 Bake` 영역을 사용합니다.
 
 1. `SavedBlueprint StageDefinition`을 선택하거나 `현재 Generator Definition 사용`을 누릅니다. Procedural Definition은 Bake할 수 없습니다.
 2. 재사용할 `DungeonBakeMaterialSet`을 지정합니다. 없다면 `기본 Bake 재질 세트 자산 생성`으로 8개 영속 재질 슬롯이 채워진 자산을 만듭니다.
 3. `배포용 Mesh·Prefab Bake`를 누르고 확인합니다. 기존 결과가 있으면 버튼이 재Bake로 바뀝니다.
 4. 성공한 Bake만 StageDefinition의 Prefab·manifest 참조와 `BakedPrefab` 모드에 commit됩니다. 실패한 후보는 staging에서 폐기되고 이전 정상 Bake는 유지됩니다. 이전 파생 자산 정리는 비가역적이므로 Bake commit 자체는 `Ctrl+Z` 대상이 아닙니다.
-5. `최신성 다시 검사`로 Blueprint, Catalog Prefab·게임플레이 설정, 재질·Shader와 builder 계약의 현재 fingerprint를 manifest와 비교합니다. stale 또는 오류가 있으면 원인을 고친 뒤 재Bake합니다.
+5. `최신성 다시 검사`로 Blueprint, Stage Override, 최종 Blueprint, Catalog Prefab·게임플레이 설정, 재질·Shader와 builder 계약의 현재 fingerprint를 manifest와 비교합니다. stale 또는 오류가 있으면 원인을 고친 뒤 재Bake합니다.
 6. Prefab과 manifest 필드의 `Ping`으로 생성 자산을 확인하고, 이 StageDefinition을 Generator에 연결해 Play에서 로드합니다.
 
-R6 MVP는 known built-in/fallback과 Content Catalog의 직접 Prefab만 Bake합니다. runtime factory, Addressables, DI·오브젝트 풀 resolver는 RuntimeBuild 전용입니다. floor/wall Mesh와 Baked Prefab은 Baker 소유 파생 자산이지만 Blueprint, settings, Catalog, Catalog Prefab과 `DungeonBakeMaterialSet`은 사용자 입력 자산이므로 재Bake 정리 대상이 아닙니다.
+R6·R7 Baker는 known built-in/fallback과 Content Catalog의 직접 Prefab만 Bake합니다. runtime factory, Addressables, DI·오브젝트 풀 resolver는 RuntimeBuild 전용입니다. floor/wall Mesh와 Baked Prefab은 Baker 소유 파생 자산이지만 Blueprint, Stage Override, settings, Catalog, Catalog Prefab과 `DungeonBakeMaterialSet`은 사용자 입력 자산이므로 재Bake 정리 대상이 아닙니다.
+
+기존 R6 Bake manifest와 metadata의 format/builder v1은 Override가 없고 source/final Blueprint hash가 같은 계약으로 계속 로드됩니다. 새 Baker는 format/builder v2를 기록합니다. v2에 Override가 없으면 빈 `overrideHash`와 source=final을 유지하고, Override가 있으면 선택 자산 참조와 `overrideHash`, 적용 뒤 `finalBlueprintHash`가 모두 일치해야 최신입니다. BakedPrefab Loader도 순수 Override applier로 최종 논리 Blueprint를 복원하지만 생성기·Mesh Builder·resolver는 다시 실행하지 않습니다.
 
 ## 검증 상태
 
@@ -91,6 +115,8 @@ R6 통합 결과는 Unity `6000.5.3f1` batchmode compile 성공, EditMode `74/74
 
 원본 작업 트리와 분리한 임시 프로젝트에서 `R6ManualVerificationSetup`으로 전용 SavedBlueprint·MaterialSet·Baked Prefab·manifest·Scene을 생성하고, 그 Baked 장면 하나로 Windows Development Player 빌드도 성공했습니다. 총 빌드 크기는 `172,288,233 B`였으며 로그는 `Logs/R6PlayerBuildSmoke.log`, 실패 주입 rollback 로그는 `Logs/R6RollbackVerification.log`입니다. 실제 화면에서의 HUD 배치와 Unity Play 중 script/domain reload는 계속 수동 확인 범위입니다.
 
+R7 통합 결과는 Unity `6000.5.3f1`에서 전체 EditMode `83/83`, PlayMode `9/9` 통과입니다. `R7ManualVerificationSetup`으로 전용 Override·RuntimeBuild/BakedPrefab Definition·v2 Bake·검증 Scene을 생성한 뒤 장면을 다시 열어 두 경로의 `finalBlueprintHash`와 stable spawn identity가 일치하는 것도 확인했습니다. Windows64 Development Player 빌드는 경고 `0`개, 총 크기 `172,176,046 B`로 성공했습니다. 근거는 `Logs/R7ManualSetup.log`, `Logs/R7FullEditMode.xml`, `Logs/R7FullPlayMode.xml`, `Logs/R7PlayerBuildSmoke.log`입니다. 실제 HUD/Scene 화면의 배치·선택 편집 감각과 Play 중 script/domain reload는 수동 확인 범위로 남습니다.
+
 ### R4 수동 검증 장면
 
 [`Assets/R4ManualVerification/Scenes/R4_ManualVerification.unity`](Assets/R4ManualVerification/Scenes/R4_ManualVerification.unity)를 열고 Play를 누르면 StableV2, Catalog Prefab, 클릭 파괴와 드랍 통계를 바로 확인할 수 있습니다. 전체 자산과 장면을 기준 상태로 다시 만들려면 `Tools > Rogue Dungeon Lab > R4 수동 검증 환경 생성`을 실행합니다. Stage Definition 교체 순서는 [R4 수동 검증 안내](Assets/R4ManualVerification/README_KO.md)를 참고합니다.
@@ -98,6 +124,10 @@ R6 통합 결과는 Unity `6000.5.3f1` batchmode compile 성공, EditMode `74/74
 ### R6 수동 검증 환경
 
 `Tools > Rogue Dungeon Lab > R6 수동 검증 환경 생성`은 전용 SavedBlueprint, 영속 DropTable·MaterialSet, BakedPrefab·manifest와 검증 장면을 반복 생성합니다. Play 탐험, 클릭 드랍, stale 재Bake와 실패 rollback 절차는 [R6 수동 검증 안내](Assets/R6ManualVerification/README_KO.md)를 참고합니다.
+
+### R7 수동 검증 환경
+
+`Tools > Rogue Dungeon Lab > R7 수동 검증 환경 생성`은 전용 Stage Override, RuntimeBuild/BakedPrefab Definition, v2 Bake와 비교 장면을 반복 생성합니다. 원본/Override 미리보기, Scene stable ID 선택 편집, 두 구축 모드 전환과 클릭/drop 확인 절차는 [R7 수동 검증 안내](docs/R7_MANUAL_VERIFICATION_KO.md)를 참고합니다.
 
 ## Play 모드 조작
 

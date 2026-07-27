@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2de8dcbe01a6036429ea7c99ea883977, type: 3}
+  m_Name: BakeManifest
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.DungeonBakeManifest
+  formatVersion: 2
+  builderVersion: 2
+  sourceBlueprint: {fileID: 11400000, guid: 1c530af0f1f806548b3b370046020e83, type: 2}
+  sourceOverrides: {fileID: 0}
+  sourceCatalog: {fileID: 0}
+  sourceRuntimeSettings: {fileID: 11400000, guid: 26c71d759785acf4990df6c5b4a62322, type: 2}
+  materialSet: {fileID: 11400000, guid: 491f9978f19617745ac06e2d1032d948, type: 2}
+  bakedPrefab: {fileID: 6938261554407720453, guid: 2e2a753ee3e103d41a5a6015ec2b0c5a, type: 3}
+  ownedArtifacts:
+  - role: floor-mesh
+    assetGuid: cf50a96b76c12a345b41280b5c0e9a63
+    dependencyHash: c72778a0a90aa4dce6d8cba1e9cfd35e
+  - role: wall-mesh
+    assetGuid: 8610ddd4f8cca7f4cb0a2f6031003ebc
+    dependencyHash: 063fa1fd384e8b8dcd95d6fe597bb9bc
+  - role: baked-prefab
+    assetGuid: 2e2a753ee3e103d41a5a6015ec2b0c5a
+    dependencyHash: d17531c18097d144c3f693fbdb3ba7f5
+  sourceBlueprintHash: 8cf25188ecb6544e212069724a0007fa65f2c6f9b49bf4ae9bbf887f0c9f9834
+  finalBlueprintHash: 8cf25188ecb6544e212069724a0007fa65f2c6f9b49bf4ae9bbf887f0c9f9834
+  catalogPlanningHash: builtin-stable-v2
+  contentRealizationHash: d71262b95eace1bcb13873728fd98d975b748dc39bec0025fd49450d076e07f1
+  gameplayBuildConfigHash: 2c04db2532f1d59e41098182a9305cd1376f44dc62f4e2c2b85635a5f62eb87c
+  materialDependencyHash: 70be922afbe427cd3a949e36c969bb3bcd939b039715cd7ebc507219210b3533
+  overrideHash: 

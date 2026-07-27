@@ -624,12 +624,28 @@ namespace RogueDungeonLab
             LoadStageDefinitionInternal(seed);
         }
 
-        // 저장 Blueprint를 현재 설정의 드랍 환경과 선택적 catalog로 재계산 없이 미리보기·구축합니다.
+        // 저장 Blueprint를 기존 공개 시그니처로 재계산 없이 미리보기·구축합니다.
         public void LoadSavedBlueprint(
             DungeonBlueprintAsset blueprintAsset,
             DungeonContentCatalog contentCatalog = null,
             DungeonMissingContentPolicy missingContentPolicy = DungeonMissingContentPolicy.BuiltInFallback,
             string requestId = "")
+        {
+            LoadSavedBlueprint(
+                blueprintAsset,
+                contentCatalog,
+                missingContentPolicy,
+                requestId,
+                null);
+        }
+
+        // 저장 Blueprint와 선택적 Override를 현재 드랍 환경·catalog로 재계산 없이 미리보기·구축합니다.
+        public void LoadSavedBlueprint(
+            DungeonBlueprintAsset blueprintAsset,
+            DungeonContentCatalog contentCatalog,
+            DungeonMissingContentPolicy missingContentPolicy,
+            string requestId,
+            DungeonStageOverrides stageOverrides)
         {
             DungeonStageInstance instance = DungeonStageLoader.LoadSavedBlueprint(
                 transform,
@@ -638,7 +654,8 @@ namespace RogueDungeonLab
                 contentCatalog,
                 missingContentPolicy,
                 null,
-                requestId);
+                requestId,
+                stageOverrides);
             ApplyStageInstance(instance);
         }
 

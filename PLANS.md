@@ -329,3 +329,79 @@ Play HUD가 프로젝트의 `RogueDungeonSettings` 원본을 직접 변경하지
 - Unity `6000.5.3f1` compile, EditMode `74/74`, PlayMode `8/8`을 통과했다.
 - 분리된 임시 프로젝트에서 전용 Baked Scene Windows Development Player 빌드가 성공했으며 총 크기는 `172,288,233 B`였다. 실패 주입 rollback batch 검증도 통과했다.
 - 실제 화면 HUD 배치와 Play 중 script/domain reload는 수동 확인 범위로 유지한다.
+
+---
+
+# R7 실행 계획 — 비파괴 Stage Override 제작
+
+## 목표
+
+저장된 `DungeonBlueprintAsset`을 직접 변경하거나 `__RogueDungeonLab_Generated` 계층을
+수동 저장하지 않고도 spawn 비활성화·추가·콘텐츠 교체·transform 조정을
+`DungeonStageOverrides` 자산으로 보존한다. 같은 원본과 Override는 RuntimeBuild와
+BakedPrefab에서 같은 최종 Blueprint와 게임플레이 결과를 만들어야 하며, 원본이
+바뀌어 해결되지 않은 stable ID 충돌이 남으면 Preview와 출시용 Bake를 차단한다.
+
+## 착수 기준
+
+- R6 수동 검증 환경의 SavedBlueprint·영속 Mesh·BakedPrefab 생성과 최신성 검사가 통과했다.
+- commit 직전 실패를 주입한 재Bake가 이전 정상 Prefab·manifest를 보존했다.
+- R6 Bake format v1 자산은 Override가 없는 기존 경로로 계속 로드할 수 있어야 한다.
+
+## 마일스톤
+
+### M1 — Runtime Override 데이터·hash·적용 계약
+
+- Runtime-safe `DungeonStageOverrides`와 disable/add/replace/transform 레코드 추가
+- `baseBlueprintHash`와 컬렉션 순서에 독립적인 canonical `overrideHash` 계산
+- 원본 stable spawn ID, 추가 ID, 중복 명령과 transform 유효성을 코드 기반 리포트로 검증
+- 원본 deep clone에만 Override를 적용하고 최종 Blueprint hash를 다시 계산하는 순수 applier 구현
+- StageDefinition과 RuntimeBuild Loader가 SavedBlueprint Override를 선택적으로 적용
+
+### M2 — R6 Bake format 하위 호환과 R7 Bake 연계
+
+- Bake format v1의 빈 Override·source=final 계약을 계속 검증·로드
+- Bake format v2에 source Override 자산·override hash·최종 Blueprint hash 기록
+- Baker가 원본이 아니라 검증된 최종 Blueprint로 Mesh·Prefab·metadata를 생성
+- Override 또는 최종 Blueprint 변경을 stale로 탐지하고 재Bake rollback·소유권 규칙 유지
+- RuntimeBuild/BakedPrefab의 최종 Blueprint·spawn identity·클릭/drop·report parity 검증
+
+### M3 — Preview 선택 기반 비파괴 편집 UI
+
+- StageDefinition용 Override 자산 생성·연결과 Undo 가능한 수정 서비스 추가
+- 선택한 `DungeonSpawnIdentity`를 disable/replace/transform Override로 기록
+- 새 spawn을 명시적 stable ID와 category/content/transform으로 추가·삭제
+- Override 적용 Preview를 전체 재구축하고 generated hierarchy 직접 편집 금지 안내
+- 원본 hash 변경 시 exact stable ID 재결합, 미해결 ID·중복 추가 ID 충돌 리포트와 수동 정리 도구 제공
+- Override Preview 중 원본 Blueprint 덮어쓰기와 혼동되는 기존 저장 동작 차단
+
+### M4 — 수동 검증·회귀·문서
+
+- disable/add/replace/transform과 canonical hash·deep-copy 원본 보존 EditMode 테스트
+- base hash 변경 뒤 재결합 성공·실패와 미해결 충돌 Bake 차단 테스트
+- R6 v1 manifest 하위 호환, R7 v2 stale·재Bake·rollback 테스트
+- 실제 클릭/drop PlayMode와 R7 수동 검증 장면·안내 추가
+- Unity `6000.5.3f1` compile, 전체 EditMode·PlayMode, 가능한 Player build smoke 실행
+- README, 아키텍처, 사용자·테스트·확장 가이드, 로드맵과 CHANGELOG 갱신
+
+## 완료 기준
+
+1. 원본 Blueprint hash와 자산 데이터는 모든 Override 편집·Preview·Bake 뒤에도 변하지 않는다.
+2. 같은 원본과 같은 Override는 컬렉션 표시 순서와 무관하게 같은 override/final hash를 만든다.
+3. disable/add/replace/transform 결과가 RuntimeBuild와 BakedPrefab에서 동일하다.
+4. 원본 변경 뒤 exact stable ID 재결합은 명시적 승인으로만 base hash를 갱신한다.
+5. 사라진 target ID, 중복 추가 ID 또는 상충 명령이 있으면 Preview와 Bake가 오류로 차단된다.
+6. R6 format v1 Bake는 계속 로드되고 R7 format v2 Bake는 Override stale을 탐지한다.
+7. 실패한 재Bake 뒤 기존 정상 Bake와 사용자·공유·Override 자산이 보존된다.
+8. Runtime은 `UnityEditor`와 Unity 전역 `Random`을 참조하지 않고 Unity 6.5 회귀가 통과한다.
+
+## 완료 결과
+
+- Runtime-safe Override 데이터·canonical hash·validator·deep-copy applier·명시적 재결합과 SavedBlueprint RuntimeBuild 연결을 완료했다.
+- Bake format/builder v1 하위 호환을 유지하면서 Override-aware v2 manifest·Baker·BakedPrefab Loader와 stale·rollback·소유권 검증을 연결했다.
+- Stage Override 생성·Definition 연결, 원본/적용 미리보기, Scene stable ID 선택 편집, 수동 Spawn과 변경 목록 UI를 구현했다.
+- Unity `6000.5.3f1`에서 전체 EditMode `83/83`, PlayMode `9/9`이 통과했다.
+- R7 검증 장면을 다시 연 뒤 RuntimeBuild/BakedPrefab의 final hash와 stable spawn identity parity를 확인했다.
+- Windows64 Development Player 빌드는 경고 `0`개, 총 크기 `172,176,046 B`로 성공했다.
+- 검증 근거는 `Logs/R7ManualSetup.log`, `Logs/R7FullEditMode.xml`, `Logs/R7FullPlayMode.xml`, `Logs/R7PlayerBuildSmoke.log`에 남겼다.
+- 실제 HUD/Scene 육안과 Play 중 script/domain reload는 수동 확인 범위로 남겼다.

@@ -140,6 +140,10 @@ namespace RogueDungeonLab.Tests
             Assert.That(AssetDatabase.LoadMainAssetAtPath(firstManifestPath), Is.Null);
             Assert.That(AssetDatabase.LoadMainAssetAtPath(firstPrefabPath), Is.Null);
             Assert.That(
+                AssetDatabase.IsValidFolder(first.OutputFolder),
+                Is.False,
+                "An empty previous Bake version folder must not accumulate.");
+            Assert.That(
                 AssetDatabase.LoadAssetAtPath<DungeonBlueprintAsset>(blueprintPath),
                 Is.SameAs(fixture.Blueprint));
             Assert.That(

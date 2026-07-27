@@ -17,7 +17,7 @@ namespace RogueDungeonLab.Editor
         // 스테이지 자산 탭에 SavedBlueprint 전용 Bake 입력, 실행, 최신성 검증과 결과 참조를 표시합니다.
         private void DrawStageBakeSection()
         {
-            Section("R6 배포용 Bake");
+            Section("R6·R7 배포용 Bake");
             bool wasOpen = _stageBakeFoldout;
             _stageBakeFoldout = EditorGUILayout.Foldout(
                 _stageBakeFoldout,
@@ -27,7 +27,7 @@ namespace RogueDungeonLab.Editor
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.HelpBox(
-                "저장된 Blueprint에서 영속 Mesh와 Prefab을 만듭니다. Procedural 결과는 먼저 Blueprint와 SavedBlueprint StageDefinition으로 확정해야 합니다.",
+                "저장된 Blueprint와 선택적 Stage Override에서 영속 Mesh와 Prefab을 만듭니다. Procedural 결과는 먼저 SavedBlueprint StageDefinition으로 확정해야 합니다.",
                 MessageType.Info);
 
             EditorGUI.BeginChangeCheck();
@@ -211,8 +211,22 @@ namespace RogueDungeonLab.Editor
             }
 
             EditorGUILayout.HelpBox(
-                "R6 MVP는 알려진 built-in/fallback과 Content Catalog가 직접 참조하는 Prefab만 Bake합니다. factory·Addressables·DI resolver는 RuntimeBuild를 사용하세요.",
+                "Bake는 알려진 built-in/fallback과 Content Catalog가 직접 참조하는 Prefab만 지원합니다. R7 Stage Override가 연결되면 검증된 최종 Blueprint를 Bake합니다.",
                 MessageType.None);
+            if (definition.stageOverrides != null)
+            {
+                DungeonStageOverrideApplyResult application =
+                    DungeonStageOverrideApplier.Apply(
+                        definition.savedBlueprint,
+                        definition.stageOverrides);
+                EditorGUILayout.HelpBox(
+                    application.IsValid
+                        ? "Stage Override가 유효합니다. 원본 Blueprint는 보존되고 최종 hash가 별도로 Bake됩니다."
+                        : "Stage Override에 충돌이 있어 Preview와 Bake를 진행할 수 없습니다. R7 편집 영역의 검증 리포트를 확인하세요.",
+                    application.IsValid
+                        ? MessageType.Info
+                        : MessageType.Error);
+            }
         }
 
         // Edit 모드, 저장 자산, SavedBlueprint와 완전한 재질 입력이 준비되었을 때만 Bake 버튼을 허용합니다.
@@ -226,7 +240,11 @@ namespace RogueDungeonLab.Editor
                    definition.sourceMode == DungeonStageSourceMode.SavedBlueprint &&
                    definition.savedBlueprint != null &&
                    definition.savedBlueprint.blueprint != null &&
-                   IsBakeMaterialSetComplete(materialSet);
+                   IsBakeMaterialSetComplete(materialSet) &&
+                   (definition.stageOverrides == null ||
+                    DungeonStageOverrideApplier.Apply(
+                        definition.savedBlueprint,
+                        definition.stageOverrides).IsValid);
         }
 
         // 재질 세트의 8개 필수 슬롯과 현재 commit된 Bake 입력과의 차이를 제작 전에 안내합니다.
@@ -259,7 +277,7 @@ namespace RogueDungeonLab.Editor
             }
         }
 
-        // R6 built-in geometry와 콘텐츠를 저장하는 데 필요한 모든 Material 참조가 있는지 확인합니다.
+        // built-in geometry와 콘텐츠를 저장하는 데 필요한 모든 Material 참조가 있는지 확인합니다.
         private static bool IsBakeMaterialSetComplete(
             DungeonBakeMaterialSet materialSet)
         {
@@ -340,7 +358,7 @@ namespace RogueDungeonLab.Editor
                 ? "새 후보를 stage 전용 staging 영역에서 검증한 뒤에만 참조를 교체합니다.\n실패하면 현재 정상 Prefab과 manifest는 유지됩니다.\n성공 뒤 이전 파생 자산 정리는 비가역적이므로 Ctrl+Z 대상이 아닙니다.\n\n재Bake하시겠습니까?"
                 : "저장 Blueprint에서 영속 floor/wall Mesh, 콘텐츠 Prefab과 manifest를 만듭니다.\n성공하면 StageDefinition이 BakedPrefab 모드와 새 산출물을 참조합니다.\nBake commit은 파생 자산을 만들기 때문에 Ctrl+Z 대상이 아닙니다.\n\nBake하시겠습니까?";
             if (!EditorUtility.DisplayDialog(
-                    rebake ? "R6 재Bake 확인" : "R6 Bake 확인",
+                rebake ? "스테이지 재Bake 확인" : "스테이지 Bake 확인",
                     message,
                     rebake ? "재Bake" : "Bake",
                     "취소"))
@@ -382,6 +400,9 @@ namespace RogueDungeonLab.Editor
             DungeonBakeManifest manifest = definition != null
                 ? definition.bakeManifest
                 : null;
+            DrawBakeAssetReference(
+                "Stage Overrides",
+                definition != null ? definition.stageOverrides : null);
             DrawBakeAssetReference("Baked Prefab", prefab);
             DrawBakeAssetReference("Bake Manifest", manifest);
             if (definition != null && manifest != null &&

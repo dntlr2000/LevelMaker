@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.9.0
+
+- 반복 재Bake 뒤 사용자 자산이 없는 이전 `Version_<guid>` 폴더를 안전하게 제거해 빈 폴더와 `.meta` 누적 방지
+- Runtime-safe `DungeonStageOverrides`에 SavedBlueprint 기준 비활성화·추가·콘텐츠 교체·절대 Transform 작업과 Marker 보호 계약 추가
+- 목록 순서·제작 메모에 독립적인 canonical Override hash, 원본 깊은 복사 적용과 source/override/final Blueprint hash 분리
+- stable ID exact 우선, 의미 anchor 유일 후보 제안, missing·ambiguous·candidate/add ID 충돌 리포트와 명시적 Undo 재결합 승인 추가
+- `DungeonStageDefinition`, RuntimeBuild Loader와 저장본 미리보기에 선택적 Stage Override 적용
+- Bake format/builder v1 읽기 호환을 유지하고 v2 manifest에 Override 자산·hash와 최종 Blueprint hash 기록
+- Baker가 합성된 최종 Blueprint로 Mesh·Prefab을 만들고 Override/final stale, 실패 재Bake rollback과 사용자 Override 자산 보존 검증
+- 스테이지 자산 탭에 Override 생성·Definition 연결, 원본/적용 미리보기, Scene stable ID 선택 편집, 수동 Spawn과 변경 목록 UI 추가
+- Override 미리보기 중 원본 Blueprint 저장 차단과 generated hierarchy 직접 편집 금지 안내 추가
+- R7 전용 RuntimeBuild/BakedPrefab Definition·v2 Bake·동등성 검증 Scene 생성 메뉴와 한국어 수동 가이드 추가
+- Unity `6000.5.3f1`에서 Override 계약 EditMode `6/6`, v1/v2 Bake·stale·rollback EditMode `3/3`, v2 Baked 클릭/drop PlayMode `1/1`과 전체 EditMode `83/83`, PlayMode `9/9` 통과
+- R7 검증 Scene 재개방 뒤 RuntimeBuild/BakedPrefab final hash·stable identity parity 확인
+- Windows64 Development Player 빌드 경고 `0`개로 성공, 총 크기 `172,176,046 B`; 실제 HUD/Scene 육안과 Play 중 script/domain reload는 수동 확인 범위
+
 ## 0.8.0
 
 - Editor-only `DungeonStageBaker`로 SavedBlueprint 기반 floor/wall Mesh, 콘텐츠 Prefab과 `DungeonBakeManifest` 영속 자산 생성

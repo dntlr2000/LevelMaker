@@ -20,6 +20,9 @@ namespace RogueDungeonLab
         public const string MissingBakeManifest = "RDL-STAGE-011";
         public const string BakeCatalogMismatch = "RDL-STAGE-012";
         public const string MissingBakedMetadata = "RDL-STAGE-013";
+        public const string OverridesRequireSavedBlueprint = "RDL-STAGE-014";
+        public const string OverrideBaseMismatch = "RDL-STAGE-015";
+        public const string BakeOverrideMismatch = "RDL-STAGE-016";
     }
 
     public static class DungeonStageDefinitionValidator
@@ -60,6 +63,23 @@ namespace RogueDungeonLab
             if (definition.sourceMode == DungeonStageSourceMode.SavedBlueprint && definition.savedBlueprint == null)
             {
                 report.Add(DungeonStageDefinitionValidationCodes.MissingSavedBlueprint, DungeonValidationSeverity.Error, "SavedBlueprint source requires a Blueprint asset.");
+            }
+            if (definition.stageOverrides != null &&
+                definition.sourceMode != DungeonStageSourceMode.SavedBlueprint)
+            {
+                report.Add(
+                    DungeonStageDefinitionValidationCodes.OverridesRequireSavedBlueprint,
+                    DungeonValidationSeverity.Error,
+                    "Stage Overrides are supported only with a SavedBlueprint source.");
+            }
+            if (definition.stageOverrides != null &&
+                definition.sourceMode == DungeonStageSourceMode.SavedBlueprint)
+            {
+                Merge(
+                    report,
+                    DungeonStageOverridesValidator.Validate(
+                        definition.stageOverrides,
+                        definition.savedBlueprint));
             }
             if (definition.sourceMode == DungeonStageSourceMode.Procedural && !DungeonGeneratorVersions.IsSupported(definition.generatorVersion))
             {
@@ -110,13 +130,22 @@ namespace RogueDungeonLab
                 DungeonBakeManifestValidator.Validate(
                     definition.bakeManifest,
                     definition.savedBlueprint,
-                    definition.bakedPrefab));
+                    definition.bakedPrefab,
+                    definition.stageOverrides));
             if (definition.bakeManifest.sourceCatalog != definition.contentCatalog)
             {
                 report.Add(
                     DungeonStageDefinitionValidationCodes.BakeCatalogMismatch,
                     DungeonValidationSeverity.Error,
                     "Stage Definition Content Catalog does not match its Bake manifest.");
+            }
+            if (definition.bakeManifest.sourceOverrides !=
+                definition.stageOverrides)
+            {
+                report.Add(
+                    DungeonStageDefinitionValidationCodes.BakeOverrideMismatch,
+                    DungeonValidationSeverity.Error,
+                    "Stage Definition Overrides do not match its Bake manifest.");
             }
             if (definition.bakedPrefab == null) return;
 
@@ -188,6 +217,7 @@ namespace RogueDungeonLab
             DungeonBlueprint blueprint;
             DungeonLayout layout;
             RogueDungeonSettings sourceRecipe = null;
+            DungeonStageOverrideApplyResult overrideApplication = null;
 
             if (definition.sourceMode == DungeonStageSourceMode.Procedural)
             {
@@ -218,9 +248,13 @@ namespace RogueDungeonLab
                     missing.Add(DungeonStageDefinitionValidationCodes.MissingSavedBlueprint, DungeonValidationSeverity.Error, "Saved Blueprint data is missing.");
                     throw new DungeonStageLoadException("Saved Blueprint data is missing.", missing);
                 }
-                blueprint = source.DeepClone();
-                DungeonValidationReport savedValidation = DungeonBlueprintValidator.Validate(blueprint);
-                ThrowIfInvalid("Saved Dungeon Blueprint is invalid.", savedValidation);
+                overrideApplication = DungeonStageOverrideApplier.Apply(
+                    definition.savedBlueprint,
+                    definition.stageOverrides);
+                ThrowIfInvalid(
+                    "Saved Dungeon Blueprint Overrides are invalid.",
+                    overrideApplication.ValidationReport);
+                blueprint = overrideApplication.FinalBlueprint;
                 layout = DungeonBlueprintLayoutConverter.ToLayout(blueprint);
             }
 
@@ -246,7 +280,14 @@ namespace RogueDungeonLab
                 resolver,
                 missingPolicy,
                 contentValidation,
-                stopwatch);
+                stopwatch,
+                definition.stageOverrides,
+                overrideApplication != null
+                    ? overrideApplication.SourceBlueprintHash
+                    : string.Empty,
+                overrideApplication != null
+                    ? overrideApplication.OverrideHash
+                    : string.Empty);
         }
 
         // 기존 settings 기반 facade가 StageDefinition 자산 없이 같은 Loader 구축 경로를 사용하게 합니다.
@@ -351,7 +392,7 @@ namespace RogueDungeonLab
                 stopwatch);
         }
 
-        // 저장 Blueprint를 레시피나 시드로 재계산하지 않고 선택적 catalog·resolver로 즉시 구축합니다.
+        // 저장 Blueprint를 기존 공개 시그니처로 레시피나 시드 재계산 없이 즉시 구축합니다.
         public static DungeonStageInstance LoadSavedBlueprint(
             Transform parent,
             DungeonBlueprintAsset blueprintAsset,
@@ -360,6 +401,28 @@ namespace RogueDungeonLab
             DungeonMissingContentPolicy missingContentPolicy = DungeonMissingContentPolicy.BuiltInFallback,
             IDungeonContentResolver contentResolver = null,
             string requestId = "")
+        {
+            return LoadSavedBlueprint(
+                parent,
+                blueprintAsset,
+                runtimeSettings,
+                contentCatalog,
+                missingContentPolicy,
+                contentResolver,
+                requestId,
+                null);
+        }
+
+        // 저장 Blueprint를 선택적 Override·catalog·resolver로 레시피나 시드 재계산 없이 구축합니다.
+        public static DungeonStageInstance LoadSavedBlueprint(
+            Transform parent,
+            DungeonBlueprintAsset blueprintAsset,
+            RogueDungeonSettings runtimeSettings,
+            DungeonContentCatalog contentCatalog,
+            DungeonMissingContentPolicy missingContentPolicy,
+            IDungeonContentResolver contentResolver,
+            string requestId,
+            DungeonStageOverrides stageOverrides)
         {
             if (parent == null) throw new ArgumentNullException(nameof(parent));
             DungeonValidationReport setupValidation = new DungeonValidationReport();
@@ -387,12 +450,25 @@ namespace RogueDungeonLab
                     if (issue != null) setupValidation.issues.Add(issue);
                 }
             }
+            if (stageOverrides != null)
+            {
+                MergeValidation(
+                    setupValidation,
+                    DungeonStageOverridesValidator.Validate(
+                        stageOverrides,
+                        blueprintAsset));
+            }
             ThrowIfInvalid("Saved Blueprint load settings are invalid.", setupValidation);
 
-            DungeonBlueprint source = blueprintAsset.blueprint;
-            DungeonBlueprint blueprint = source != null ? source.DeepClone() : null;
-            DungeonValidationReport blueprintValidation = DungeonBlueprintValidator.Validate(blueprint);
-            ThrowIfInvalid("Saved Dungeon Blueprint is invalid.", blueprintValidation);
+            DungeonStageOverrideApplyResult overrideApplication =
+                DungeonStageOverrideApplier.Apply(
+                    blueprintAsset,
+                    stageOverrides);
+            ThrowIfInvalid(
+                "Saved Dungeon Blueprint Overrides are invalid.",
+                overrideApplication.ValidationReport);
+            DungeonBlueprint blueprint =
+                overrideApplication.FinalBlueprint;
             DungeonLayout layout = DungeonBlueprintLayoutConverter.ToLayout(blueprint);
             DungeonValidationReport contentValidation = DungeonContentCatalogValidator.ValidateBlueprint(
                 blueprint,
@@ -418,7 +494,10 @@ namespace RogueDungeonLab
                 resolver,
                 missingContentPolicy,
                 contentValidation,
-                stopwatch);
+                stopwatch,
+                stageOverrides,
+                overrideApplication.SourceBlueprintHash,
+                overrideApplication.OverrideHash);
         }
 
         // 지정 부모 아래의 generated root와 소유한 동적 메시를 안전하게 제거합니다.
@@ -442,7 +521,10 @@ namespace RogueDungeonLab
             IDungeonContentResolver contentResolver,
             DungeonMissingContentPolicy missingContentPolicy,
             DungeonValidationReport contentValidation,
-            Stopwatch stopwatch)
+            Stopwatch stopwatch,
+            DungeonStageOverrides appliedOverrides = null,
+            string sourceBlueprintHash = "",
+            string overrideHash = "")
         {
             DungeonValidationReport blueprintValidation = DungeonBlueprintValidator.Validate(blueprint);
             ThrowIfInvalid("Dungeon Blueprint is invalid.", blueprintValidation);
@@ -484,7 +566,10 @@ namespace RogueDungeonLab
                     buildResult,
                     combinedValidation,
                     report,
-                    requestId);
+                    requestId,
+                    appliedOverrides,
+                    sourceBlueprintHash,
+                    overrideHash);
             }
             catch
             {
@@ -499,14 +584,33 @@ namespace RogueDungeonLab
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             DungeonStageDefinition definition = context.Definition;
-            DungeonBlueprint source =
-                definition.savedBlueprint != null
-                    ? definition.savedBlueprint.blueprint
-                    : null;
-            DungeonBlueprint blueprint = source != null ? source.DeepClone() : null;
+            DungeonStageOverrideApplyResult overrideApplication =
+                DungeonStageOverrideApplier.Apply(
+                    definition.savedBlueprint,
+                    definition.stageOverrides);
             DungeonValidationReport blueprintValidation =
-                DungeonBlueprintValidator.Validate(blueprint);
-            ThrowIfInvalid("Saved Dungeon Blueprint is invalid.", blueprintValidation);
+                overrideApplication.ValidationReport;
+            ThrowIfInvalid(
+                "Saved Dungeon Blueprint Overrides are invalid.",
+                blueprintValidation);
+            DungeonBlueprint blueprint =
+                overrideApplication.FinalBlueprint;
+            if (!string.Equals(
+                    overrideApplication.FinalBlueprintHash,
+                    definition.bakeManifest.finalBlueprintHash,
+                    StringComparison.Ordinal))
+            {
+                DungeonValidationReport mismatch =
+                    new DungeonValidationReport();
+                mismatch.Add(
+                    DungeonBakeManifestValidationCodes
+                        .FinalBlueprintHashMismatch,
+                    DungeonValidationSeverity.Error,
+                    "Baked stage final Blueprint hash is stale.");
+                throw new DungeonStageLoadException(
+                    "Baked stage final Blueprint hash is stale.",
+                    mismatch);
+            }
             DungeonLayout layout = DungeonBlueprintLayoutConverter.ToLayout(blueprint);
 
             GameObject staging = new GameObject(GeneratedRootName + "_BakedStaging");
@@ -566,7 +670,10 @@ namespace RogueDungeonLab
                     buildResult,
                     combinedValidation,
                     report,
-                    context.RequestId);
+                    context.RequestId,
+                    definition.stageOverrides,
+                    overrideApplication.SourceBlueprintHash,
+                    overrideApplication.OverrideHash);
             }
             catch
             {
@@ -638,6 +745,24 @@ namespace RogueDungeonLab
                 }
             }
             return combined;
+        }
+
+        // 하위 검증 리포트의 이슈를 기존 순서대로 대상 리포트에 병합합니다.
+        private static void MergeValidation(
+            DungeonValidationReport destination,
+            DungeonValidationReport source)
+        {
+            if (destination == null ||
+                source == null ||
+                source.issues == null)
+            {
+                return;
+            }
+            for (int i = 0; i < source.issues.Count; i++)
+            {
+                DungeonValidationIssue issue = source.issues[i];
+                if (issue != null) destination.issues.Add(issue);
+            }
         }
 
         private static void AppendValidationWarnings(GenerationReport report, DungeonValidationReport validation)

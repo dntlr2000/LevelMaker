@@ -95,7 +95,7 @@ namespace RogueDungeonLab
         public DungeonValidationReport Validate(DungeonBakeManifest manifest)
         {
             DungeonValidationReport report = new DungeonValidationReport();
-            if (formatVersion != DungeonBakeFormat.Current ||
+            if (!DungeonBakeFormat.IsSupported(formatVersion) ||
                 (manifest != null && formatVersion != manifest.formatVersion))
             {
                 report.Add(

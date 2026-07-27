@@ -49,6 +49,7 @@ namespace RogueDungeonLab.Editor
                 definition.savedBlueprint != null)
             {
                 _selectedBlueprint = definition.savedBlueprint;
+                _selectedStageOverrides = definition.stageOverrides;
                 _stageAssetAuthoringNote = definition.savedBlueprint.blueprint != null
                     ? definition.savedBlueprint.blueprint.authoringNote ?? string.Empty
                     : string.Empty;
@@ -108,7 +109,16 @@ namespace RogueDungeonLab.Editor
                     : null;
             DungeonRecipeSnapshot currentRecipeSnapshot = CaptureRecipeForCurrentBlueprint();
 
+            DrawStageOverridesSection(savedValidation);
+
             Section("Blueprint 저장");
+            bool overridePreviewActive = IsOverridePreviewActive();
+            if (overridePreviewActive)
+            {
+                EditorGUILayout.HelpBox(
+                    "현재 결과는 Stage Override가 적용된 미리보기입니다. 원본 Blueprint 저장과 덮어쓰기는 차단되며 변경 내용은 Override 자산에 보존됩니다.",
+                    MessageType.Warning);
+            }
             if (current != null)
             {
                 EditorGUILayout.HelpBox(
@@ -117,12 +127,17 @@ namespace RogueDungeonLab.Editor
                         : "현재 결과의 recipe hash와 일치하는 설정을 찾지 못했습니다. 맵은 저장할 수 있지만 설정 복원 정보는 포함되지 않습니다.",
                     currentRecipeSnapshot != null ? MessageType.Info : MessageType.Warning);
             }
-            using (new EditorGUI.DisabledScope(current == null || currentValidation == null || !currentValidation.IsValid))
+            using (new EditorGUI.DisabledScope(
+                       overridePreviewActive ||
+                       current == null ||
+                       currentValidation == null ||
+                       !currentValidation.IsValid))
             {
                 if (GUILayout.Button("현재 결과를 새 Blueprint로 저장", GUILayout.Height(32f)))
                     SaveCurrentAsNewBlueprint();
             }
             using (new EditorGUI.DisabledScope(
+                       overridePreviewActive ||
                        current == null ||
                        _selectedBlueprint == null ||
                        currentValidation == null ||
@@ -620,6 +635,12 @@ namespace RogueDungeonLab.Editor
                         _stageAssetCatalog,
                         _stageAssetMissingPolicy,
                         _createdStageLoadsOnPlay);
+                if (_selectedStageOverrides != null)
+                {
+                    DungeonStageOverrideAuthoringService.AssignStageOverrides(
+                        definition,
+                        _selectedStageOverrides);
+                }
                 _lastCreatedStageDefinition = definition;
                 if (_assignCreatedStageDefinition)
                     DungeonStageAuthoringService.AssignStageDefinition(_generator, definition);
