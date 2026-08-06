@@ -3,6 +3,9 @@
   "rootNamespace": "RogueDungeonLab.Tests",
   "references": [
     "RogueDungeonLab.Runtime",
+    "RogueDungeonLab.Samples",
+    "RogueDungeonLab.Editor.Baking",
+    "RogueDungeonLab.Editor.Packaging",
     "RogueDungeonLab.Editor"
   ],
   "includePlatforms": [

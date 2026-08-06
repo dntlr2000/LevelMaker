@@ -273,6 +273,9 @@ namespace RogueDungeonLab.Tests
 
                 Assert.That(definition.sourceMode, Is.EqualTo(DungeonStageSourceMode.SavedBlueprint));
                 Assert.That(definition.buildMode, Is.EqualTo(DungeonStageBuildMode.RuntimeBuild));
+                Assert.That(
+                    definition.stageId,
+                    Is.Not.Empty);
                 Assert.That(definition.savedBlueprint, Is.SameAs(blueprint));
                 Assert.That(definition.fixedSeed, Is.EqualTo(blueprint.blueprint.seed));
                 Assert.That(definition.generatorVersion, Is.EqualTo(blueprint.blueprint.generatorVersion));
@@ -288,6 +291,9 @@ namespace RogueDungeonLab.Tests
                     AssetDatabase.LoadAssetAtPath<DungeonStageDefinition>(definitionPath);
 
                 Assert.That(reloaded, Is.Not.Null);
+                Assert.That(
+                    reloaded.stageId,
+                    Is.EqualTo(definition.stageId));
                 Assert.That(
                     AssetDatabase.GetAssetPath(reloaded.savedBlueprint),
                     Is.EqualTo(TempFolder + "/DefinitionBlueprint.asset"));

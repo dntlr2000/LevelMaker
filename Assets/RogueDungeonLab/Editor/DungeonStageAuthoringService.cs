@@ -368,6 +368,8 @@ namespace RogueDungeonLab.Editor
             Undo.RegisterCreatedObjectUndo(definition, "Create Dungeon Stage Definition");
             SerializedObject serialized = new SerializedObject(definition);
             serialized.Update();
+            serialized.FindProperty("stageId").stringValue =
+                Guid.NewGuid().ToString("N");
             serialized.FindProperty("sourceMode").intValue = (int)DungeonStageSourceMode.SavedBlueprint;
             serialized.FindProperty("buildMode").intValue = (int)DungeonStageBuildMode.RuntimeBuild;
             serialized.FindProperty("recipe").objectReferenceValue = null;

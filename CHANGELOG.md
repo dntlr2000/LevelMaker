@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.11.0
+
+- Runtime Core에서 Input System, Lab HUD·카메라·클릭 입력·임시 플레이어를 제거하고 GUID를 보존한 `RogueDungeonLab.Samples` 선택 assembly로 분리
+- 제품 캐릭터가 Sample 타입 없이 RunState pose를 제공하는 `IDungeonRunStatePlayer` 등록 계약 추가
+- HUD 없는 Procedural·SavedBlueprint RuntimeBuild 예제 자산과 두 smoke scene 추가
+- `RogueDungeonLab.Editor.Baking`과 `RogueDungeonLab.Editor.Packaging` Editor-only assembly 분리
+- Runtime Core, Runtime Examples, Lab Sample, Bake Authoring modular/standalone, Baked Stage modular/standalone의 일곱 `.unitypackage` 출력 추가
+- Baked Stage의 Blueprint·Override·Catalog·settings·material·Prefab·manifest 소유 산출물 dependency closure 수집과 Sample/Editor/Test 의존 차단 추가
+- package별 SHA-256, Unity 버전, asset 목록, stage/source/final/override hash, render pipeline과 요구 package를 기록하는 JSON sidecar·index 추가
+- Built-in/URP/HDRP/custom Shader 탐지, 외부 package 버전 기록과 혼합 pipeline 배포 차단 추가
+- Input System 없는 Runtime 소비 프로젝트와 URP Baked 소비 프로젝트를 새로 만드는 자동 import·Windows Player smoke harness 추가
+- Unity `6000.5.3f1` R9 배포 EditMode `6/6`, 전체 EditMode `95/95`, PlayMode `11/11` 통과
+- 두 깨끗한 소비 프로젝트의 Windows64 Development Player 빌드 오류·경고 `0`개로 성공
+
+## 0.10.0
+
+- Unity Object 참조가 없는 versioned `DungeonRunState`에 stage ID, source, run seed, final Blueprint hash, 제거 spawn, 기믹 payload와 stage-local 플레이어 pose 추가
+- 목록 순서·저장 시각에 독립적인 canonical state hash, JSON round-trip과 코드 기반 구조·target 검증 추가
+- 기본 strict 거부, 명시적 matching-ID 재결합과 결과 재검증형 `IDungeonRunStateMigrator` hook 추가
+- `IDungeonRunStateParticipant`로 Gimmick spawn별 확장 상태 캡처·복원 지원
+- 메모리 저장소와 `persistentDataPath` 기반 원자적 JSON 슬롯 저장소, 경로 제한·손상 파일 차단·이전 정상 슬롯 보존 추가
+- RuntimeBuild와 BakedPrefab의 비활성 staging root에 같은 상태를 적용하고 실패 시 기존 generated root를 보존
+- Generator의 파괴 기록, participant·플레이어 캡처, 슬롯 save/load/delete facade와 임시 플레이어 pose 재개 연결
+- Play HUD에 `런 상태` 탭과 슬롯·strict/matching-ID 정책·최근 적용 결과 표시 추가
+- `DungeonStageDefinition.stageId`와 새 제작 자산의 영구 ID 자동 생성 추가
+- Procedural·SavedBlueprint 전환 장면과 한국어 수동 검증 절차 추가
+- canonical/JSON/원자 교체/migration/participant/rollback/RuntimeBuild-Baked parity EditMode와 클릭 파괴·run seed·Saved stage ID·플레이어 pose PlayMode 회귀 추가
+- Unity `6000.5.3f1` 전체 EditMode `89/89`, PlayMode `11/11` 통과
+- R8 전용 장면 Windows64 Development Player 빌드 경고 `0`, 총 `171,479,278 B`로 성공
+
 ## 0.9.0
 
 - 반복 재Bake 뒤 사용자 자산이 없는 이전 `Version_<guid>` 폴더를 안전하게 제거해 빈 폴더와 `.meta` 누적 방지

@@ -205,6 +205,16 @@ namespace RogueDungeonLab
                     DungeonValidationSeverity.Error,
                     "Missing content policy override is invalid.");
             }
+            if (!Enum.IsDefined(
+                    typeof(DungeonRunStateHashMismatchPolicy),
+                    context.RunStateMismatchPolicy))
+            {
+                definitionValidation.Add(
+                    DungeonRunStateValidationCodes
+                        .InvalidMismatchPolicy,
+                    DungeonValidationSeverity.Error,
+                    "RunState mismatch policy is invalid.");
+            }
             ThrowIfInvalid("Stage Definition is invalid.", definitionValidation);
 
             DungeonStageDefinition definition = context.Definition;
@@ -287,7 +297,10 @@ namespace RogueDungeonLab
                     : string.Empty,
                 overrideApplication != null
                     ? overrideApplication.OverrideHash
-                    : string.Empty);
+                    : string.Empty,
+                context.RunState,
+                context.RunStateMismatchPolicy,
+                context.RunStateMigrator);
         }
 
         // 기존 settings 기반 facade가 StageDefinition 자산 없이 같은 Loader 구축 경로를 사용하게 합니다.
@@ -320,7 +333,12 @@ namespace RogueDungeonLab
             DungeonContentCatalog contentCatalog = null,
             DungeonMissingContentPolicy missingContentPolicy = DungeonMissingContentPolicy.BuiltInFallback,
             IDungeonContentResolver contentResolver = null,
-            string requestId = "")
+            string requestId = "",
+            DungeonRunState runState = null,
+            DungeonRunStateHashMismatchPolicy
+                runStateMismatchPolicy =
+                    DungeonRunStateHashMismatchPolicy.Reject,
+            IDungeonRunStateMigrator runStateMigrator = null)
         {
             if (parent == null) throw new ArgumentNullException(nameof(parent));
             if (recipe == null) throw new ArgumentNullException(nameof(recipe));
@@ -339,6 +357,17 @@ namespace RogueDungeonLab
                     DungeonStageDefinitionValidationCodes.InvalidMissingContentPolicy,
                     DungeonValidationSeverity.Error,
                     "Missing content policy is invalid.");
+            }
+            if (!Enum.IsDefined(
+                    typeof(
+                        DungeonRunStateHashMismatchPolicy),
+                    runStateMismatchPolicy))
+            {
+                setupValidation.Add(
+                    DungeonRunStateValidationCodes
+                        .InvalidMismatchPolicy,
+                    DungeonValidationSeverity.Error,
+                    "RunState mismatch policy is invalid.");
             }
             if (contentCatalog != null)
             {
@@ -389,7 +418,13 @@ namespace RogueDungeonLab
                 resolver,
                 missingContentPolicy,
                 contentValidation,
-                stopwatch);
+                stopwatch,
+                null,
+                string.Empty,
+                string.Empty,
+                runState,
+                runStateMismatchPolicy,
+                runStateMigrator);
         }
 
         // 저장 Blueprint를 기존 공개 시그니처로 레시피나 시드 재계산 없이 즉시 구축합니다.
@@ -422,7 +457,12 @@ namespace RogueDungeonLab
             DungeonMissingContentPolicy missingContentPolicy,
             IDungeonContentResolver contentResolver,
             string requestId,
-            DungeonStageOverrides stageOverrides)
+            DungeonStageOverrides stageOverrides,
+            DungeonRunState runState = null,
+            DungeonRunStateHashMismatchPolicy
+                runStateMismatchPolicy =
+                    DungeonRunStateHashMismatchPolicy.Reject,
+            IDungeonRunStateMigrator runStateMigrator = null)
         {
             if (parent == null) throw new ArgumentNullException(nameof(parent));
             DungeonValidationReport setupValidation = new DungeonValidationReport();
@@ -439,6 +479,17 @@ namespace RogueDungeonLab
                     DungeonStageDefinitionValidationCodes.InvalidMissingContentPolicy,
                     DungeonValidationSeverity.Error,
                     "Missing content policy is invalid.");
+            }
+            if (!Enum.IsDefined(
+                    typeof(
+                        DungeonRunStateHashMismatchPolicy),
+                    runStateMismatchPolicy))
+            {
+                setupValidation.Add(
+                    DungeonRunStateValidationCodes
+                        .InvalidMismatchPolicy,
+                    DungeonValidationSeverity.Error,
+                    "RunState mismatch policy is invalid.");
             }
             if (contentCatalog != null)
             {
@@ -497,7 +548,10 @@ namespace RogueDungeonLab
                 stopwatch,
                 stageOverrides,
                 overrideApplication.SourceBlueprintHash,
-                overrideApplication.OverrideHash);
+                overrideApplication.OverrideHash,
+                runState,
+                runStateMismatchPolicy,
+                runStateMigrator);
         }
 
         // 지정 부모 아래의 generated root와 소유한 동적 메시를 안전하게 제거합니다.
@@ -524,7 +578,12 @@ namespace RogueDungeonLab
             Stopwatch stopwatch,
             DungeonStageOverrides appliedOverrides = null,
             string sourceBlueprintHash = "",
-            string overrideHash = "")
+            string overrideHash = "",
+            DungeonRunState runState = null,
+            DungeonRunStateHashMismatchPolicy
+                runStateMismatchPolicy =
+                    DungeonRunStateHashMismatchPolicy.Reject,
+            IDungeonRunStateMigrator runStateMigrator = null)
         {
             DungeonValidationReport blueprintValidation = DungeonBlueprintValidator.Validate(blueprint);
             ThrowIfInvalid("Dungeon Blueprint is invalid.", blueprintValidation);
@@ -539,6 +598,22 @@ namespace RogueDungeonLab
                     root.transform,
                     blueprint,
                     new DungeonSceneBuildOptions(runtimeSettings, contentResolver, missingContentPolicy));
+                DungeonRunStateTarget runStateTarget =
+                    DungeonRunStateTargetFactory.Create(
+                        definition,
+                        sourceMode,
+                        blueprint,
+                        sourceBlueprintHash);
+                DungeonRunStateApplyResult runStateApplication =
+                    DungeonRunStateApplier.Apply(
+                        root,
+                        runState,
+                        runStateTarget,
+                        runStateMismatchPolicy,
+                        runStateMigrator);
+                ThrowIfInvalid(
+                    "Dungeon RunState is invalid for this stage.",
+                    runStateApplication.ValidationReport);
                 ClearGenerated(parent);
                 root.name = GeneratedRootName;
                 root.SetActive(true);
@@ -551,10 +626,14 @@ namespace RogueDungeonLab
                     sourceRecipe,
                     stopwatch.Elapsed.TotalMilliseconds);
                 AppendValidationWarnings(report, contentValidation);
+                AppendValidationWarnings(
+                    report,
+                    runStateApplication.ValidationReport);
                 DungeonValidationReport combinedValidation = CombineValidationReports(
                     blueprintValidation,
                     contentValidation,
-                    buildResult.ValidationReport);
+                    buildResult.ValidationReport,
+                    runStateApplication.ValidationReport);
                 return new DungeonStageInstance(
                     definition,
                     sourceMode,
@@ -569,7 +648,8 @@ namespace RogueDungeonLab
                     requestId,
                     appliedOverrides,
                     sourceBlueprintHash,
-                    overrideHash);
+                    overrideHash,
+                    runStateApplication);
             }
             catch
             {
@@ -640,10 +720,27 @@ namespace RogueDungeonLab
                     metadataValidation);
 
                 DungeonSceneBuildResult buildResult = metadata.ToBuildResult();
+                DungeonRunStateTarget runStateTarget =
+                    DungeonRunStateTargetFactory.Create(
+                        definition,
+                        DungeonStageSourceMode.SavedBlueprint,
+                        blueprint,
+                        overrideApplication.SourceBlueprintHash);
+                DungeonRunStateApplyResult runStateApplication =
+                    DungeonRunStateApplier.Apply(
+                        root,
+                        context.RunState,
+                        runStateTarget,
+                        context.RunStateMismatchPolicy,
+                        context.RunStateMigrator);
+                ThrowIfInvalid(
+                    "Dungeon RunState is invalid for this stage.",
+                    runStateApplication.ValidationReport);
                 DungeonValidationReport combinedValidation =
                     CombineValidationReports(
                         blueprintValidation,
-                        buildResult.ValidationReport);
+                        buildResult.ValidationReport,
+                        runStateApplication.ValidationReport);
                 stopwatch.Stop();
                 GenerationReport report = CreateReport(
                     context.Parent,
@@ -652,6 +749,9 @@ namespace RogueDungeonLab
                     buildResult,
                     null,
                     stopwatch.Elapsed.TotalMilliseconds);
+                AppendValidationWarnings(
+                    report,
+                    runStateApplication.ValidationReport);
 
                 root.transform.SetParent(context.Parent, false);
                 ClearGenerated(context.Parent);
@@ -673,7 +773,8 @@ namespace RogueDungeonLab
                     context.RequestId,
                     definition.stageOverrides,
                     overrideApplication.SourceBlueprintHash,
-                    overrideApplication.OverrideHash);
+                    overrideApplication.OverrideHash,
+                    runStateApplication);
             }
             catch
             {
@@ -731,6 +832,7 @@ namespace RogueDungeonLab
             return report;
         }
 
+        // 여러 검증 리포트를 원래 이슈 순서대로 하나의 StageInstance 리포트에 합칩니다.
         private static DungeonValidationReport CombineValidationReports(params DungeonValidationReport[] reports)
         {
             DungeonValidationReport combined = new DungeonValidationReport();
@@ -765,6 +867,7 @@ namespace RogueDungeonLab
             }
         }
 
+        // 하위 검증 경고를 기존 GenerationReport 경고 문자열에 추가합니다.
         private static void AppendValidationWarnings(GenerationReport report, DungeonValidationReport validation)
         {
             if (report == null || validation == null || validation.issues == null) return;

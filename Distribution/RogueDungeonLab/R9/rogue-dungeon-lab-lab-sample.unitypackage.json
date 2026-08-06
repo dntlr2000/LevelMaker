@@ -1,0 +1,31 @@
+{
+    "formatVersion": 1,
+    "packageKind": "LabSample",
+    "packageId": "rogue-dungeon-lab-lab-sample",
+    "unityVersion": "6000.5.3f1",
+    "createdUtcTicks": 639216260456056763,
+    "packageSha256": "6c6eb8874d7d8c9723ea40faa67b3cfb5c281627729716699f4c04c73f96a991",
+    "stageId": "",
+    "sourceBlueprintHash": "",
+    "finalBlueprintHash": "",
+    "overrideHash": "",
+    "renderPipeline": "NotApplicable",
+    "requiredPackages": [
+        {
+            "packageId": "com.unity.inputsystem",
+            "version": "1.19.0"
+        }
+    ],
+    "assetPaths": [
+        "Assets/RogueDungeonLab/Samples",
+        "Assets/RogueDungeonLab/Samples/Lab",
+        "Assets/RogueDungeonLab/Samples/Lab/LabOrbitCamera.cs",
+        "Assets/RogueDungeonLab/Samples/Lab/PrototypePlayerController.cs",
+        "Assets/RogueDungeonLab/Samples/Lab/README_KO.md",
+        "Assets/RogueDungeonLab/Samples/Lab/RogueDungeonClickInteraction.cs",
+        "Assets/RogueDungeonLab/Samples/Lab/RogueDungeonClickInteractor.cs",
+        "Assets/RogueDungeonLab/Samples/Lab/RogueDungeonLab.Samples.asmdef",
+        "Assets/RogueDungeonLab/Samples/Lab/RogueDungeonPresentation.cs",
+        "Assets/RogueDungeonLab/Samples/Lab/RuntimeLabHUD.cs"
+    ]
+}

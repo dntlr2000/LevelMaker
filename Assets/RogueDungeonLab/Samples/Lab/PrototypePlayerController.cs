@@ -6,7 +6,9 @@ using UnityEngine.InputSystem;
 namespace RogueDungeonLab
 {
     [DisallowMultipleComponent, RequireComponent(typeof(CharacterController))]
-    public sealed class PrototypePlayerController : MonoBehaviour
+    public sealed class PrototypePlayerController :
+        MonoBehaviour,
+        IDungeonRunStatePlayer
     {
         public const string TemporaryPlayerName = "__RogueDungeonLab_TemporaryPlayer";
 
@@ -23,6 +25,18 @@ namespace RogueDungeonLab
         private bool _subscribed;
 
         public static PrototypePlayerController Active { get; private set; }
+        public RogueDungeonGenerator Generator
+        {
+            get { return generator; }
+        }
+        public RogueDungeonGenerator RunStateGenerator
+        {
+            get { return generator; }
+        }
+        public Transform RunStateTransform
+        {
+            get { return transform; }
+        }
 
         // 임시 플레이어의 필수 CharacterController 참조를 준비합니다.
         private void Awake()
@@ -39,12 +53,14 @@ namespace RogueDungeonLab
             if (generator == null) generator = FindAnyObjectByType<RogueDungeonGenerator>();
             if (targetCamera == null) targetCamera = Camera.main;
             SubscribeGenerator();
+            RegisterRunStatePlayer();
             AttachCamera();
         }
 
         // 생성 이벤트 구독과 카메라 추적을 해제합니다.
         private void OnDisable()
         {
+            UnregisterRunStatePlayer();
             UnsubscribeGenerator();
             ReleaseCamera();
             if (Active == this) Active = null;
@@ -100,11 +116,17 @@ namespace RogueDungeonLab
         // 생성기와 카메라를 연결하고 플레이어를 현재 입구로 이동시킵니다.
         public void Configure(RogueDungeonGenerator dungeonGenerator, Camera camera)
         {
+            UnregisterRunStatePlayer();
             UnsubscribeGenerator();
             generator = dungeonGenerator;
             targetCamera = camera != null ? camera : Camera.main;
             SubscribeGenerator();
-            TeleportToEntrance();
+            RegisterRunStatePlayer();
+            if (generator == null ||
+                !generator.TryRestorePlayerRunState(this))
+            {
+                TeleportToEntrance();
+            }
             AttachCamera();
         }
 
@@ -123,6 +145,45 @@ namespace RogueDungeonLab
             if (_characterController != null) _characterController.enabled = wasEnabled;
             _verticalVelocity = 0f;
             return true;
+        }
+
+        // 저장된 stage-local pose를 CharacterController 충돌 없이 월드 transform으로 복원합니다.
+        public void RestoreStageLocalPose(
+            Transform stageTransform,
+            DungeonRunPlayerState state)
+        {
+            if (stageTransform == null ||
+                state == null ||
+                !state.isPresent)
+            {
+                return;
+            }
+            if (_characterController == null)
+                _characterController =
+                    GetComponent<CharacterController>();
+            bool wasEnabled =
+                _characterController != null &&
+                _characterController.enabled;
+            if (_characterController != null)
+                _characterController.enabled = false;
+            transform.position =
+                stageTransform.TransformPoint(
+                    state.localPosition);
+            transform.rotation =
+                stageTransform.rotation *
+                Quaternion.Euler(
+                    state.localEulerAngles);
+            if (_characterController != null)
+                _characterController.enabled = wasEnabled;
+            _verticalVelocity = 0f;
+        }
+
+        // 코어 RunState 계약을 통해 저장된 stage-local pose를 기존 충돌 안전 복원으로 전달합니다.
+        public void RestoreRunStatePose(
+            Transform stageTransform,
+            DungeonRunPlayerState state)
+        {
+            RestoreStageLocalPose(stageTransform, state);
         }
 
         // 입력 방향을 카메라 수평축에 맞춰 CharacterController 이동으로 변환합니다.
@@ -174,7 +235,11 @@ namespace RogueDungeonLab
         // 던전 재생성 후 새 입구로 이동하고 카메라 추적을 복구합니다.
         private void HandleGenerated(GenerationReport report)
         {
-            TeleportToEntrance();
+            if (generator == null ||
+                !generator.TryRestorePlayerRunState(this))
+            {
+                TeleportToEntrance();
+            }
             AttachCamera();
         }
 
@@ -191,6 +256,20 @@ namespace RogueDungeonLab
         {
             if (generator != null && _subscribed) generator.GenerationCompleted -= HandleGenerated;
             _subscribed = false;
+        }
+
+        // 현재 Generator에 Sample 플레이어를 런 상태 pose 공급자로 등록합니다.
+        private void RegisterRunStatePlayer()
+        {
+            if (generator != null)
+                generator.RegisterRunStatePlayer(this);
+        }
+
+        // 비활성화 또는 Generator 교체 전 현재 Sample 플레이어 등록을 해제합니다.
+        private void UnregisterRunStatePlayer()
+        {
+            if (generator != null)
+                generator.UnregisterRunStatePlayer(this);
         }
 
         // 현재 카메라의 LabOrbitCamera가 플레이어를 추적하도록 연결합니다.

@@ -1,7 +1,7 @@
 {
   "name": "RogueDungeonLab.Runtime",
   "rootNamespace": "RogueDungeonLab",
-  "references": ["Unity.InputSystem"],
+  "references": [],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

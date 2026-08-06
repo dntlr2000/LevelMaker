@@ -15,6 +15,13 @@ namespace RogueDungeonLab
         public string RequestId { get; set; }
         public IDungeonContentResolver ContentResolver { get; set; }
         public DungeonMissingContentPolicy? MissingContentPolicyOverride { get; set; }
+        public DungeonRunState RunState { get; set; }
+        public DungeonRunStateHashMismatchPolicy RunStateMismatchPolicy
+        {
+            get;
+            set;
+        }
+        public IDungeonRunStateMigrator RunStateMigrator { get; set; }
 
         // StageDefinition과 생성 결과를 소유할 부모를 하나의 런타임 로드 요청으로 묶습니다.
         public DungeonLoadContext(
@@ -26,6 +33,8 @@ namespace RogueDungeonLab
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             RuntimeSettings = runtimeSettings;
             RequestId = string.Empty;
+            RunStateMismatchPolicy =
+                DungeonRunStateHashMismatchPolicy.Reject;
         }
     }
 

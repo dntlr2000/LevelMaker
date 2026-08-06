@@ -1,0 +1,32 @@
+{
+    "formatVersion": 1,
+    "packageKind": "BakedStage",
+    "packageId": "rogue-dungeon-lab-stage-r7-manual-baked-v1",
+    "unityVersion": "6000.5.3f1",
+    "createdUtcTicks": 639216260466924122,
+    "packageSha256": "1858ca424e4a4addede134219ba38ddc5cb9214dd3c011d2c47e40647dd836c3",
+    "stageId": "r7-manual-baked-v1",
+    "sourceBlueprintHash": "8cf25188ecb6544e212069724a0007fa65f2c6f9b49bf4ae9bbf887f0c9f9834",
+    "finalBlueprintHash": "83be524d26b0f196526d04cc6af7175a5f22f039c20c44848d8e09ba684b77c3",
+    "overrideHash": "6bff7716977ad82d2aff484c8f3482d5802164f459a43c07b1a0dba90585fc0d",
+    "renderPipeline": "Universal",
+    "requiredPackages": [
+        {
+            "packageId": "com.unity.render-pipelines.universal",
+            "version": "17.5.0"
+        }
+    ],
+    "assetPaths": [
+        "Assets/R6ManualVerification/Blueprints/R6_SavedBlueprint_Seed73125.asset",
+        "Assets/R6ManualVerification/DropTables/R6_DestructibleDrops.asset",
+        "Assets/R6ManualVerification/DropTables/R6_EnemyDrops.asset",
+        "Assets/R6ManualVerification/Materials/R6_DefaultBakeMaterialSet.asset",
+        "Assets/R6ManualVerification/Settings/R6_BakeSettings.asset",
+        "Assets/R7ManualVerification/Overrides/R7_StageOverrides.asset",
+        "Assets/R7ManualVerification/Stages/R7_BakedStage.asset",
+        "Assets/R7ManualVerification/Stages/R7_BakedStage_Bake/Version_59ff32a582b44399be6750e520cbb4bb/BakeManifest.asset",
+        "Assets/R7ManualVerification/Stages/R7_BakedStage_Bake/Version_59ff32a582b44399be6750e520cbb4bb/Floor.asset",
+        "Assets/R7ManualVerification/Stages/R7_BakedStage_Bake/Version_59ff32a582b44399be6750e520cbb4bb/Stage.prefab",
+        "Assets/R7ManualVerification/Stages/R7_BakedStage_Bake/Version_59ff32a582b44399be6750e520cbb4bb/Walls.asset"
+    ]
+}

@@ -1,0 +1,28 @@
+{
+    "formatVersion": 1,
+    "packageKind": "RuntimeExamples",
+    "packageId": "rogue-dungeon-lab-runtime-examples",
+    "unityVersion": "6000.5.3f1",
+    "createdUtcTicks": 639216260454521329,
+    "packageSha256": "f2ab1556685c3996cb9963b27c4cdc1749a56bfe19bd5f6164be1d0854083e60",
+    "stageId": "",
+    "sourceBlueprintHash": "",
+    "finalBlueprintHash": "",
+    "overrideHash": "",
+    "renderPipeline": "NotApplicable",
+    "requiredPackages": [],
+    "assetPaths": [
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Blueprints",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Blueprints/R9_RuntimeExampleBlueprint.asset",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/README_KO.md",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Scenes",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Scenes/R9_ProceduralRuntimeBuild.unity",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Scenes/R9_SavedBlueprintRuntimeBuild.unity",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Settings",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Settings/R9_RuntimeExampleSettings.asset",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Stages",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Stages/R9_ProceduralRuntimeStage.asset",
+        "Assets/RogueDungeonLab/Examples/RuntimeBuild/Stages/R9_SavedRuntimeStage.asset"
+    ]
+}

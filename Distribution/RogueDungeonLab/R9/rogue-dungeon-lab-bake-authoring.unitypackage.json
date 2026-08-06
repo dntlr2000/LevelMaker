@@ -1,0 +1,23 @@
+{
+    "formatVersion": 1,
+    "packageKind": "BakeAuthoring",
+    "packageId": "rogue-dungeon-lab-bake-authoring",
+    "unityVersion": "6000.5.3f1",
+    "createdUtcTicks": 639216260457304727,
+    "packageSha256": "15ff553e000800762af685b0b749351c9101b5a5d10f009dd63e4c34f2489e27",
+    "stageId": "",
+    "sourceBlueprintHash": "",
+    "finalBlueprintHash": "",
+    "overrideHash": "",
+    "renderPipeline": "NotApplicable",
+    "requiredPackages": [],
+    "assetPaths": [
+        "Assets/RogueDungeonLab/Editor/Baking",
+        "Assets/RogueDungeonLab/Editor/Baking/DungeonStageBaker.cs",
+        "Assets/RogueDungeonLab/Editor/Baking/README_KO.md",
+        "Assets/RogueDungeonLab/Editor/Baking/RogueDungeonLab.Editor.Baking.asmdef",
+        "Assets/RogueDungeonLab/Editor/Packaging",
+        "Assets/RogueDungeonLab/Editor/Packaging/DungeonDistributionExporter.cs",
+        "Assets/RogueDungeonLab/Editor/Packaging/RogueDungeonLab.Editor.Packaging.asmdef"
+    ]
+}

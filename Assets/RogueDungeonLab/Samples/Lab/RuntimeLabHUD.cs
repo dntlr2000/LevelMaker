@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -302,6 +303,257 @@ namespace RogueDungeonLab
                 report.gimmickCount));
             for (int i = 0; i < report.warnings.Count; i++)
                 GUILayout.Label("⚠ " + report.warnings[i], _warning);
+        }
+
+        // 현재 플레이 진행의 캡처·슬롯 저장·재구축 복원·삭제 UI를 그립니다.
+        private void DrawRunStateTab()
+        {
+            GUILayout.Label("런 상태 저장과 복원", _header);
+            if (_generator == null ||
+                _generator.CurrentStageInstance == null)
+            {
+                GUILayout.Label(
+                    "먼저 스테이지를 생성하거나 불러오세요.",
+                    _warning);
+                return;
+            }
+
+            DungeonRunState state =
+                _generator.ActiveRunState;
+            if (state != null)
+            {
+                GUILayout.Label(
+                    "Stage ID: " +
+                    Abbreviate(state.stageId, 42),
+                    _muted);
+                GUILayout.Label(
+                    string.Format(
+                        "출처 {0} · Seed {1} · 제거 {2} · 기믹 상태 {3}",
+                        state.sourceMode,
+                        state.runSeed,
+                        state.removedSpawnIds != null
+                            ? state.removedSpawnIds.Count
+                            : 0,
+                        state.gimmickStates != null
+                            ? state.gimmickStates.Count
+                            : 0),
+                    _muted);
+                GUILayout.Label(
+                    "Final hash: " +
+                    Abbreviate(
+                        state.finalBlueprintHash,
+                        20),
+                    _muted);
+            }
+
+            DungeonRunStateApplyResult applyResult =
+                _generator.CurrentStageInstance
+                    .RunStateApplyResult;
+            if (applyResult != null &&
+                applyResult.WasApplied)
+            {
+                string mode = applyResult.WasMigrated
+                    ? "migration"
+                    : applyResult.WasBestEffort
+                        ? "matching-ID"
+                        : "정확 일치";
+                GUILayout.Label(
+                    string.Format(
+                        "최근 복원: {0} · 제거 {1} · 기믹 {2}",
+                        mode,
+                        applyResult.RemovedSpawnCount,
+                        applyResult
+                            .RestoredGimmickStateCount),
+                    _muted);
+            }
+
+            GUILayout.Space(8f);
+            GUILayout.Label("저장 슬롯", _header);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(
+                "슬롯 ID",
+                GUILayout.Width(80f));
+            _runStateSlot = GUILayout.TextField(
+                _runStateSlot ?? string.Empty);
+            GUILayout.EndHorizontal();
+            GUILayout.Label(
+                "영문·숫자·-·_ 조합 1~64자",
+                _muted);
+
+            GUILayout.Space(6f);
+            GUILayout.Label("Blueprint 불일치 정책");
+            _runStatePolicyIndex = GUILayout.Toolbar(
+                Mathf.Clamp(_runStatePolicyIndex, 0, 1),
+                new[]
+                {
+                    "엄격 거부",
+                    "일치 ID만"
+                });
+            GUILayout.Label(
+                _runStatePolicyIndex == 0
+                    ? "stage·출처·seed·final hash가 모두 같아야 복원합니다."
+                    : "stage·출처·seed는 같아야 하며, final hash가 다르면 존재하는 stable ID만 재결합합니다.",
+                _muted);
+
+            GUILayout.Space(6f);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("현재 상태 캡처"))
+                CaptureRunStateFromHud();
+            if (GUILayout.Button("슬롯 저장"))
+                SaveRunStateFromHud();
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("슬롯 불러오기"))
+                LoadRunStateFromHud();
+            if (GUILayout.Button("슬롯 삭제"))
+                DeleteRunStateFromHud();
+            GUILayout.EndHorizontal();
+
+            if (!string.IsNullOrEmpty(
+                    _runStateMessage))
+            {
+                GUILayout.Space(6f);
+                GUILayout.Label(
+                    _runStateMessage,
+                    _runStateMessageIsError
+                        ? _warning
+                        : _muted);
+            }
+        }
+
+        // 현재 participant와 임시 플레이어 pose를 메모리 RunState에 캡처합니다.
+        private void CaptureRunStateFromHud()
+        {
+            try
+            {
+                DungeonRunState state =
+                    _generator.CaptureCurrentRunState(
+                        PrototypePlayerController.Active);
+                SetRunStateMessage(
+                    string.Format(
+                        "캡처 완료: 제거 {0}, 기믹 {1}, 플레이어 {2}",
+                        state.removedSpawnIds.Count,
+                        state.gimmickStates.Count,
+                        state.player != null &&
+                        state.player.isPresent
+                            ? "포함"
+                            : "없음"),
+                    false);
+            }
+            catch (Exception exception)
+            {
+                SetRunStateMessage(
+                    "캡처 실패: " + exception.Message,
+                    true);
+            }
+        }
+
+        // 현재 진행을 캡처해 입력한 JSON 슬롯에 저장합니다.
+        private void SaveRunStateFromHud()
+        {
+            try
+            {
+                DungeonRunState state =
+                    _generator.SaveRunState(
+                        _runStateSlot,
+                        PrototypePlayerController.Active);
+                SetRunStateMessage(
+                    "저장 완료: " +
+                    new DateTime(
+                        state.savedUtcTicks,
+                        DateTimeKind.Utc)
+                        .ToLocalTime()
+                        .ToString("yyyy-MM-dd HH:mm:ss"),
+                    false);
+            }
+            catch (Exception exception)
+            {
+                SetRunStateMessage(
+                    "저장 실패: " + exception.Message,
+                    true);
+            }
+        }
+
+        // 입력 슬롯의 seed와 상태로 stage를 재구축하고 검증된 진행을 적용합니다.
+        private void LoadRunStateFromHud()
+        {
+            try
+            {
+                DungeonRunStateHashMismatchPolicy policy =
+                    _runStatePolicyIndex == 0
+                        ? DungeonRunStateHashMismatchPolicy
+                            .Reject
+                        : DungeonRunStateHashMismatchPolicy
+                            .ApplyMatchingSpawnIds;
+                bool loaded = _generator.LoadRunState(
+                    _runStateSlot,
+                    policy);
+                if (!loaded)
+                {
+                    SetRunStateMessage(
+                        "해당 슬롯이 없습니다.",
+                        true);
+                    return;
+                }
+                _seedText =
+                    _generator.ActiveSeed.ToString();
+                CompleteImmediateGeneration();
+                SetRunStateMessage(
+                    "불러오기 및 스테이지 복원을 완료했습니다.",
+                    false);
+            }
+            catch (Exception exception)
+            {
+                SetRunStateMessage(
+                    "불러오기 실패: " +
+                    exception.Message,
+                    true);
+            }
+        }
+
+        // 입력 슬롯의 RunState 파일을 삭제합니다.
+        private void DeleteRunStateFromHud()
+        {
+            try
+            {
+                bool deleted =
+                    _generator.DeleteRunState(
+                        _runStateSlot);
+                SetRunStateMessage(
+                    deleted
+                        ? "슬롯을 삭제했습니다."
+                        : "삭제할 슬롯이 없습니다.",
+                    !deleted);
+            }
+            catch (Exception exception)
+            {
+                SetRunStateMessage(
+                    "삭제 실패: " + exception.Message,
+                    true);
+            }
+        }
+
+        // HUD의 최근 RunState 작업 결과와 오류 표시 상태를 갱신합니다.
+        private void SetRunStateMessage(
+            string message,
+            bool isError)
+        {
+            _runStateMessage = message ?? string.Empty;
+            _runStateMessageIsError = isError;
+        }
+
+        // 긴 stage ID와 hash를 앞부분만 남긴 단일 줄 문자열로 줄입니다.
+        private static string Abbreviate(
+            string value,
+            int maximumLength)
+        {
+            string text = value ?? string.Empty;
+            return text.Length <= maximumLength
+                ? text
+                : text.Substring(
+                    0,
+                    Mathf.Max(1, maximumLength - 1)) +
+                  "…";
         }
 
         // 빠른 드랍 표본 생성, 통계 초기화와 관측 결과를 표시하는 탭을 그립니다.

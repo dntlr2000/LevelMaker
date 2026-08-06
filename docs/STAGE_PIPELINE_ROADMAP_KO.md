@@ -299,13 +299,12 @@ R7 Spawn 단계는 입구·출구 Marker 편집과 논리 cell 이동을 허용�
 
 `DungeonRunState`는 플레이 중 변하는 값만 저장합니다.
 
-- `blueprintHash`와 stage instance ID
-- 처치·파괴·획득된 `spawnId` 집합
-- 문·기믹 상태
-- 플레이어 위치와 선택적 체크포인트
-- 절차형 런의 run seed
+- 영구 `stageId`, source mode, 절차형 런의 run seed와 최종 `blueprintHash`
+- 처치·파괴된 Enemy·Destructible의 `spawnId` 집합
+- Gimmick spawn 아래 participant key별 문자열 payload
+- stage-local 플레이어 위치·회전과 선택적 체크포인트
 
-GameObject 참조를 저장하지 않습니다. Blueprint 해시가 다른 RunState는 기본적으로 복원을 거부하고 명시적 migration이 있을 때만 변환합니다.
+GameObject 참조와 저장 시각은 canonical 상태 본문에 포함하지 않습니다. Blueprint 해시가 다른 RunState는 기본적으로 복원을 거부합니다. stage·source·seed가 같을 때 사용자가 명시적으로 matching-ID 정책을 선택하면 현재 target에 남아 있는 ID만 재결합할 수 있고, 형식·의미 migration은 `IDungeonRunStateMigrator`가 있을 때만 실행합니다. 두 경로 모두 결과 상태를 현재 target fingerprint와 canonical hash로 다시 검증합니다.
 
 ## 6. 공개 API 호환 전략
 
@@ -499,7 +498,7 @@ Unity `6000.5.3f1`에서 compile, EditMode `74/74`, PlayMode `8/8`을 통과했�
 
 현재 구현은 위 데이터·RuntimeBuild·Bake·Editor 제작 경로를 연결했습니다. Unity `6000.5.3f1`에서 전체 EditMode `83/83`, PlayMode `9/9`이 통과했고, R7 검증 장면 재개방 뒤 RuntimeBuild/BakedPrefab의 final hash와 stable spawn identity parity를 확인했습니다. Windows64 Development Player 빌드는 경고 `0`개, 총 `172,176,046 B`로 성공했습니다. 실제 HUD/Scene 육안과 Play 중 script/domain reload는 별도 수동 확인 범위입니다.
 
-### R8 — 런 상태 저장과 복원
+### R8 — 런 상태 저장과 복원 (구현·통합 검증 완료)
 
 - `DungeonRunState` DTO와 저장 서비스 인터페이스 추가
 - 적 처치, 파괴물 파괴, 기믹 상태를 spawn ID로 기록
@@ -509,7 +508,9 @@ Unity `6000.5.3f1`에서 compile, EditMode `74/74`, PlayMode `8/8`을 통과했�
 
 완료 기준: 재실행 후 같은 절차 맵 또는 저장 맵을 열고 이미 제거된 대상과 플레이어 진행 상태를 정확히 복원합니다.
 
-### R9 — 다른 Unity 프로젝트용 패키징
+현재 구현은 versioned DTO·canonical hash, 메모리/원자적 JSON 저장소, 엄격·matching-ID 정책, migration hook과 participant 계약을 포함합니다. RuntimeBuild와 BakedPrefab 모두 기존 root 교체 전의 비활성 후보에 같은 applier를 실행합니다. Generator는 클릭 파괴를 기록하고 기믹·플레이어 pose를 캡처하며, Play HUD에서 슬롯 저장·불러오기·삭제와 최근 적용 결과를 확인할 수 있습니다. 절차 seed·SavedBlueprint stage ID·플레이어 pose PlayMode 재개와 두 build mode parity·실패 rollback을 자동 검증하고 R8 전용 장면 생성도 완료했습니다. Unity `6000.5.3f1` 전체 EditMode `89/89`, PlayMode `11/11`과 Windows64 Development Player 빌드 경고 `0`을 통과했습니다.
+
+### R9 — 다른 Unity 프로젝트용 패키징 (구현·통합 검증 완료)
 
 R9는 R6과 무관한 RuntimeBuild 소비 경로와 Bake 산출물 배포 경로를 분리합니다.
 
@@ -526,6 +527,8 @@ R5.2 뒤 시작할 수 있으며 R6 완료를 요구하지 않습니다.
 
 완료 기준: 새 Unity `6000.5` 프로젝트가 RuntimeBuild 코어만 가져와도 컴파일되고, 필요한 프로젝트는 Sample을 추가해 현재 실험실 기능까지 사용할 수 있습니다.
 
+현재 구현은 기존 GUID를 보존한 채 HUD·카메라·클릭 입력·임시 플레이어를 `RogueDungeonLab.Samples`로 이동하고 Core의 Input System 참조를 제거했습니다. `IDungeonRunStatePlayer`가 제품 캐릭터와 RunState의 연결 지점이며, Core-only Procedural·SavedBlueprint 장면은 별도 Runtime Examples 묶음으로 제공합니다.
+
 #### R9B — Bake 배포 패키징
 
 R6 완료 뒤 시작합니다.
@@ -536,6 +539,10 @@ R6 완료 뒤 시작합니다.
 - 소비 프로젝트에서 manifest stale 검증과 BakedPrefab Player build smoke test
 
 완료 기준: 원본 프로젝트가 만든 검수 Bake 묶음을 새 Unity `6000.5` 프로젝트로 옮겨도 manifest 참조와 gameplay parity가 유지되며 Player build가 성공합니다.
+
+현재 구현은 Runtime Core, Runtime Examples, Lab Sample, Bake Authoring modular/standalone과 Stage별 Baked modular/standalone을 `.unitypackage`로 출력합니다. 각 sidecar에는 SHA-256, Unity 버전, 포함 자산, stage/source/final/override hash, render pipeline과 추가 package 버전이 기록됩니다. dependency closure가 Sample·Editor·Tests를 참조하거나 Bake가 stale이거나 렌더 파이프라인이 섞이면 내보내기를 차단합니다.
+
+Unity `6000.5.3f1`의 Input System 없는 깨끗한 프로젝트에서 Core+Examples Procedural·SavedBlueprint 로드와 Windows64 Player 빌드가 오류·경고 `0`개로 성공했습니다. 별도 프로젝트에서는 sidecar의 URP `17.5.0`을 복원하고 Bake Authoring+modular Baked Stage의 manifest/final hash·stable identity·저장 Mesh를 확인한 뒤 Player 빌드에 성공했습니다. 전체 회귀는 EditMode `95/95`, PlayMode `11/11`입니다.
 
 ### R10 — 런타임 사용자 제작 맵 저장(선택)
 
@@ -552,14 +559,14 @@ R6 완료 뒤 시작합니다.
 ### 제품화 필수 경로와 선택 backlog
 
 - 저장 Blueprint를 생성 코드 없이 배포하려면 `R5.2 → R6`가 필수입니다.
-- 다른 프로젝트에서 RuntimeBuild만 사용하려면 R6을 기다리지 않고 `R5.2 → R9A`로 진행할 수 있습니다.
-- 다른 프로젝트로 BakedPrefab까지 배포하려면 `R5.2 → R6 → R9B`가 필수입니다.
+- 다른 프로젝트에서 RuntimeBuild만 사용하려면 구현된 `R5.2 → R9A` 경로를 사용할 수 있습니다.
+- 다른 프로젝트로 BakedPrefab까지 배포하려면 구현된 `R5.2 → R6 → R9B` 경로를 사용합니다.
 - `R7`은 수동 제작 변형이 필요한 제품의 authoring 단계로 구현되었고, `R8`은 실제 게임 세이브/재개가 필요한 제품의 gameplay 단계입니다. 둘은 서로 다른 데이터를 다루며 R7 Override는 정적 제작 변형, R8 RunState는 플레이 중 변화만 소유합니다.
 - `R10`과 방 의미론, 다층, NavMesh, 대형 맵 최적화, 고급 드랍 규칙, CSV/JSON 통계 내보내기는 명시적 선택 backlog입니다. 해당 요구가 확정되기 전에는 R6 범위를 넓히지 않습니다.
 
 ## 8. 현재·예정 파일 구조
 
-R5.2의 Runtime Bake 계약은 `Runtime/Baking`, R7의 비파괴 데이터·hash·검증·적용·재결합 분석은 `Runtime/Overrides`에 둡니다. `DungeonStageBaker`와 자산 저장·Undo 제작 서비스만 Editor에 유지합니다. 새 타입은 역할별 파일로 추가하고, 기존 대형 파일 분리는 동작 지문을 확보한 뒤 진행합니다. Unity `6000.5` 직렬화 안정성을 위해 모든 MonoBehaviour와 ScriptableObject는 타입명과 같은 연결 파일을 유지합니다.
+R5.2의 Runtime Bake 계약은 `Runtime/Baking`, R7의 비파괴 데이터·hash·검증·적용·재결합 분석은 `Runtime/Overrides`, R8의 플레이 진행 DTO·저장소·적용과 Generator facade는 `Runtime/RunState`에 둡니다. R9에서 `DungeonStageBaker`는 `Editor/Baking`, dependency 수집·내보내기는 `Editor/Packaging`, HUD·카메라·클릭 입력·임시 플레이어는 `Samples/Lab`으로 분리했습니다. 새 타입은 역할별 파일로 추가하고, 기존 대형 파일 분리는 동작 지문을 확보한 뒤 진행합니다. Unity `6000.5` 직렬화 안정성을 위해 모든 MonoBehaviour와 ScriptableObject는 타입명과 같은 연결 파일을 유지합니다.
 
 ```text
 Assets/RogueDungeonLab/
@@ -591,13 +598,30 @@ Assets/RogueDungeonLab/
 │  ├─ Loading/
 │  │  ├─ DungeonStageDefinition.cs
 │  │  └─ DungeonStageLoader.cs
-│  └─ State/
-│     └─ DungeonRunState.cs
+│  └─ RunState/
+│     ├─ DungeonRunState.cs
+│     ├─ DungeonRunStateHasher.cs
+│     ├─ DungeonRunStateValidator.cs
+│     ├─ DungeonRunStateApplier.cs
+│     ├─ DungeonRunStateStore.cs
+│     └─ RogueDungeonGeneratorRunState.cs
 ├─ Editor/
 │  ├─ DungeonStageOverrideAuthoringService.cs
 │  ├─ RogueDungeonStageOverridesWindow.cs
-│  └─ Baking/
-│     └─ DungeonStageBaker.cs
+│  ├─ Baking/
+│  │  ├─ RogueDungeonLab.Editor.Baking.asmdef
+│  │  └─ DungeonStageBaker.cs
+│  └─ Packaging/
+│     ├─ RogueDungeonLab.Editor.Packaging.asmdef
+│     └─ DungeonDistributionExporter.cs
+├─ Examples/
+│  └─ RuntimeBuild/
+├─ Samples/
+│  └─ Lab/
+│     ├─ RogueDungeonLab.Samples.asmdef
+│     ├─ RuntimeLabHUD.cs
+│     ├─ LabOrbitCamera.cs
+│     └─ PrototypePlayerController.cs
 └─ Tests/
    ├─ EditMode/
    └─ PlayMode/
@@ -625,11 +649,11 @@ Assets/RogueDungeonLab/
 | Bake 버전 | R6 v1 빈 Override/source=final 로드 유지, R7 v2 Override 참조·hash·final 검증 |
 | Bake parity | RuntimeBuild/BakedPrefab의 입구·출구·floor/Collider, stable ID, 클릭/drop, report 동등 |
 | Bake 소유권 | staging 실패 시 이전 Bake 유지, manifest 소유 산출물만 정리, 사용자·공유 자산 보존 |
-| 상태 | 파괴·처치 상태가 spawn ID로 복원됨 |
+| 상태 | canonical hash/JSON 손상, 원자 교체 실패 보존, 엄격·matching-ID·migration, 제거·participant·플레이어 pose와 RuntimeBuild/Baked parity |
 | 호환 | 기존 generator API, HUD, 카메라, 임시 플레이어, 클릭 드랍 정상 |
 | 생명주기 | Edit/Play/domain reload에서 null 예외와 Mesh 누수 없음 |
 | 경계 | Runtime assembly의 `UnityEditor` 참조 0개 |
-| 배포 | R9A RuntimeBuild 코어와 R9B Bake 묶음을 각각 빈 Unity 6000.5 프로젝트에 import하고 Player build 성공 |
+| 배포 | R9A RuntimeBuild 코어와 R9B Bake 묶음을 각각 빈 Unity 6000.5 프로젝트에 import하고 Player build 성공 — 완료 |
 
 성능은 R0에서 현재 p50/p95 생성 시간과 할당량을 먼저 기록합니다. 측정 기준 없이 임의 제한 시간을 정하지 않고, 각 단계에서 같은 맵 크기의 회귀 비율을 비교합니다.
 
@@ -663,7 +687,7 @@ Assets/RogueDungeonLab/
 
 ## 12. 완료된 구현 묶음과 다음 단계
 
-R0부터 R7까지의 절차 생성·첫 저장형 스테이지·배포용 BakedPrefab·비파괴 제작 변형 파이프라인은 구현 및 통합 검증을 완료했습니다.
+R0부터 R9까지의 절차 생성·첫 저장형 스테이지·배포용 BakedPrefab·비파괴 제작 변형·플레이 진행 재개·다른 프로젝트용 패키징 파이프라인은 구현 및 통합 검증을 완료했습니다.
 
 1. 현재 결과 지문을 만드는 EditMode 테스트
 2. `DungeonRecipeSnapshot`과 `DungeonGenerationRequest`
@@ -691,5 +715,13 @@ R0부터 R7까지의 절차 생성·첫 저장형 스테이지·배포용 BakedP
 24. Scene 선택 기반 Disable/Add/Content/Absolute Transform 제작 UI와 변경 목록
 25. exact ID·semantic unique 후보·충돌 분석과 명시 승인 재결합
 26. R6 Bake v1 호환과 Override-aware v2 manifest·Baker·Baked Loader
+27. `DungeonRunState` canonical hash·validator·strict/matching-ID 정책과 migration hook
+28. 원자적 JSON 슬롯 저장소와 RuntimeBuild/BakedPrefab 비활성 staging 적용
+29. Generator 파괴 기록·기믹/플레이어 캡처·슬롯 facade와 Play HUD
+30. 절차 seed·Saved stage ID·플레이어 pose 재개, build parity·rollback과 R8 수동 검증 장면
+31. Runtime Core와 Input System 기반 Lab Sample의 assembly·GUID 보존 분리
+32. Runtime Examples, Bake Authoring과 Baked Stage modular/standalone `.unitypackage`
+33. dependency closure, SHA-256 sidecar, render pipeline/package 탐지와 배포 차단 코드
+34. Input System 없는 Runtime 소비 프로젝트와 URP Baked 소비 프로젝트 Windows Player 빌드
 
-다음 구현 단계는 정적 제작 변형과 분리된 플레이 진행 상태를 다루는 R8 `DungeonRunState`입니다. 그 전에 남은 R7 확인은 실제 HUD/Scene 화면에서의 제작 흐름과 Play 중 script/domain reload 수동 점검이며, 자동 회귀·장면 재개방 parity·Player build 통합 게이트는 통과했습니다.
+다음 기본 구현 단계는 없습니다. R10의 빌드된 게임 내 사용자 제작 맵 저장은 제품 요구가 확정될 때만 선택적으로 착수합니다. 방 의미론·다층·NavMesh·대형 맵 최적화도 독립 backlog이며, R8에서 남은 실제 HUD 가독성과 Play 중 script/domain reload는 수동 점검 범위입니다.

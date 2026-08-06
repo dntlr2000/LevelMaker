@@ -49,7 +49,13 @@ namespace RogueDungeonLab
     public sealed partial class RuntimeLabHUD : MonoBehaviour
     {
         private const float LiveRegenerationInterval = 0.08f;
-        private static readonly string[] Tabs = { "스테이지 설정", "탐험", "드랍 통계" };
+        private static readonly string[] Tabs =
+        {
+            "스테이지 설정",
+            "탐험",
+            "런 상태",
+            "드랍 통계"
+        };
         private RogueDungeonGenerator _generator;
         private DropValidationService _service;
         private RogueDungeonSettings _boundSettings;
@@ -58,6 +64,10 @@ namespace RogueDungeonLab
         private string _seedText = string.Empty;
         private bool _liveRegenerationPending;
         private float _nextLiveRegenerationTime;
+        private string _runStateSlot = "slot-1";
+        private int _runStatePolicyIndex;
+        private string _runStateMessage = string.Empty;
+        private bool _runStateMessageIsError;
         private GUIStyle _title;
         private GUIStyle _muted;
         private GUIStyle _header;
@@ -106,6 +116,7 @@ namespace RogueDungeonLab
             _scroll = GUILayout.BeginScrollView(_scroll, false, true);
             if (_selectedTab == 0) DrawStageSettingsTab();
             else if (_selectedTab == 1) DrawExplorationTab();
+            else if (_selectedTab == 2) DrawRunStateTab();
             else DrawDropStatisticsTab();
             GUILayout.EndScrollView();
             GUILayout.EndArea();

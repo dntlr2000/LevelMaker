@@ -52,15 +52,36 @@ Override는 기준 `baseBlueprintHash`, 순서 독립 `overrideHash`와 적용 �
 
 미해결 충돌, 저장 hash 불일치와 stale 원본이 있으면 Override Preview와 출시용 Bake가 모두 차단됩니다. 예제 자산과 RuntimeBuild/Baked 비교 장면은 `Tools > Rogue Dungeon Lab > R7 수동 검증 환경 생성`으로 만들 수 있으며 자세한 확인 순서는 [R7 수동 검증 가이드](R7_MANUAL_VERIFICATION_KO.md)를 따릅니다.
 
+## R8 플레이 진행 저장과 복원
+
+R7 Override가 제작자가 만든 정적 변형이라면 R8 RunState는 한 번의 플레이에서 변한 진행만 저장합니다. Play HUD의 `런 상태` 탭에서 다음 순서로 사용합니다.
+
+1. Procedural 또는 SavedBlueprint 스테이지를 열고 적·파괴물을 제거합니다.
+2. 임시 플레이어 위치도 저장하려면 `탐험` 탭에서 플레이어를 만든 뒤 원하는 위치로 이동합니다.
+3. `런 상태` 탭에 영문·숫자·`-`·`_` 조합의 슬롯 ID를 입력합니다.
+4. `슬롯 저장`을 누르면 현재 기믹 participant 상태와 플레이어 pose까지 캡처해 JSON으로 저장합니다. `현재 상태 캡처`는 파일을 쓰지 않고 메모리 상태만 갱신합니다.
+5. 다른 seed를 만들거나 같은 저장 맵을 재구축한 뒤 `슬롯 불러오기`를 누릅니다. Procedural 저장은 저장한 run seed를 사용하고 SavedBlueprint 저장은 영구 Stage ID를 확인합니다.
+6. 더 이상 필요 없는 저장은 `슬롯 삭제`로 지웁니다.
+
+기본 `엄격 거부`는 stage ID, source mode, run seed와 final Blueprint hash가 모두 같아야 합니다. 하나라도 다르면 현재 맵을 유지한 채 실패합니다. `일치 ID만`은 stage·source·seed가 같고 final hash만 달라졌을 때 현재 Blueprint에도 존재하는 stable spawn ID와 participant만 다시 적용합니다. 자동 migration이 아니므로 출시 세이브 형식을 바꿀 때는 코드에서 `IDungeonRunStateMigrator`를 명시적으로 제공해야 합니다.
+
+제거 진행은 Enemy와 Destructible만 기록합니다. 입구·출구 Marker, Prop를 제거 상태로 넣거나 기믹 payload를 Gimmick이 아닌 spawn에 적용하면 검증 오류입니다. 프로젝트 기믹은 해당 spawn 아래의 `MonoBehaviour`에서 `IDungeonRunStateParticipant`를 구현하고 안정적인 `RunStateKey`, 문자열 캡처와 복원 메서드를 제공하면 됩니다.
+
+기본 저장 위치는 `Application.persistentDataPath/RogueDungeonLab/RunStates/<slot>.json`입니다. 다른 계정·클라우드 저장소를 쓰려면 `RogueDungeonGenerator.SetRunStateStore`로 `IDungeonRunStateStore` 구현을 주입합니다.
+
+직접 확인할 수 있는 장면과 절차는 `Tools > Rogue Dungeon Lab > R8 수동 검증 환경 생성` 및 [R8 수동 검증 가이드](R8_MANUAL_VERIFICATION_KO.md)에 있습니다.
+
+다음 자유 시점·임시 플레이어·Play HUD는 R9에서 선택 `RogueDungeonLab.Samples`로 분리되었습니다. 원본 실험실에는 계속 포함되지만 Runtime Core만 가져온 제품 프로젝트에는 포함되지 않습니다.
+
 Play 모드에서 임시 캐릭터가 없을 때 `W/S`는 카메라가 실제로 바라보는 3차원 방향을 따라 이동하므로 위·아래를 바라보면 높이도 함께 변합니다. `A/D`는 카메라 기준 좌·우로 이동합니다. `Space`는 월드 위쪽 상승, `Ctrl`은 월드 아래쪽 하강이며, `Shift`를 함께 누르면 모든 키보드 이동이 가속됩니다. 우클릭 드래그는 현재 카메라 위치를 유지한 제자리 회전이며, 상하 시야는 거의 수직인 `-89°~89°`까지 움직입니다. 휠은 줌, 중클릭 드래그는 평행 이동입니다.
 
-Play HUD는 `스테이지 설정`, `탐험`, `드랍 통계` 탭으로 구성됩니다. `스테이지 설정`은 프로젝트의 settings 또는 Procedural StageDefinition recipe를 직접 바꾸지 않고 Generator가 소유한 Play 전용 복제본을 편집합니다. 입력 시드와 프리셋뿐 아니라 스테이지 가로·세로 셀, 셀 크기, 벽 높이, 방 개수와 크기, 배치 시도, 복도 폭, 추가 연결 확률, 기믹·간격·입구 반경 및 적·파괴물·지형지물 밀도 설정을 바꿀 수 있습니다. 슬라이더나 프리셋을 변경하면 현재 활성 시드를 유지한 채 자동 재생성되며, 드래그 중 발생하는 변경은 약 0.08초 간격으로 합쳐 처리됩니다. 시드 텍스트는 타이핑 도중의 중간 숫자를 생성하지 않도록 `설정 적용 및 입력 시드로 생성` 버튼으로 확정합니다. 진행도 `AnimationCurve` 자체는 계속 에디터의 분포 탭에서 편집합니다.
+Play HUD는 `스테이지 설정`, `탐험`, `런 상태`, `드랍 통계` 탭으로 구성됩니다. `스테이지 설정`은 프로젝트의 settings 또는 Procedural StageDefinition recipe를 직접 바꾸지 않고 Generator가 소유한 Play 전용 복제본을 편집합니다. 입력 시드와 프리셋뿐 아니라 스테이지 가로·세로 셀, 셀 크기, 벽 높이, 방 개수와 크기, 배치 시도, 복도 폭, 추가 연결 확률, 기믹·간격·입구 반경 및 적·파괴물·지형지물 밀도 설정을 바꿀 수 있습니다. 슬라이더나 프리셋을 변경하면 현재 활성 시드를 유지한 채 자동 재생성되며, 드래그 중 발생하는 변경은 약 0.08초 간격으로 합쳐 처리됩니다. 시드 텍스트는 타이핑 도중의 중간 숫자를 생성하지 않도록 `설정 적용 및 입력 시드로 생성` 버튼으로 확정합니다. 진행도 `AnimationCurve` 자체는 계속 에디터의 분포 탭에서 편집합니다.
 
 Procedural StageDefinition이 별도 recipe를 사용하고 Generator settings에는 드랍·런타임 옵션이 들어 있어도, HUD의 구조 변경은 recipe 복제본에 적용되고 런타임 옵션은 함께 보존됩니다. 새 출처 로드가 실패하면 후보 복제본만 폐기하고 기존 맵과 활성 설정을 유지합니다. SavedBlueprint가 활성화되면 저장된 논리 맵을 보호하기 위해 구조와 시드 편집 탭을 비활성화하며, 탐험 탭의 재생성·새 시드는 같은 저장 Blueprint만 다시 구축합니다.
 
 HUD 패널은 현재 해상도와 가로·세로 비율을 기준으로 크기와 UI 배율을 계산합니다. 작은 화면에서는 화면 안쪽으로 폭과 높이를 제한하고, 세로 화면에서는 가용 폭을 사용하며, 탭 내용은 항상 스크롤할 수 있습니다.
 
-HUD의 `임시 플레이어 생성 (WASD)` 버튼을 누르면 파란 캡슐 캐릭터가 입구에 생성되고 카메라가 자동 추적합니다. `WASD` 이동, `Shift` 달리기, `Space` 점프, `R` 입구 복귀를 지원합니다. HUD의 `임시 플레이어 제거 / 자유 시점` 버튼을 누르면 캐릭터가 제거되고 자유 시점으로 돌아갑니다. 던전을 재생성하면 활성 캐릭터는 새 입구로 자동 이동합니다.
+HUD의 `임시 플레이어 생성 (WASD)` 버튼을 누르면 파란 캡슐 캐릭터가 입구에 생성되고 카메라가 자동 추적합니다. `WASD` 이동, `Shift` 달리기, `Space` 점프, `R` 입구 복귀를 지원합니다. HUD의 `임시 플레이어 제거 / 자유 시점` 버튼을 누르면 캐릭터가 제거되고 자유 시점으로 돌아갑니다. 일반 재생성에서는 활성 캐릭터가 새 입구로 이동하고, RunState를 불러온 재생성에서는 저장된 플레이어 pose가 있으면 그 위치와 회전을 우선 복원합니다.
 
 빨간 캡슐과 주황 큐브를 좌클릭하면 드랍 표본이 1회 추가됩니다. 빠른 표본 버튼은 물리 오브젝트를 소모하지 않습니다.
 
@@ -85,3 +106,22 @@ R6 MVP는 알려진 built-in/fallback 표현과 `DungeonContentCatalog`가 직�
 기존 R6 format/builder v1 manifest는 Override가 없고 source/final Blueprint hash가 같은 경우 계속 로드됩니다. 새 Bake는 v2를 기록하며, StageDefinition과 manifest의 Override 자산 참조, `overrideHash`와 적용 뒤 `finalBlueprintHash`가 모두 일치해야 합니다. Baked 로드는 순수 Override applier로 최종 논리 Blueprint와 report를 복원하지만 생성기·Mesh Builder·resolver를 다시 실행하지 않습니다.
 
 R6 자동 회귀는 Unity `6000.5.3f1`에서 EditMode `74/74`, PlayMode `8/8`을 통과했습니다. 분리된 임시 프로젝트에서 전용 Baked 장면을 생성한 Windows Development Player 빌드도 성공했습니다. 직접 확인하려면 `Tools > Rogue Dungeon Lab > R6 수동 검증 환경 생성`을 실행하고 `Assets/R6ManualVerification/README_KO.md`의 Play·stale·rollback 순서를 따릅니다.
+
+## R9 다른 프로젝트로 내보내기
+
+전체 기준 배포본은 다음 메뉴로 생성합니다.
+
+```text
+Tools > Rogue Dungeon Lab > R9 배포 패키지 생성
+```
+
+특정 스테이지만 내보낼 때는 실험실의 `스테이지 자산` 탭에서 `R6·R7 배포용 Bake`를 펼치고 그 안의 `R9 다른 프로젝트용 패키지`를 사용합니다. Baked Stage는 먼저 `최신성 다시 검사`가 통과해야 합니다. 출력 폴더의 `.unitypackage.json`을 열어 요구 Unity package와 render pipeline을 확인한 뒤 수신 프로젝트에 설치합니다.
+
+제품에서 절차형 또는 저장형 RuntimeBuild만 필요하면 Runtime Core만 가져옵니다. 예제는 선택이며, 실험실 HUD·카메라·임시 플레이어도 Lab Sample과 Input System을 명시적으로 추가한 프로젝트에만 들어옵니다. Core만 사용한 제품 장면에는 스테이지 빌더 HUD가 표시되지 않습니다.
+
+Baked Stage는 다음 중 하나로 설치합니다.
+
+1. 여러 Stage가 Core 하나를 공유하면 `runtime-core`를 한 번 가져온 뒤 각 modular `stage-<id>`를 가져옵니다.
+2. 독립 전달물이 필요하면 `stage-<id>-standalone` 하나를 가져옵니다.
+
+가져온 뒤 `DungeonStageDefinition`을 제품 장면의 `RogueDungeonGenerator`에 연결합니다. 제품 캐릭터의 위치를 RunState에 포함하려면 Sample 플레이어 대신 `IDungeonRunStatePlayer`를 구현해 Generator에 등록합니다. 자세한 파일명, 제작 도구 조합, sidecar hash와 자동 smoke 절차는 [R9 패키지 가이드](R9_PACKAGE_GUIDE_KO.md)를 참고합니다.

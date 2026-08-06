@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-#endif
 
 namespace RogueDungeonLab
 {
@@ -85,7 +82,7 @@ namespace RogueDungeonLab
         // 대상을 한 번만 파괴하고 드랍 추첨과 마커 생성을 처리합니다.
         public bool TryDestroy(Vector3 hitPoint)
         {
-            if(_destroyed)return false;SetHovered(false);_destroyed=true;WeightedDropTable table=dropTable!=null?dropTable:(sourceKind==DropSourceKind.Enemy?RuntimeDropTables.Enemy:RuntimeDropTables.Destructible);DropValidationService service=DropValidationService.Active;if(service==null)service=FindAnyObjectByType<DropValidationService>();DropRoll roll=service!=null?service.RollAndRecord(sourceKind,table):table.Roll(new System.Random(unchecked(Environment.TickCount^GetEntityId().GetHashCode())));if(spawnMarker&&!roll.IsNoDrop)DropMarkerBehaviour.Spawn(roll,hitPoint+Vector3.up*0.35f);DungeonSpawnIdentity identity=GetComponentInParent<DungeonSpawnIdentity>();Destroy(identity!=null?identity.gameObject:gameObject);return true;
+            if(_destroyed)return false;SetHovered(false);_destroyed=true;WeightedDropTable table=dropTable!=null?dropTable:(sourceKind==DropSourceKind.Enemy?RuntimeDropTables.Enemy:RuntimeDropTables.Destructible);DropValidationService service=DropValidationService.Active;if(service==null)service=FindAnyObjectByType<DropValidationService>();DropRoll roll=service!=null?service.RollAndRecord(sourceKind,table):table.Roll(new System.Random(unchecked(Environment.TickCount^GetEntityId().GetHashCode())));if(spawnMarker&&!roll.IsNoDrop)DropMarkerBehaviour.Spawn(roll,hitPoint+Vector3.up*0.35f);DungeonSpawnIdentity identity=GetComponentInParent<DungeonSpawnIdentity>();RogueDungeonGenerator generator=identity!=null?identity.GetComponentInParent<RogueDungeonGenerator>():null;if(generator!=null)generator.RecordSpawnRemoved(identity);Destroy(identity!=null?identity.gameObject:gameObject);return true;
         }
     }
 
@@ -99,24 +96,5 @@ namespace RogueDungeonLab
             DropMarkerBehaviour b=marker.AddComponent<DropMarkerBehaviour>();b._base=position;b._spawn=Time.time;b._label=label.transform;
         }
         private void Update(){float age=Time.time-_spawn;transform.position=_base+Vector3.up*(Mathf.Sin(age*4f)*0.1f+age*0.08f);transform.Rotate(Vector3.up,70f*Time.deltaTime,Space.World);Camera cam=Camera.main;if(_label!=null&&cam!=null){_label.LookAt(cam.transform);_label.Rotate(0,180,0);}if(age>=4.5f)Destroy(gameObject);}
-    }
-
-    [DisallowMultipleComponent]
-    public sealed partial class RogueDungeonClickInteractor : MonoBehaviour
-    {
-        public Camera targetCamera;public LayerMask interactionMask=~0;[Min(1f)]public float maximumDistance=500f;private DestructibleDropTarget _hovered;
-        private void Update()
-        {
-            Camera cam=targetCamera!=null?targetCamera:Camera.main;if(cam==null){SetHovered(null);return;}Vector2 pos;bool pressed;if(!ReadPointer(out pos,out pressed)||RuntimeLabHUD.IsPointerInside(pos)){SetHovered(null);return;}RaycastHit hit;if(!Physics.Raycast(cam.ScreenPointToRay(pos),out hit,maximumDistance,interactionMask,QueryTriggerInteraction.Ignore)){SetHovered(null);return;}DestructibleDropTarget target=hit.collider.GetComponentInParent<DestructibleDropTarget>();SetHovered(target);if(pressed&&target!=null){target.TryDestroy(hit.point);SetHovered(null);}
-        }
-        private void OnDisable(){SetHovered(null);}private void SetHovered(DestructibleDropTarget target){if(_hovered==target)return;if(_hovered!=null)_hovered.SetHovered(false);_hovered=target;if(_hovered!=null)_hovered.SetHovered(true);}
-        private static bool ReadPointer(out Vector2 position,out bool pressed)
-        {
-#if ENABLE_INPUT_SYSTEM
-            if(Mouse.current==null){position=Vector2.zero;pressed=false;return false;}position=Mouse.current.position.ReadValue();pressed=Mouse.current.leftButton.wasPressedThisFrame;return true;
-#else
-            position=Input.mousePosition;pressed=Input.GetMouseButtonDown(0);return true;
-#endif
-        }
     }
 }

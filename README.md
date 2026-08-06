@@ -7,8 +7,10 @@
 - [절차 생성·저장형 스테이지 통합 로드맵](docs/STAGE_PIPELINE_ROADMAP_KO.md)
 - [제품화 확장 가이드](docs/EXTENSION_GUIDE_KO.md)
 - [테스트 계획](docs/TEST_PLAN_KO.md)
+- [R8 런 상태 수동 검증](docs/R8_MANUAL_VERIFICATION_KO.md)
+- [R9 다른 프로젝트용 패키지 가이드](docs/R9_PACKAGE_GUIDE_KO.md)
 
-현재 통합 로드맵의 R0부터 R7까지 구현과 통합 검증을 완료했습니다. 기존 생성 결과와 저장 당시 레시피는 `DungeonBlueprintAsset`으로 보존하며, 별도 `DungeonStageOverrides` 자산으로 Spawn 비활성화·추가·콘텐츠 교체·절대 Transform을 기록할 수 있습니다. `DungeonStageDefinition` 하나로 절차 생성, 저장 Blueprint RuntimeBuild 또는 검수 완료 BakedPrefab 로드를 선택하며, R7 Override는 SavedBlueprint에만 적용됩니다. `DungeonContentCatalog` 또는 프로젝트별 resolver로 RuntimeBuild 콘텐츠를 연결하고, Bake는 알려진 built-in/fallback과 Catalog 직접 Prefab을 영속 자산으로 확정합니다.
+현재 통합 로드맵의 R0부터 R9까지 구현했습니다. 기존 생성 결과와 저장 당시 레시피는 `DungeonBlueprintAsset`으로 보존하며, 별도 `DungeonStageOverrides` 자산으로 Spawn 비활성화·추가·콘텐츠 교체·절대 Transform을 기록할 수 있습니다. `DungeonStageDefinition` 하나로 절차 생성, 저장 Blueprint RuntimeBuild 또는 검수 완료 BakedPrefab 로드를 선택하며, R7 Override는 SavedBlueprint에만 적용됩니다. R8 `DungeonRunState`는 이 정적 제작 데이터와 분리해 플레이 중 제거된 대상, 기믹 payload와 플레이어 pose를 stage ID·run seed·final Blueprint hash에 결박해 저장합니다. R9는 이 기능을 HUD 없는 Runtime Core, 선택 Lab Sample, Bake 제작 도구와 스테이지별 Baked 묶음으로 나눠 다른 Unity 프로젝트에 가져갈 수 있게 합니다.
 
 ## Stage Definition과 콘텐츠 카탈로그 (R3·R4)
 
@@ -105,6 +107,30 @@ R6·R7 Baker는 known built-in/fallback과 Content Catalog의 직접 Prefab만 B
 
 기존 R6 Bake manifest와 metadata의 format/builder v1은 Override가 없고 source/final Blueprint hash가 같은 계약으로 계속 로드됩니다. 새 Baker는 format/builder v2를 기록합니다. v2에 Override가 없으면 빈 `overrideHash`와 source=final을 유지하고, Override가 있으면 선택 자산 참조와 `overrideHash`, 적용 뒤 `finalBlueprintHash`가 모두 일치해야 최신입니다. BakedPrefab Loader도 순수 Override applier로 최종 논리 Blueprint를 복원하지만 생성기·Mesh Builder·resolver는 다시 실행하지 않습니다.
 
+## 플레이 진행 저장과 복원 (R8)
+
+Play HUD의 `런 상태` 탭은 현재 진행을 캡처해 슬롯에 저장하고, 원래 스테이지를 다시 구축한 뒤 상태를 적용합니다.
+
+- `DungeonRunState`는 stage ID, source mode, run seed, final Blueprint hash, 제거된 Enemy·Destructible stable ID, 기믹 participant payload와 선택적 플레이어 stage-local pose를 기록합니다.
+- 기본 `엄격 거부` 정책은 stage, source, seed 또는 final hash가 다르면 후보 root를 폐기하고 기존 정상 맵을 유지합니다.
+- 명시적 `일치 ID만` 정책은 stage·source·seed가 같고 final hash만 달라졌을 때 현재 Blueprint에 존재하는 stable ID만 재결합합니다.
+- 제품별 형식 또는 콘텐츠 migration은 `IDungeonRunStateMigrator`를 전달한 경우에만 실행되며, 변환 결과도 현재 target과 canonical state hash를 다시 검증합니다.
+- 기본 `JsonFileDungeonRunStateStore`는 `Application.persistentDataPath/RogueDungeonLab/RunStates`에 임시 파일을 flush한 뒤 교체합니다. `IDungeonRunStateStore`로 게임의 클라우드·계정 저장 계층을 주입할 수 있습니다.
+- RuntimeBuild와 BakedPrefab 모두 비활성 staging root에 상태를 적용한 뒤 성공한 경우에만 `__RogueDungeonLab_Generated`를 교체합니다.
+
+새 `DungeonStageDefinition`에는 영구 `stageId`가 자동 부여됩니다. 기존 Definition은 명시 ID가 없을 때 절차 provenance 또는 저장 Blueprint source hash에서 호환 ID를 계산하지만, 출시 세이브를 만들 자산에는 Inspector의 영구 ID를 유지하는 편이 안전합니다.
+
+## 다른 프로젝트로 패키징 (R9)
+
+`Tools > Rogue Dungeon Lab > R9 배포 패키지 생성`은 `Distribution/RogueDungeonLab/R9`에 일곱 개 설치 단위와 JSON sidecar를 만듭니다. 개별 스테이지는 실험실의 `스테이지 자산 > R9 다른 프로젝트용 패키지`에서도 내보낼 수 있습니다.
+
+- 제품의 절차형·저장형 RuntimeBuild: `runtime-core`를 먼저 가져오고 필요할 때만 `runtime-examples`를 추가합니다.
+- 실험용 HUD·자유 카메라·클릭 입력·임시 플레이어: Core 뒤 `com.unity.inputsystem`과 `lab-sample`을 선택 설치합니다.
+- Baked 스테이지: Core + modular stage 또는 `stage-...-standalone` 하나를 사용합니다. sidecar의 render pipeline과 `requiredPackages`를 먼저 맞춥니다.
+- 다른 프로젝트에서 Bake까지 제작: Core + modular `bake-authoring`, 또는 `bake-authoring-standalone`을 사용합니다.
+
+Runtime Core에는 `RuntimeLabHUD`, `LabOrbitCamera`, `PrototypePlayerController`, 입력용 클릭 interactor와 Input System 참조가 없습니다. 따라서 제품 장면에 Lab Sample 컴포넌트를 별도로 넣지 않는 한 스테이지 빌더 HUD는 표시되지 않습니다. 설치 조합, sidecar 검증과 자동 smoke 명령은 [R9 패키지 가이드](docs/R9_PACKAGE_GUIDE_KO.md)를 참고합니다.
+
 ## 검증 상태
 
 R5.2는 Play HUD가 settings 또는 Procedural StageDefinition recipe 원본 대신 Generator 소유 `HideAndDontSave` 복제본을 편집하도록 바꿨습니다. 새 출처는 Loader 성공 뒤에만 활성 복제본으로 승격되므로 실패한 전환은 기존 맵과 설정을 보존합니다. SavedBlueprint에서는 구조·시드 편집을 차단하고 같은 저장본 재구축만 허용합니다.
@@ -116,6 +142,10 @@ R6 통합 결과는 Unity `6000.5.3f1` batchmode compile 성공, EditMode `74/74
 원본 작업 트리와 분리한 임시 프로젝트에서 `R6ManualVerificationSetup`으로 전용 SavedBlueprint·MaterialSet·Baked Prefab·manifest·Scene을 생성하고, 그 Baked 장면 하나로 Windows Development Player 빌드도 성공했습니다. 총 빌드 크기는 `172,288,233 B`였으며 로그는 `Logs/R6PlayerBuildSmoke.log`, 실패 주입 rollback 로그는 `Logs/R6RollbackVerification.log`입니다. 실제 화면에서의 HUD 배치와 Unity Play 중 script/domain reload는 계속 수동 확인 범위입니다.
 
 R7 통합 결과는 Unity `6000.5.3f1`에서 전체 EditMode `83/83`, PlayMode `9/9` 통과입니다. `R7ManualVerificationSetup`으로 전용 Override·RuntimeBuild/BakedPrefab Definition·v2 Bake·검증 Scene을 생성한 뒤 장면을 다시 열어 두 경로의 `finalBlueprintHash`와 stable spawn identity가 일치하는 것도 확인했습니다. Windows64 Development Player 빌드는 경고 `0`개, 총 크기 `172,176,046 B`로 성공했습니다. 근거는 `Logs/R7ManualSetup.log`, `Logs/R7FullEditMode.xml`, `Logs/R7FullPlayMode.xml`, `Logs/R7PlayerBuildSmoke.log`입니다. 실제 HUD/Scene 화면의 배치·선택 편집 감각과 Play 중 script/domain reload는 수동 확인 범위로 남습니다.
+
+R8 통합 결과는 Unity `6000.5.3f1`에서 전체 EditMode `89/89`, PlayMode `11/11` 통과입니다. canonical 상태 hash·JSON/원자 교체·불일치 정책·migration·participant·RuntimeBuild/BakedPrefab parity와 실패 rollback, 실제 Play의 절차 seed·Saved stage ID·클릭 파괴·플레이어 pose 재개를 포함합니다. `R8ManualVerificationSetup.CreateAllFromBatch`로 전용 자산과 장면을 생성·재개방했고, Windows64 Development Player 빌드는 경고 `0`개, 총 크기 `171,479,278 B`로 성공했습니다. 근거는 `Logs/R8ManualSetup.log`, `Logs/R8FullEditMode.xml`, `Logs/R8FullPlayMode.xml`, `Logs/R8PlayerBuildSmoke.log`입니다.
+
+R9 통합 결과는 Unity `6000.5.3f1`에서 전체 EditMode `95/95`, PlayMode `11/11` 통과입니다. Runtime Core(+Runtime Examples)는 Input System과 Lab Sample 없이 새 소비 프로젝트에서 Procedural·SavedBlueprint RuntimeBuild를 로드하고 Windows64 Development Player를 오류·경고 `0`개로 빌드했습니다. Bake 제작 도구와 modular Baked Stage를 가져온 별도 소비 프로젝트도 URP `17.5.0`, manifest/final hash·stable identity·비 transient Mesh 계약을 검증하고 Player 빌드에 성공했습니다. 근거는 `Logs/R9FullEditModeFinal.xml`, `Logs/R9FullPlayModeFinal.xml`, `Logs/R9ConsumerVerification/*_20260807_001715.log`와 `VERIFICATION_SUMMARY_20260807_001715.json`입니다.
 
 ### R4 수동 검증 장면
 
@@ -129,7 +159,13 @@ R7 통합 결과는 Unity `6000.5.3f1`에서 전체 EditMode `83/83`, PlayMode `
 
 `Tools > Rogue Dungeon Lab > R7 수동 검증 환경 생성`은 전용 Stage Override, RuntimeBuild/BakedPrefab Definition, v2 Bake와 비교 장면을 반복 생성합니다. 원본/Override 미리보기, Scene stable ID 선택 편집, 두 구축 모드 전환과 클릭/drop 확인 절차는 [R7 수동 검증 안내](docs/R7_MANUAL_VERIFICATION_KO.md)를 참고합니다.
 
+### R8 수동 검증 환경
+
+`Tools > Rogue Dungeon Lab > R8 수동 검증 환경 생성`은 영구 ID가 다른 Procedural·SavedBlueprint Definition과 슬롯 재개 장면을 반복 생성합니다. seed·제거 대상·플레이어 pose, 엄격 불일치와 저장형 stage ID 확인 절차는 [R8 수동 검증 안내](docs/R8_MANUAL_VERIFICATION_KO.md)를 참고합니다.
+
 ## Play 모드 조작
+
+다음 조작과 HUD는 원본 실험실 또는 선택 `Lab Sample`에 속하며 Runtime Core 제품 장면에는 자동 포함되지 않습니다.
 
 - 자유 시점: 카메라의 실제 3차원 시선 기준 `WASD` 이동, `Space` 월드 상승, `Ctrl` 월드 하강, `Shift` 가속, 우클릭 드래그 제자리 회전, 마우스 휠 줌, 중클릭 드래그 이동. 상하 회전 범위는 거의 수직인 `-89°~89°`입니다.
 - 임시 캐릭터: HUD의 `임시 플레이어 생성 (WASD)` 버튼으로 입구에 생성
@@ -142,5 +178,6 @@ R7 통합 결과는 Unity `6000.5.3f1`에서 전체 EditMode `83/83`, PlayMode `
 - `스테이지 설정`: Play 전용 복제 설정에서 시드, 스테이지 크기, 셀·벽 크기, 방·복도, 기믹·간격과 콘텐츠별 밀도·방 선호도·군집도·최대 개수를 조절합니다. 원본 settings와 StageDefinition recipe는 바뀌지 않으며, 슬라이더와 프리셋은 활성 시드를 유지한 채 자동 재생성됩니다. SavedBlueprint 모드에서는 저장 논리 맵 보호를 위해 이 편집을 차단합니다.
 - 숫자를 입력하는 시드 필드는 타이핑 중간값으로 생성하지 않으며 `설정 적용 및 입력 시드로 생성` 버튼으로 확정합니다.
 - `탐험`: 현재/새 시드 재생성, 임시 플레이어 생성·제거와 최근 생성 결과 확인
+- `런 상태`: 슬롯 ID, 엄격/일치-ID 정책, 현재 상태 캡처·저장·불러오기·삭제와 최근 적용 결과 확인
 - `드랍 통계`: 적·파괴물 빠른 표본, 통계 초기화와 관측 결과 확인
 - 패널은 해상도에 따라 `0.75~1.5배`로 조절되고, 가로 화면에서는 제한된 폭, 세로 화면에서는 가용 폭을 사용합니다. 모든 탭 내용은 세로 스크롤을 지원합니다.

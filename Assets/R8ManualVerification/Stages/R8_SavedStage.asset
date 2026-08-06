@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1c183bfd677a534b811fb9abf0e1d7b, type: 3}
+  m_Name: R8_SavedStage
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.DungeonStageDefinition
+  stageId: r8-manual-saved-v1
+  sourceMode: 1
+  buildMode: 0
+  recipe: {fileID: 0}
+  savedBlueprint: {fileID: 11400000, guid: 9b1fc6adc5640cc48afbac80da80cda1, type: 2}
+  stageOverrides: {fileID: 0}
+  seedPolicy: 2
+  fixedSeed: 82468
+  generatorVersion: 2
+  contentCatalog: {fileID: 0}
+  missingContentPolicy: 0
+  bakedPrefab: {fileID: 0}
+  bakeManifest: {fileID: 0}
+  loadOnPlay: 1

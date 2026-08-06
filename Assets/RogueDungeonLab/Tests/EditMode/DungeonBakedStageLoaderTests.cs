@@ -187,6 +187,180 @@ namespace RogueDungeonLab.Tests
             }
         }
 
+        // 같은 SavedBlueprint RunState가 RuntimeBuild와 BakedPrefab에서 동일한 stable spawn을 제거하는지 검사합니다.
+        [Test]
+        public void Load_RunStateAppliesWithRuntimeAndBakedParity()
+        {
+            BakedFixture fixture = new BakedFixture();
+            GameObject runtimeParent =
+                new GameObject("R8 Runtime Parity Parent");
+            GameObject bakedParent =
+                new GameObject("R8 Baked Parity Parent");
+            DungeonStageDefinition runtimeDefinition =
+                ScriptableObject.CreateInstance<
+                    DungeonStageDefinition>();
+            try
+            {
+                fixture.Definition.stageId =
+                    "r8-baked-parity-stage";
+                runtimeDefinition.stageId =
+                    fixture.Definition.stageId;
+                runtimeDefinition.sourceMode =
+                    DungeonStageSourceMode.SavedBlueprint;
+                runtimeDefinition.buildMode =
+                    DungeonStageBuildMode.RuntimeBuild;
+                runtimeDefinition.savedBlueprint =
+                    fixture.BlueprintAsset;
+                DungeonSpawnRecord removed =
+                    FindFirstRemovableSpawn(
+                        fixture.BlueprintAsset.blueprint);
+                Assert.That(removed, Is.Not.Null);
+
+                DungeonRunState state =
+                    new DungeonRunState
+                    {
+                        stageId =
+                            fixture.Definition.stageId,
+                        sourceMode =
+                            DungeonStageSourceMode
+                                .SavedBlueprint,
+                        runSeed =
+                            fixture.BlueprintAsset
+                                .blueprint.seed,
+                        finalBlueprintHash =
+                            fixture.BlueprintAsset
+                                .blueprint.blueprintHash
+                    };
+                state.removedSpawnIds.Add(
+                    removed.spawnId);
+                state.RefreshHash();
+
+                DungeonStageInstance runtime =
+                    DungeonStageLoader.Load(
+                        new DungeonLoadContext(
+                            runtimeDefinition,
+                            runtimeParent.transform)
+                        {
+                            RunState = state
+                        });
+                DungeonStageInstance baked =
+                    DungeonStageLoader.Load(
+                        new DungeonLoadContext(
+                            fixture.Definition,
+                            bakedParent.transform)
+                        {
+                            RunState = state
+                        });
+
+                Assert.That(
+                    runtime.RunStateApplyResult.WasApplied,
+                    Is.True);
+                Assert.That(
+                    baked.RunStateApplyResult.WasApplied,
+                    Is.True);
+                Assert.That(
+                    runtime.RunStateApplyResult
+                        .RemovedSpawnCount,
+                    Is.EqualTo(1));
+                Assert.That(
+                    baked.RunStateApplyResult
+                        .RemovedSpawnCount,
+                    Is.EqualTo(1));
+                Assert.That(
+                    FindSpawn(
+                        runtime.Root,
+                        removed.spawnId),
+                    Is.Null);
+                Assert.That(
+                    FindSpawn(
+                        baked.Root,
+                        removed.spawnId),
+                    Is.Null);
+
+                GameObject preservedBakedRoot = baked.Root;
+                DungeonRunState incompatible =
+                    state.DeepClone();
+                incompatible.finalBlueprintHash =
+                    "foreign-final-hash";
+                incompatible.RefreshHash();
+                Assert.Throws<DungeonStageLoadException>(
+                    delegate
+                    {
+                        DungeonStageLoader.Load(
+                            new DungeonLoadContext(
+                                fixture.Definition,
+                                bakedParent.transform)
+                            {
+                                RunState = incompatible
+                            });
+                    });
+                Assert.That(
+                    bakedParent.transform.Find(
+                        DungeonStageLoader
+                            .GeneratedRootName)
+                        .gameObject,
+                    Is.SameAs(preservedBakedRoot));
+            }
+            finally
+            {
+                DungeonStageLoader.ClearGenerated(
+                    runtimeParent.transform);
+                DungeonStageLoader.ClearGenerated(
+                    bakedParent.transform);
+                UnityEngine.Object.DestroyImmediate(
+                    runtimeDefinition);
+                UnityEngine.Object.DestroyImmediate(
+                    runtimeParent);
+                UnityEngine.Object.DestroyImmediate(
+                    bakedParent);
+                fixture.Dispose();
+            }
+        }
+
+        // Blueprint에서 RunState가 제거할 수 있는 첫 Enemy 또는 Destructible 레코드를 찾습니다.
+        private static DungeonSpawnRecord
+            FindFirstRemovableSpawn(
+                DungeonBlueprint blueprint)
+        {
+            for (int i = 0;
+                 i < blueprint.spawns.Count;
+                 i++)
+            {
+                DungeonSpawnRecord spawn =
+                    blueprint.spawns[i];
+                if (spawn != null &&
+                    (spawn.category ==
+                         DungeonSpawnCategory.Enemy ||
+                     spawn.category ==
+                         DungeonSpawnCategory.Destructible))
+                {
+                    return spawn;
+                }
+            }
+            return null;
+        }
+
+        // generated root에서 지정 stable spawn ID의 identity를 찾습니다.
+        private static DungeonSpawnIdentity FindSpawn(
+            GameObject root,
+            string spawnId)
+        {
+            DungeonSpawnIdentity[] identities =
+                root.GetComponentsInChildren<
+                    DungeonSpawnIdentity>(true);
+            for (int i = 0;
+                 i < identities.Length;
+                 i++)
+            {
+                if (identities[i] != null &&
+                    identities[i].SpawnId == spawnId)
+                {
+                    return identities[i];
+                }
+            }
+            return null;
+        }
+
         private sealed class ThrowingResolver : IDungeonContentResolver
         {
             public int CallCount { get; private set; }
@@ -264,6 +438,9 @@ namespace RogueDungeonLab.Tests
                 new GameObject("Baked Sentinel").transform.SetParent(
                     Template.transform,
                     false);
+                AddSpawnIdentities(
+                    Template.transform,
+                    BlueprintAsset.blueprint);
                 DungeonBakedStageMetadata metadata =
                     Template.AddComponent<DungeonBakedStageMetadata>();
                 metadata.Configure(
@@ -300,6 +477,28 @@ namespace RogueDungeonLab.Tests
                 Definition.savedBlueprint = BlueprintAsset;
                 Definition.bakedPrefab = Template;
                 Definition.bakeManifest = Manifest;
+            }
+
+            // 실제 Bake와 같은 stable identity 집합을 in-memory Prefab template에 추가합니다.
+            private static void AddSpawnIdentities(
+                Transform parent,
+                DungeonBlueprint blueprint)
+            {
+                for (int i = 0;
+                     i < blueprint.spawns.Count;
+                     i++)
+                {
+                    DungeonSpawnRecord record =
+                        blueprint.spawns[i];
+                    if (record == null) continue;
+                    GameObject child =
+                        new GameObject(record.spawnId);
+                    child.transform.SetParent(parent, false);
+                    DungeonSpawnIdentity identity =
+                        child.AddComponent<
+                            DungeonSpawnIdentity>();
+                    identity.Configure(record);
+                }
             }
 
             // Fixture가 만든 UnityEngine.Object를 의존 역순으로 정리합니다.

@@ -1,7 +1,12 @@
 {
   "name": "RogueDungeonLab.Editor",
   "rootNamespace": "RogueDungeonLab.Editor",
-  "references": ["RogueDungeonLab.Runtime"],
+  "references": [
+    "RogueDungeonLab.Runtime",
+    "RogueDungeonLab.Samples",
+    "RogueDungeonLab.Editor.Baking",
+    "RogueDungeonLab.Editor.Packaging"
+  ],
   "includePlatforms": ["Editor"],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

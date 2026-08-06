@@ -1,8 +1,8 @@
 # 테스트 계획
 
-## R0·R1·R2·R3·R4·R5·R5.1·R5.2·R6·R7 승인 기준
+## R0·R1·R2·R3·R4·R5·R5.1·R5.2·R6·R7·R8·R9 승인 기준
 
-Unity `6000.5.3f1`에서 compile 성공 후 전체 EditMode 83개와 PlayMode 9개를 자동 실행했습니다.
+R9 변경 뒤 Unity `6000.5.3f1` compile, 전체 EditMode `95/95`와 PlayMode `11/11`을 통과했습니다. R8 승인 기준이던 EditMode 89개와 PlayMode 11개도 같은 전체 실행에 포함됩니다.
 
 - Compact `12345`, Balanced `-987654321`, Chaos `20260719`의 방·floor·BFS·콘텐츠 셀 SHA-256 Golden 지문
 - 같은 프리셋·시드 반복 생성 지문 일치
@@ -75,6 +75,13 @@ Unity `6000.5.3f1`에서 compile 성공 후 전체 EditMode 83개와 PlayMode 9�
 - R7 v2 manifest의 source/override/final hash, RuntimeBuild/BakedPrefab identity·Transform·report parity
 - Override stale 검출과 실패 주입 재Bake 뒤 기존 Prefab·manifest·Override 입력 자산 보존
 - R7 v2 BakedPrefab의 실제 Physics Raycast·클릭 파괴와 드랍 통계 정확히 1회 누적
+- Runtime Core 계획이 Sample/Input System 경로 없이 Runtime assembly와 문서만 포함
+- Lab Sample 계획이 Core와 분리되고 설치된 `com.unity.inputsystem` 버전을 sidecar 요구 사항으로 선언
+- Runtime Examples 계획이 HUD 없는 Procedural·SavedBlueprint 장면·Definition·입력 자산만 포함
+- Bake Authoring modular/standalone의 Runtime Core 포함 경계와 Editor-only assembly 참조
+- Baked Stage dependency closure가 manifest 소유 Mesh·Prefab, Blueprint·Override·settings·material set을 포함하고 Sample/Editor/Test 경로를 제외
+- Baked Stage modular/standalone Core 경계, stage/source/final/override hash, URP `17.5.0`과 `Universal` pipeline metadata
+- 실제 Runtime Core `.unitypackage`와 JSON sidecar 생성, 파일 SHA-256·자산 목록 일치
 
 R5.2 실행 결과는 compile 성공, EditMode `58/58`, PlayMode `7/7` 통과입니다. Balanced seed `73125`, warmup 3회 뒤 15회 RuntimeBuild의 이 환경 기준 시간은 p50 `7.390 ms`, p95 `7.744 ms`였습니다. Unity Mono가 `GC.GetAllocatedBytesForCurrentThread()`를 지원하지 않아 thread allocation은 p50/p95 모두 `0 B`와 `supported=False`로 기록했고, 대체 관측치인 `Profiler.GetMonoUsedSizeLong()` 증분은 p50 `2,252,800 B`, p95 `2,269,184 B`였습니다. 이 값은 절대 성능 제한이 아니라 같은 환경·설정에서 이후 R6 전후 회귀를 비교할 기준선입니다.
 
@@ -147,3 +154,31 @@ EditMode는 기존 생성·Blueprint·Loader·Catalog·자산 제작 회귀와 �
 - 미해결 재결합, stale base hash와 잘못된 Override hash가 Preview와 Bake를 모두 차단
 - R7 v2 최신 Bake 뒤 Override 변경이 source가 아닌 override/final stale 코드로 표시되고 재Bake로 해소
 - R7 수동 검증 장면에서 RuntimeBuild와 Baked Generator를 각각 활성화해 같은 최종 Spawn과 클릭/drop 동작 확인
+- RunState 제거·기믹 목록 순서와 저장 시각에 독립적인 canonical hash, JSON round-trip과 본문 변조 탐지
+- 슬롯 ID 경로 제한, 메모리 저장소와 JSON 저장소 round-trip, 임시 파일 교체 실패 때 이전 정상 슬롯 보존
+- 손상 JSON·state hash, 중복 제거 ID·participant key, 잘못된 pose와 Marker/Prop 제거 요청의 코드 기반 차단
+- stage ID·source·run seed·final Blueprint hash 엄격 정책과 final hash matching-ID 재결합
+- 명시적 migrator만 이전 format·target을 변환하고 변환 결과를 현재 target과 canonical hash로 재검증
+- 비활성 후보 root의 Enemy·Destructible 제거와 Gimmick participant payload 복원
+- RunState 검증·participant 실패 시 기존 generated root와 StageInstance 보존
+- 같은 SavedBlueprint RunState의 RuntimeBuild/BakedPrefab 제거 결과 parity
+- 클릭 파괴가 현재 Generator RunState에 stable ID를 1회 기록
+- Procedural 슬롯이 저장한 run seed와 제거 대상·stage-local 플레이어 pose를 PlayMode에서 재개
+- SavedBlueprint 슬롯이 영구 Stage ID를 확인하고 다른 ID를 기존 root 보존 상태로 거부
+- 새 StageDefinition 자산의 영구 stage ID가 SerializedObject 생성·재임포트 뒤 유지
+
+R8 전용 환경은 `R8ManualVerificationSetup.CreateAllFromBatch`로 생성하고 장면 재개방 뒤 두 Definition 참조와 stage ID를 확인합니다. 실제 HUD 가독성, Generator 토글과 Play 중 script/domain reload는 [R8 수동 검증 절차](R8_MANUAL_VERIFICATION_KO.md)를 따릅니다.
+
+Windows64 Development Player는 `R8PlayerBuildSmoke.BuildFromBatch`가 R8 전용 장면 하나를 대상으로 경고 `0`, 오류 `0`, 총 `171,479,278 B`로 성공했습니다. 로그와 NUnit 결과는 `Logs/R8PlayerBuildSmoke.log`, `Logs/R8FullEditMode.xml`, `Logs/R8FullPlayMode.xml`에 기록했습니다.
+
+## R9 패키지·소비 프로젝트 검증
+
+`R9PackageVerificationSetup.ExportAllFromBatch`는 `Distribution/RogueDungeonLab/R9`에 일곱 package와 각각의 JSON sidecar, `PACKAGE_INDEX_KO.md`를 생성했습니다. 배포 계획 전용 EditMode는 `Logs/R9DistributionEditModeFinal.xml`에서 `6/6` 통과했습니다.
+
+`tools/verify-r9-packages.ps1`의 첫 깨끗한 프로젝트는 Unity 기본 Physics·UI·JSON 모듈만 가진 manifest에서 Runtime Core와 Runtime Examples를 가져왔습니다. `RogueDungeonLab.Samples`가 로드되지 않은 상태로 예제 및 새 Procedural·SavedBlueprint Definition을 실제 로드했고, HUD 없는 Windows64 Development Player를 오류 `0`, 경고 `0`으로 빌드했습니다. 결과는 `Logs/R9ConsumerVerification/RuntimeImport_20260807_001715.log`, `RuntimeExamplesImport_20260807_001715.log`, `RuntimeBuild_20260807_001715.log`입니다.
+
+두 번째 깨끗한 프로젝트는 Stage sidecar가 선언한 URP `17.5.0`을 manifest에 넣고 standalone Bake Authoring과 modular Baked Stage를 가져왔습니다. Runtime manifest와 Editor 전체 fingerprint, final Blueprint hash, stable spawn identity, Baked root에 transient `DungeonGeneratedMeshOwner`가 없는 계약을 검사했습니다. 최소 URP Renderer/Pipeline asset을 Graphics·Quality에 연결한 Windows64 Development Player가 오류 `0`, 경고 `0`으로 성공했으며 근거는 `BakedAuthoringImport_20260807_001715.log`, `BakedStageImport_20260807_001715.log`, `BakedBuild_20260807_001715.log`와 `VERIFICATION_SUMMARY_20260807_001715.json`입니다.
+
+최종 빌드 폴더 크기는 Runtime `152,943,647 B`(238 files), Baked `162,951,039 B`(279 files)입니다. 이 수치는 기능 제한이 아니라 동일 Unity·플랫폼에서 산출물이 실제 생성됐다는 인계 기록입니다.
+
+최종 원본 프로젝트 회귀는 `Logs/R9FullEditModeFinal.xml`의 EditMode `95/95`, `Logs/R9FullPlayModeFinal.xml`의 PlayMode `11/11`입니다. 실제 다른 제품 프로젝트의 커스텀 render feature·Addressables/DI adapter, Lab Sample HUD의 다양한 해상도 육안과 Play 중 script/domain reload는 제품별 수동 확인 범위입니다.

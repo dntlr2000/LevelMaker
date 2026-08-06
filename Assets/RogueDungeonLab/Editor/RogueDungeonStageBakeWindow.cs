@@ -10,6 +10,9 @@ namespace RogueDungeonLab.Editor
         [SerializeField] private DungeonStageDefinition _bakeStageDefinition;
         [SerializeField] private DungeonBakeMaterialSet _bakeMaterialSet;
         [SerializeField] private bool _stageBakeFoldout = true;
+        [SerializeField] private bool _stageDistributionFoldout = true;
+        [SerializeField] private string _stageDistributionFolder =
+            "Distribution/RogueDungeonLab/R9";
         [NonSerialized] private DungeonStageDefinition _bakeValidatedDefinition;
         [NonSerialized] private DungeonValidationReport _bakeValidation;
         [NonSerialized] private string _bakeValidationFailure = string.Empty;
@@ -114,7 +117,142 @@ namespace RogueDungeonLab.Editor
                 definition == null
                     ? "검증할 StageDefinition을 선택하세요."
                     : "최신성 다시 검사를 실행하세요.");
+            DrawStageDistributionSection(definition);
             EditorGUILayout.EndVertical();
+        }
+
+        // R9 코어·Sample·제작 도구와 선택 Baked Stage package 내보내기 UI를 표시합니다.
+        private void DrawStageDistributionSection(
+            DungeonStageDefinition definition)
+        {
+            EditorGUILayout.Space(7f);
+            _stageDistributionFoldout = EditorGUILayout.Foldout(
+                _stageDistributionFoldout,
+                "R9 다른 프로젝트용 패키지",
+                true);
+            if (!_stageDistributionFoldout) return;
+
+            EditorGUILayout.HelpBox(
+                "Runtime Core에는 실험실 HUD·임시 플레이어와 Input System 의존성이 없습니다. Lab Sample은 선택 설치하며, Baked Stage 묶음은 최신 manifest와 Player 의존 자산만 내보냅니다.",
+                MessageType.Info);
+            EditorGUILayout.BeginHorizontal();
+            _stageDistributionFolder = EditorGUILayout.TextField(
+                "출력 폴더",
+                _stageDistributionFolder ?? string.Empty);
+            if (GUILayout.Button("찾기", GUILayout.Width(52f)))
+            {
+                string selected = EditorUtility.OpenFolderPanel(
+                    "R9 패키지 출력 폴더",
+                    ResolveDistributionFolder(),
+                    string.Empty);
+                if (!string.IsNullOrEmpty(selected))
+                    _stageDistributionFolder = selected;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Runtime Core"))
+                ExportDistributionPlan(
+                    DungeonDistributionExporter.PlanRuntimeCore());
+            if (GUILayout.Button("Runtime 예제"))
+            {
+                R9RuntimeExamplesSetup.CreateAllFromBatch();
+                ExportDistributionPlan(
+                    DungeonDistributionExporter.PlanRuntimeExamples());
+            }
+            if (GUILayout.Button("Lab Sample"))
+                ExportDistributionPlan(
+                    DungeonDistributionExporter.PlanLabSample());
+            if (GUILayout.Button("Bake 제작 도구"))
+                ExportDistributionPlan(
+                    DungeonDistributionExporter.PlanBakeAuthoring());
+            EditorGUILayout.EndHorizontal();
+
+            bool canExportStage =
+                definition != null &&
+                definition.sourceMode == DungeonStageSourceMode.SavedBlueprint &&
+                definition.buildMode == DungeonStageBuildMode.BakedPrefab &&
+                definition.bakedPrefab != null &&
+                definition.bakeManifest != null;
+            using (new EditorGUI.DisabledScope(!canExportStage))
+            {
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Baked Stage 묶음"))
+                {
+                    ExportDistributionPlan(
+                        DungeonDistributionExporter.PlanBakedStage(
+                            definition));
+                }
+                if (GUILayout.Button("Core 포함 독립 묶음"))
+                {
+                    ExportDistributionPlan(
+                        DungeonDistributionExporter.PlanBakedStage(
+                            definition,
+                            true));
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.LabelField(
+                "각 .unitypackage 옆 JSON에는 Unity 버전, 요구 package, 포함 경로와 SHA-256이 기록됩니다.",
+                EditorStyles.wordWrappedMiniLabel);
+        }
+
+        // 선택 계획을 검증하고 고정 package ID 이름으로 .unitypackage와 sidecar를 생성합니다.
+        private void ExportDistributionPlan(
+            DungeonDistributionPlan plan)
+        {
+            if (plan == null) return;
+            if (!plan.IsValid)
+            {
+                ShowDistributionValidationFailure(plan.ValidationReport);
+                return;
+            }
+            string outputPath = Path.Combine(
+                ResolveDistributionFolder(),
+                plan.PackageId + ".unitypackage");
+            try
+            {
+                DungeonDistributionMetadata metadata =
+                    DungeonDistributionExporter.Export(plan, outputPath);
+                EditorUtility.RevealInFinder(Path.GetFullPath(outputPath));
+                EditorUtility.DisplayDialog(
+                    "R9 패키지 생성 완료",
+                    plan.PackageId + "\n\n" +
+                    plan.AssetPaths.Count + "개 자산\nSHA-256: " +
+                    metadata.packageSha256,
+                    "확인");
+            }
+            catch (Exception exception)
+            {
+                ShowAuthoringFailure("R9 패키지 생성 실패", exception);
+            }
+        }
+
+        // 상대 출력 폴더를 프로젝트 루트 기준 절대 경로로 변환합니다.
+        private string ResolveDistributionFolder()
+        {
+            string configured = string.IsNullOrWhiteSpace(
+                _stageDistributionFolder)
+                ? "Distribution/RogueDungeonLab/R9"
+                : _stageDistributionFolder.Trim();
+            return Path.GetFullPath(configured);
+        }
+
+        // 배포 계획 오류 코드와 메시지를 사용자 대화상자에 요약합니다.
+        private static void ShowDistributionValidationFailure(
+            DungeonValidationReport report)
+        {
+            string message = "배포 계획 검증에 실패했습니다.";
+            if (report != null && report.issues != null)
+            {
+                for (int i = 0; i < report.issues.Count; i++)
+                {
+                    DungeonValidationIssue issue = report.issues[i];
+                    if (issue == null) continue;
+                    message += "\n\n[" + issue.code + "] " + issue.message;
+                }
+            }
+            EditorUtility.DisplayDialog("R9 패키지 차단", message, "확인");
         }
 
         // 현재 Generator의 Definition을 초기 선택으로 사용하고 기존 manifest 입력을 재질 기본값으로 연결합니다.

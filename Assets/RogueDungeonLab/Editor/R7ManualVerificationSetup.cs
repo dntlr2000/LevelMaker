@@ -279,6 +279,9 @@ namespace RogueDungeonLab.Editor
                     : "R7 Runtime StageDefinition 갱신");
             SerializedObject serialized = new SerializedObject(definition);
             serialized.Update();
+            serialized.FindProperty("stageId").stringValue = baked
+                ? "r7-manual-baked-v1"
+                : "r7-manual-runtime-v1";
             serialized.FindProperty("sourceMode").intValue =
                 (int)DungeonStageSourceMode.SavedBlueprint;
             serialized.FindProperty("buildMode").intValue =

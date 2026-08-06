@@ -88,15 +88,65 @@ DungeonValidationReport freshness =
 
 `Bake` 입력의 StageDefinition은 프로젝트에 저장된 `SavedBlueprint`여야 합니다. 반환 결과의 `Manifest`, `BakedPrefab`, `ValidationReport`와 `OutputFolder`는 별도 제작 UI나 CI 보고에 사용할 수 있습니다. 기본 재질 세트가 필요하면 `DungeonStageBaker.CreateDefaultMaterialSetAsset(path)`를 사용하되, 생성된 세트는 공유 가능한 사용자 입력 자산으로 관리하고 manifest `ownedArtifacts`에 편입하지 않습니다.
 
+## R8 RunState 연계 계약
+
+제품 전투나 상호작용 시스템이 Enemy·Destructible을 제거할 때는 실제 제거 직전에 현재 Generator에 stable identity를 전달합니다.
+
+```csharp
+generator.RecordSpawnRemoved(spawnIdentity);
+```
+
+기본 클릭 대상은 이 호출이 연결되어 있습니다. 오브젝트 풀을 사용하는 프로젝트는 GameObject 파괴 대신 풀 반환을 수행하더라도 같은 API를 한 번만 호출해야 합니다. `OnDestroy`를 일반 추적 hook으로 사용하면 스테이지 재구축 때 모든 대상을 제거로 잘못 기록할 수 있으므로 피합니다.
+
+문·레버·보상 기믹은 Gimmick spawn hierarchy의 `MonoBehaviour`에서 `IDungeonRunStateParticipant`를 구현합니다.
+
+```csharp
+public string RunStateKey { get { return "door"; } }
+public string CaptureRunState() { return isOpen ? "1" : "0"; }
+public void RestoreRunState(string payload) { isOpen = payload == "1"; }
+```
+
+한 spawn 안에서 key는 고유하고 버전 간 안정적이어야 합니다. payload는 Unity Object 참조나 임의 경로가 없는 자체 검증 문자열이어야 하며, 복원 실패는 후보 stage 전체를 폐기합니다. 복잡한 JSON을 쓰는 경우 크기 제한과 schema 버전을 프로젝트 participant 내부에서 추가합니다.
+
+저장 계층은 다음처럼 교체합니다.
+
+```csharp
+generator.SetRunStateStore(accountSaveStore);
+generator.RegisterRunStatePlayer(productPlayer);
+generator.SaveRunState("autosave");
+generator.LoadRunState("autosave");
+```
+
+`IDungeonRunStateStore` 구현은 반환 전에 `DungeonRunStateValidator`와 stored hash를 확인해야 합니다. 기본 파일 저장소는 로컬 슬롯 예제이며 계정 선택, 암호화, 클라우드 동기화나 다중 사용자 충돌 해결을 담당하지 않습니다.
+
+제품 캐릭터는 `IDungeonRunStatePlayer`를 구현해 stage-local pose 캡처와 복원을 제공합니다. Sample의 `PrototypePlayerController`에 의존할 필요가 없으며, 캐릭터 교체·파괴 시 `UnregisterRunStatePlayer`로 Generator 등록을 해제합니다.
+
+Blueprint나 콘텐츠 계약을 바꿀 때는 `IDungeonRunStateMigrator.TryMigrate`에서 이전 상태를 새 `DungeonRunStateTarget`으로 변환합니다. Loader는 migration 결과를 strict 정책으로 다시 검증하므로 stage/source/seed/final hash, state hash와 대상 범주를 모두 갱신해야 합니다. 단순히 final hash만 무시하려면 migration 대신 사용자가 명시적으로 선택한 `ApplyMatchingSpawnIds`를 사용할 수 있지만, stage·source·seed 불일치는 계속 오류입니다.
+
+외부 저장 UI는 `CaptureCurrentRunState`, `SaveRunState`, `LoadRunState`, `DeleteRunState`, `HasRunState`를 사용합니다. `ActiveRunState`는 내부 목록을 공유하지 않는 복사본이며 `DungeonStageInstance.RunStateApplyResult`에서 최근 strict/migration/best-effort 적용 결과와 개수를 확인할 수 있습니다.
+
+## R9 패키지 연계 계약
+
+다른 프로젝트의 제품 코드가 참조해야 하는 기본 assembly는 `RogueDungeonLab.Runtime` 하나입니다. 이 assembly에는 Input System과 실험실 UI가 없으므로 제품 입력·카메라·캐릭터·HUD는 자체 assembly에서 Core 공개 API를 호출합니다.
+
+- 절차/저장 RuntimeBuild: Runtime Core + 프로젝트별 Catalog/Prefab/StageDefinition
+- Baked 소비: Runtime Core + modular Stage, 또는 standalone Stage
+- 제작 프로젝트의 Bake 자동화: Runtime Core + Bake Authoring에서 `DungeonStageBaker`와 `DungeonDistributionExporter` 호출
+- 실험실 검증: 위 조합에 Input System과 Lab Sample을 선택 추가
+
+Baked Stage sidecar의 `requiredPackages`는 Shader가 속한 render pipeline package의 실제 설치 버전을 기록합니다. 수신 프로젝트는 import 전에 이를 설치하고 Graphics/Quality pipeline asset도 연결해야 합니다. custom renderer feature, Addressables나 프로젝트 서비스는 dependency closure가 자동 구성하지 않으므로 제품별 adapter/package에서 별도로 관리합니다.
+
+패키지 API는 `DungeonDistributionExporter.PlanRuntimeCore`, `PlanRuntimeExamples`, `PlanLabSample`, `PlanBakeAuthoring`, `PlanBakedStage`로 계획과 검증 리포트를 먼저 만들고, 유효한 계획만 `Export`로 파일화합니다. CI는 원본 프로젝트의 `R9PackageVerificationSetup.ExportAllFromBatch`와 깨끗한 소비 프로젝트의 `tools/verify-r9-packages.ps1`을 사용할 수 있습니다.
+
 ## 제품화 경로
 
 - 저장 맵을 생성 코드 없이 사용: `R5.2 → R6`
-- 다른 프로젝트에서 RuntimeBuild 코어만 사용: `R5.2 → R9A`
-- 다른 프로젝트로 BakedPrefab까지 배포: `R5.2 → R6 → R9B`
+- 다른 프로젝트에서 RuntimeBuild 코어만 사용: 구현된 `R5.2 → R9A`
+- 다른 프로젝트로 BakedPrefab까지 배포: 구현된 `R5.2 → R6 → R9B`
 - 수동으로 spawn을 편집한 제작 변형: 구현된 `R6 → R7` 경로 사용
-- 실제 게임 세이브/재개: `R3 이후 R8`, 최종 Blueprint·spawn ID 계약과 결합
+- 실제 게임 세이브/재개: 구현된 R8 RunState와 최종 Blueprint·stable spawn ID 계약 사용
 
-`R9A`는 생성·Blueprint·Loader·RuntimeBuild와 선택 Sample의 assembly/패키지 분리를 담당하므로 R6을 기다릴 필요가 없습니다. `R9B`는 manifest, Bake material set, Baked Prefab과 의존 자산 수집을 담당하므로 R6 완료가 선행 조건입니다.
+구현된 `R9A`는 생성·Blueprint·Loader·RuntimeBuild와 선택 Sample의 assembly/package를 분리합니다. 구현된 `R9B`는 manifest, Bake material set, Baked Prefab과 의존 자산을 modular/standalone 묶음으로 수집합니다. 구체적인 설치 순서는 [R9 패키지 가이드](R9_PACKAGE_GUIDE_KO.md)를 따릅니다.
 
 ## 선택 backlog
 

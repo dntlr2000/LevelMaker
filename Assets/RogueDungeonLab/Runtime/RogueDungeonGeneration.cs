@@ -265,7 +265,7 @@ namespace RogueDungeonLab
         private static int Manhattan(Vector2Int a, Vector2Int b) { return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y); }
     }
 
-    internal static class PrototypeMaterials
+    public static class PrototypeMaterials
     {
         private static readonly Dictionary<Color32, Material> Custom = new Dictionary<Color32, Material>();
         private static Material s_floor, s_wall, s_enemy, s_breakable, s_prop, s_gimmick, s_entrance, s_exit;
@@ -675,7 +675,13 @@ namespace RogueDungeonLab
         }
 
         // StageDefinition 로드 문맥을 만들고 선택적 명시 시드와 함께 Loader를 실행합니다.
-        private void LoadStageDefinitionInternal(int? explicitSeed)
+        private void LoadStageDefinitionInternal(
+            int? explicitSeed,
+            DungeonRunState runState = null,
+            DungeonRunStateHashMismatchPolicy
+                runStateMismatchPolicy =
+                    DungeonRunStateHashMismatchPolicy.Reject,
+            IDungeonRunStateMigrator runStateMigrator = null)
         {
             if (stageDefinition == null)
             {
@@ -703,7 +709,12 @@ namespace RogueDungeonLab
             DungeonLoadContext context = new DungeonLoadContext(stageDefinition, transform, runtimeSettings)
             {
                 ExplicitSeed = explicitSeed,
-                ProceduralRecipeOverride = proceduralRecipeOverride
+                ProceduralRecipeOverride =
+                    proceduralRecipeOverride,
+                RunState = runState,
+                RunStateMismatchPolicy =
+                    runStateMismatchPolicy,
+                RunStateMigrator = runStateMigrator
             };
             try
             {
@@ -730,6 +741,7 @@ namespace RogueDungeonLab
             if (_activeRuntimeSettings != null && _activeRuntimeSettings == _ownedRuntimeSettings)
                 _activeRuntimeSettings.seed = _activeSeed;
             _hasGenerated = true;
+            CommitRunStateInstance(instance);
             ConfigureDropValidation(instance.ActiveSeed, instance.RuntimeSettings);
             Action<GenerationReport> handler = GenerationCompleted;
             if (handler != null) handler(_report);

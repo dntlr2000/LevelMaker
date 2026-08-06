@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1c183bfd677a534b811fb9abf0e1d7b, type: 3}
   m_Name: R7_BakedStage
   m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.DungeonStageDefinition
+  stageId: r7-manual-baked-v1
   sourceMode: 1
   buildMode: 1
   recipe: {fileID: 0}

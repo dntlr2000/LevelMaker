@@ -405,3 +405,138 @@ BakedPrefab에서 같은 최종 Blueprint와 게임플레이 결과를 만들어
 - Windows64 Development Player 빌드는 경고 `0`개, 총 크기 `172,176,046 B`로 성공했다.
 - 검증 근거는 `Logs/R7ManualSetup.log`, `Logs/R7FullEditMode.xml`, `Logs/R7FullPlayMode.xml`, `Logs/R7PlayerBuildSmoke.log`에 남겼다.
 - 실제 HUD/Scene 육안과 Play 중 script/domain reload는 수동 확인 범위로 남겼다.
+
+---
+
+# R8 실행 계획 — 런 상태 저장과 복원
+
+## 목표
+
+R7의 정적 제작 변형과 분리된 `DungeonRunState`를 도입해 적·파괴물 제거,
+기믹별 확장 상태와 선택적 플레이어 위치를 저장한다. 상태는 stage ID,
+source mode, run seed와 최종 Blueprint hash에 결박하며, Loader가 새
+RuntimeBuild 또는 BakedPrefab의 비활성 staging root를 완성한 뒤 검증·적용하고
+성공한 경우에만 기존 generated root를 교체한다.
+
+## 착수 기준
+
+- R7 source/override/final hash와 stable spawn identity 계약이 통합 검증을 통과했다.
+- RuntimeBuild와 BakedPrefab이 같은 최종 Blueprint와 spawn ID를 구축한다.
+- 실패한 로드와 재Bake가 기존 정상 root·자산을 보존한다.
+
+## 마일스톤
+
+### M1 — Runtime-safe 상태·호환성·저장 계약
+
+- Unity Object 참조가 없는 versioned `DungeonRunState` DTO 추가
+- stage ID, source mode, run seed, final Blueprint hash, 제거 spawn ID,
+  기믹 payload와 플레이어 stage-local pose를 canonical hash에 포함
+- 중복·손상·Marker 제거·잘못된 pose를 코드 기반 리포트로 검증
+- 기본 `Reject`, 명시적 matching-ID best effort 정책과 migration hook 정의
+- `IDungeonRunStateStore`와 원자적 JSON 파일 저장소 추가
+
+### M2 — Loader staging 적용과 Generator 수명 주기
+
+- `DungeonLoadContext`가 선택적 RunState·정책·migrator를 전달
+- RuntimeBuild/BakedPrefab staging root에서 제거 대상과 participant payload 적용
+- 적용 오류 시 기존 generated root를 유지하고 후보 root만 폐기
+- `DungeonStageInstance`에 실제 적용 상태와 결과 metadata 기록
+- Generator가 파괴 이벤트, participant 상태와 플레이어 pose를 캡처하고
+  저장 슬롯을 load/save/delete하는 facade 제공
+
+### M3 — HUD·제작 식별자·수동 검증
+
+- StageDefinition에 선택적 영구 stage ID를 추가하고 새 제작 자산에는 자동 생성
+- Play HUD에 슬롯, 캡처·저장·불러오기·삭제와 현재 호환성 결과 표시
+- R8 전용 절차·저장형 수동 검증 장면과 한국어 확인 절차 추가
+
+### M4 — 회귀·배포 검증·문서
+
+- canonical hash, JSON round-trip, mismatch, migration, participant 상태 EditMode 테스트
+- 절차 run seed와 SavedBlueprint stage ID 복원, 파괴·플레이어 pose PlayMode 테스트
+- RuntimeBuild/BakedPrefab 상태 적용 parity와 실패 rollback 검증
+- Unity `6000.5.3f1` 전체 EditMode·PlayMode 및 Windows Player build smoke
+- README, 아키텍처, 사용자·테스트·확장 가이드, 로드맵과 CHANGELOG 갱신
+
+## 완료 기준
+
+1. 같은 stage ID·run seed·final Blueprint hash에는 같은 상태가 결정적으로 적용된다.
+2. 기본 정책에서 다른 stage, source, seed 또는 final hash 상태는 root 교체 전에 차단된다.
+3. 제거된 Enemy·Destructible과 기믹 participant 상태가 RuntimeBuild·BakedPrefab에서 동일하다.
+4. Procedural 저장은 원래 run seed를 재사용하고 SavedBlueprint 저장은 stage ID를 확인한다.
+5. 손상 JSON·state hash, 중복 ID와 Marker 제거 요청은 부작용 없이 오류가 된다.
+6. migration은 명시적 hook으로만 실행되고 결과도 현재 대상 계약으로 다시 검증된다.
+7. 파일 저장은 임시 파일 뒤 교체하며 실패 시 이전 정상 슬롯을 보존한다.
+8. Runtime은 `UnityEditor`와 Unity 전역 `Random`을 참조하지 않고 전체 회귀가 통과한다.
+
+## R8 실행 결과
+
+- M1 완료: versioned `DungeonRunState`, canonical hash·validator, strict/matching-ID 정책, migration·participant 계약과 메모리/원자적 JSON 저장소를 추가했다.
+- M2 완료: RuntimeBuild와 BakedPrefab의 비활성 staging root에 상태를 적용하고, Generator의 파괴 기록·기믹/플레이어 캡처·슬롯 facade와 실패 rollback을 연결했다.
+- M3 완료: StageDefinition 영구 ID, Play HUD `런 상태` 탭, Procedural·SavedBlueprint 전환형 R8 수동 검증 자산과 장면을 추가했다.
+- M4 완료: Unity `6000.5.3f1` 전체 EditMode `89/89`, PlayMode `11/11`, R8 장면 Windows64 Development Player 빌드 경고 `0`을 통과했다.
+- 빌드 크기는 `171,479,278 B`이며 근거는 `Logs/R8ManualSetup.log`, `Logs/R8FullEditMode.xml`, `Logs/R8FullPlayMode.xml`, `Logs/R8PlayerBuildSmoke.log`에 남겼다.
+- 남은 수동 범위는 실제 Game View의 네 탭 가독성, Generator 토글 흐름과 Play 중 script/domain reload 후 슬롯 재개 확인이다.
+
+# R9 실행 계획 — 다른 Unity 프로젝트용 패키징
+
+## 목표
+
+현재 저장소의 실험실 기능과 제품 런타임을 분리하고, RuntimeBuild와 BakedPrefab을 각각 필요한 의존성만 포함한 `.unitypackage`로 다른 Unity `6000.5` 프로젝트에 전달한다. 패키지 생성 성공만으로 완료하지 않고 Input System 없는 Runtime 소비 프로젝트와 render pipeline을 복원한 Baked 소비 프로젝트에서 실제 Windows Player 빌드까지 검증한다.
+
+## 착수 기준
+
+- R5.2 Runtime recipe 격리와 RuntimeBuild 계약이 승인되었다.
+- R6·R7 Baked manifest, 소유 산출물과 source/override/final hash 계약이 승인되었다.
+- R8 RunState가 stable stage/spawn ID를 사용하며 RuntimeBuild/BakedPrefab parity를 통과했다.
+
+## 마일스톤
+
+### M1 — Runtime Core와 Lab Sample 경계
+
+- `RogueDungeonLab.Runtime`에서 Input System, HUD, 자유 카메라, 클릭 입력과 임시 플레이어 참조 제거
+- 실험 기능을 `RogueDungeonLab.Samples` 선택 assembly로 이동하면서 기존 `.meta` GUID 보존
+- 제품 캐릭터가 Sample 타입 없이 플레이어 pose 저장에 참여할 `IDungeonRunStatePlayer` 계약 추가
+- Core-only Procedural·SavedBlueprint RuntimeBuild 예제 장면과 자산 추가
+
+### M2 — Bake Authoring과 Baked Stage 배포 계획
+
+- Editor Baker와 Packaging을 별도 Editor-only assembly로 분리
+- Runtime Core, Runtime Examples, Lab Sample, Bake Authoring의 modular/standalone 계획 정의
+- StageDefinition·Blueprint·Override·Catalog·settings·material set·Prefab·manifest 소유 산출물 dependency closure 수집
+- Sample/Editor/Test 의존, 누락 소유 산출물과 혼합 render pipeline을 코드 기반 오류로 차단
+
+### M3 — 내보내기·인계 메타데이터·UI
+
+- `.unitypackage`와 SHA-256 JSON sidecar 생성
+- Unity 버전, package 종류, 포함 경로, stage/hash와 render pipeline package 버전 기록
+- 실험실 스테이지 자산 UI와 batchmode 전체 출력 진입점 추가
+- 일곱 개 설치 단위와 `PACKAGE_INDEX_KO.md` 생성
+
+### M4 — 깨끗한 소비 프로젝트·회귀·문서
+
+- Input System 없는 최소 프로젝트에서 Runtime Core + Examples import, 두 source 로드와 HUD 없는 Player build
+- 별도 프로젝트에서 sidecar package 복원, Bake Authoring + Baked Stage import, manifest·identity 검증과 Player build
+- R9 경계 EditMode 테스트, 전체 EditMode·PlayMode 회귀
+- 패키지 설치 조합, HUD 경계, sidecar와 자동 검증 절차 문서화
+
+## 완료 기준
+
+1. Runtime Core assembly는 `UnityEditor`, Input System 또는 Lab Sample 타입을 참조하지 않는다.
+2. 기존 Sample 스크립트의 GUID와 공개 Runtime assembly 이름은 유지된다.
+3. 같은 설정·시드의 Blueprint와 기존 R0~R8 회귀 결과가 유지된다.
+4. Baked Stage 묶음은 필요한 Assets dependency와 외부 render pipeline package를 빠짐없이 선언한다.
+5. stale Bake, Sample/Editor/Test 의존과 혼합 pipeline은 package 생성 전에 차단된다.
+6. 새 Unity 6000.5 소비 프로젝트에서 RuntimeBuild와 BakedPrefab Player 빌드가 각각 오류·경고 없이 성공한다.
+7. Runtime Core만 사용하는 제품 장면에는 Lab HUD가 포함되거나 표시되지 않는다.
+
+## R9 실행 결과
+
+- M1 완료: 기존 실험 스크립트 GUID를 보존해 `Samples/Lab`으로 이동하고 `RogueDungeonLab.Samples`로 분리했다. Core의 Input System 참조를 제거하고 `IDungeonRunStatePlayer`로 RunState 플레이어 연계를 역전했다.
+- M2 완료: `Editor.Baking`과 `Editor.Packaging` assembly, 일곱 package 계획과 Baked dependency closure·렌더 파이프라인 검증을 추가했다.
+- M3 완료: `Distribution/RogueDungeonLab/R9`에 Core, Examples, Sample, Bake Authoring modular/standalone, Baked Stage modular/standalone과 JSON sidecar·index를 생성했다.
+- M4 완료: Unity `6000.5.3f1` 전체 EditMode `95/95`, PlayMode `11/11`을 통과했다. R9 배포 전용 EditMode는 `6/6`이다.
+- Input System 없는 깨끗한 Runtime 소비 프로젝트는 Procedural·SavedBlueprint와 Examples를 로드하고 Windows64 Development Player를 오류·경고 `0`개로 빌드했다.
+- 별도 Baked 소비 프로젝트는 URP `17.5.0`을 sidecar에서 복원하고 manifest/final hash·stable identity·저장 Mesh를 검증한 뒤 Windows64 Development Player를 오류·경고 `0`개로 빌드했다.
+- 최종 소비 빌드 폴더는 Runtime `152,943,647 B`(238 files), Baked `162,951,039 B`(279 files)다.
+- 근거는 `Logs/R9DistributionEditModeFinal.xml`, `Logs/R9FullEditModeFinal.xml`, `Logs/R9FullPlayModeFinal.xml`, `Logs/R9ConsumerVerification/*_20260807_001715.log`와 `VERIFICATION_SUMMARY_20260807_001715.json`에 남겼다.

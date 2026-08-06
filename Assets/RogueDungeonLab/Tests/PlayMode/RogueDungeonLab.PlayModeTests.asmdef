@@ -3,6 +3,7 @@
   "rootNamespace": "RogueDungeonLab.Tests",
   "references": [
     "RogueDungeonLab.Runtime",
+    "RogueDungeonLab.Samples",
     "Unity.InputSystem"
   ],
   "includePlatforms": [],

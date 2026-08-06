@@ -1,6 +1,6 @@
 # 아키텍처
 
-이 문서는 R5.2 승인 기준선, 검증 완료된 R6 Mesh·Prefab Bake와 R7 비파괴 Stage Override의 구현·통합 검증 경계를 설명합니다. 후속 단계는 [스테이지 제작·배포 통합 로드맵](STAGE_PIPELINE_ROADMAP_KO.md)을 참고합니다.
+이 문서는 R5.2 승인 기준선, 검증 완료된 R6 Mesh·Prefab Bake, R7 비파괴 Stage Override, R8 RunState와 R9 프로젝트 간 패키징의 구현·통합 검증 경계를 설명합니다. 선택 후속 단계는 [스테이지 제작·배포 통합 로드맵](STAGE_PIPELINE_ROADMAP_KO.md)을 참고합니다.
 
 ## 파이프라인
 
@@ -239,11 +239,60 @@ commit된 StageDefinition은 저장 Blueprint와 함께 Baked Prefab·manifest�
 
 바닥은 셀당 quad, 벽은 floor-to-void 경계 box를 각각 하나의 합성 메시로 만듭니다. 클릭 대상만 개별 GameObject입니다. Loader는 새 root를 비활성 상태에서 완성한 뒤 이전 root를 비활성·정리하고 교체본을 활성화합니다. 합성 Mesh는 이름 추측 대신 `DungeonGeneratedMeshOwner`가 기록한 정확한 참조만 해제하므로 Prefab의 공유 Mesh는 건드리지 않습니다.
 
-합성 바닥·벽에는 정적 `MeshCollider`를 함께 생성합니다. HUD에서 만드는 `PrototypePlayerController`는 런타임 전용 `CharacterController`를 사용하며, 입구 위치 생성·카메라 기준 이동·중력·점프·추락 복귀를 담당합니다. `LabOrbitCamera`는 캐릭터가 없을 때 카메라의 실제 정면·오른쪽 축으로 `WASD`를 처리하므로 `W/S` 이동에는 시선의 높이 성분도 포함됩니다. `Space`/`Ctrl`은 별도의 월드 수직 이동입니다. 자유 시점 우클릭 회전은 카메라 위치를 고정하고 회전 중심을 재계산하며, 캐릭터가 활성화되면 기존처럼 해당 Transform을 중심으로 공전 추적합니다. 이 런타임 흐름은 `UnityEditor`를 참조하지 않습니다.
+합성 바닥·벽에는 정적 `MeshCollider`를 함께 생성합니다. 선택 Lab Sample의 HUD가 만드는 `PrototypePlayerController`는 런타임 전용 `CharacterController`를 사용하며, 입구 위치 생성·카메라 기준 이동·중력·점프·추락 복귀를 담당합니다. `LabOrbitCamera`는 캐릭터가 없을 때 카메라의 실제 정면·오른쪽 축으로 `WASD`를 처리하므로 `W/S` 이동에는 시선의 높이 성분도 포함됩니다. `Space`/`Ctrl`은 별도의 월드 수직 이동입니다. 자유 시점 우클릭 회전은 카메라 위치를 고정하고 회전 중심을 재계산하며, 캐릭터가 활성화되면 기존처럼 해당 Transform을 중심으로 공전 추적합니다. 이 Sample 흐름도 `UnityEditor`를 참조하지 않지만 Input System은 Sample assembly에만 한정됩니다.
 
-`RuntimeLabHUD`는 설정·탐험·통계를 탭으로 분리합니다. 설정 탭은 Generator가 제공하는 활성 `HideAndDontSave` 런타임 설정 복제본의 구조·콘텐츠 수치에 바인딩합니다. settings-only와 Procedural StageDefinition은 각각 해당 원본에서 만든 복제본을 사용하며, SavedBlueprint 상태에서는 구조·밀도 편집과 자동 절차 재생성을 제공하지 않습니다. 슬라이더와 프리셋 변경은 다음 `Update`에 요청 하나로 합쳐지고 0.08초 제한 주기로 `ClampValues`와 `RegenerateActiveSeed`를 호출하므로, 원본 자산과 결정적 시드는 유지하면서 드래그 중 결과를 갱신합니다. 시드 텍스트만 명시적인 생성 버튼에서 확정합니다. 패널은 기준 해상도에 대한 제한 배율과 화면 비율별 논리 영역을 계산하며, 실제 픽셀 영역을 카메라·클릭 입력 차단에도 동일하게 사용합니다. 각 탭 내용은 독립적으로 접근 가능한 스크롤 영역 안에 배치됩니다.
+`RuntimeLabHUD`는 설정·탐험·런 상태·통계를 탭으로 분리합니다. 설정 탭은 Generator가 제공하는 활성 `HideAndDontSave` 런타임 설정 복제본의 구조·콘텐츠 수치에 바인딩합니다. settings-only와 Procedural StageDefinition은 각각 해당 원본에서 만든 복제본을 사용하며, SavedBlueprint 상태에서는 구조·밀도 편집과 자동 절차 재생성을 제공하지 않습니다. 슬라이더와 프리셋 변경은 다음 `Update`에 요청 하나로 합쳐지고 0.08초 제한 주기로 `ClampValues`와 `RegenerateActiveSeed`를 호출하므로, 원본 자산과 결정적 시드는 유지하면서 드래그 중 결과를 갱신합니다. 시드 텍스트만 명시적인 생성 버튼에서 확정합니다. 패널은 기준 해상도에 대한 제한 배율과 화면 비율별 논리 영역을 계산하며, 실제 픽셀 영역을 카메라·클릭 입력 차단에도 동일하게 사용합니다. 각 탭 내용은 독립적으로 접근 가능한 스크롤 영역 안에 배치됩니다.
 
 드랍 대시보드는 기대 확률, 관측 확률, 편차와 Wilson 95% 신뢰구간을 계산합니다. 테이블 정의가 바뀌면 이전 표본을 새 기대값과 비교하지 않도록 해당 통계를 초기화합니다.
+
+## R8 RunState 계약
+
+R8은 R7 `DungeonStageOverrides`와 소유권을 분리합니다.
+
+- Override: 제작자가 저장 Blueprint에 붙이는 정적·배포 가능한 변형
+- RunState: 플레이 세션에서 발생한 제거·기믹·플레이어 진행
+
+`DungeonRunState`는 Unity Object를 참조하지 않는 versioned DTO입니다. canonical hash에는 `formatVersion`, `stageId`, source mode, run seed, final Blueprint hash, ordinal 정렬한 제거 spawn ID, spawn ID·participant key·payload로 정렬한 기믹 상태와 stage-local 플레이어 pose를 포함합니다. 저장 시각과 기존 `stateHash`는 hash 입력에서 제외합니다.
+
+`DungeonRunStateTargetFactory`는 현재 StageInstance의 final Blueprint와 stable spawn 범주를 migration·검증용 target으로 만듭니다. 명시적인 `DungeonStageDefinition.stageId`를 우선하고, 기존 자산의 fallback은 SavedBlueprint source hash 또는 seed와 분리한 Procedural generator version·recipe hash·catalog planning hash입니다. 새 제작 Definition에는 영구 GUID 형식 ID를 부여합니다.
+
+검증과 적용 순서는 다음과 같습니다.
+
+1. 상태 형식·중복·유한 pose·저장 hash 검사
+2. stage ID, source mode, run seed와 final Blueprint hash 비교
+3. 제거 대상이 Enemy/Destructible, payload 대상이 Gimmick인지 확인
+4. 후보 hierarchy의 `DungeonSpawnIdentity` 중복과 `IDungeonRunStateParticipant.RunStateKey` 확인
+5. participant payload 복원
+6. 제거 대상을 활성화 전에 비활성화·파괴
+7. 성공한 후보만 기존 `__RogueDungeonLab_Generated`와 교체
+
+RuntimeBuild는 `DungeonSceneBuilder.Build` 직후의 비활성 root, BakedPrefab은 manifest 검증 뒤 아직 staging 아래에 있는 비활성 복제 root에 같은 `DungeonRunStateApplier`를 실행합니다. 오류나 participant 예외가 있으면 후보 root만 폐기하므로 기존 StageInstance와 generated root는 유지됩니다. `DungeonStageInstance.RunStateApplyResult`는 target, 실제 재결박된 상태, migration/best-effort 여부와 적용 개수를 기록합니다.
+
+기본 `Reject` 정책은 네 fingerprint가 모두 정확히 같아야 합니다. `ApplyMatchingSpawnIds`는 stage·source·seed가 같은 상태에서 final hash 불일치만 경고로 낮추고 현재 target과 scene에 존재하는 ID만 남긴 새 상태로 재결박합니다. `IDungeonRunStateMigrator`가 제공되면 불일치나 이전 format을 명시적으로 변환한 뒤 기본 엄격 정책으로 결과를 다시 검증합니다.
+
+`RogueDungeonGenerator`는 활성 상태를 소유합니다. `DestructibleDropTarget`이 실제 파괴 직전에 `RecordSpawnRemoved`를 호출하며, 외부 전투 시스템도 같은 API를 호출해야 합니다. 저장 시 현재 Gimmick 하위 participant와 등록된 `IDungeonRunStatePlayer` pose를 캡처합니다. Lab Sample의 `PrototypePlayerController`는 이 인터페이스를 구현하며, 복원된 저장 pose를 일반 입구 이동보다 우선합니다.
+
+`IDungeonRunStateStore`는 `Save`, `TryLoad`, `Delete`, `Exists`만 정의합니다. 기본 JSON 구현은 영숫자·하이픈·밑줄 슬롯을 `persistentDataPath` 아래에 저장하고, 임시 파일을 UTF-8로 flush한 뒤 기존 파일이 있으면 `File.Replace`로 교체합니다. parse·canonical hash가 손상된 파일은 Loader에 전달하지 않습니다. 테스트나 제품 저장 계층은 메모리·계정·클라우드 구현을 주입할 수 있습니다.
+
+## R9 assembly와 배포 경계
+
+R9는 기능 단위가 아니라 제품 포함 여부를 기준으로 assembly를 나눕니다.
+
+| assembly | 플랫폼 | 역할 | 외부 package |
+|---|---|---|---|
+| `RogueDungeonLab.Runtime` | Editor/Player | 생성, Blueprint, RuntimeBuild/Baked Loader, Override, RunState | 없음 |
+| `RogueDungeonLab.Samples` | Editor/Player | Lab HUD, 카메라, 클릭 입력, 임시 플레이어 | `Unity.InputSystem` |
+| `RogueDungeonLab.Editor.Baking` | Editor | Mesh·Prefab Bake와 전체 fingerprint 검증 | 없음 |
+| `RogueDungeonLab.Editor.Packaging` | Editor | package 계획, dependency closure, sidecar와 export | Baking + Runtime |
+| `RogueDungeonLab.Editor` | Editor | 기존 통합 실험실/제작 UI | 위 assembly 전체 |
+
+기존 Sample MonoBehaviour 파일은 `.meta` GUID를 유지한 채 이동했으므로 원본 프로젝트의 장면·Prefab 참조는 보존됩니다. Core는 Sample 구체 타입 대신 `IDungeonRunStatePlayer`만 알고, Sample 플레이어가 등록/해제를 담당합니다. 따라서 제품이 Core만 가져오면 Input System과 Lab HUD가 assembly나 Player 장면에 들어오지 않습니다.
+
+`DungeonDistributionExporter`는 정렬된 자산 목록을 기반으로 Runtime Core, Runtime Examples, Lab Sample, Bake Authoring과 Baked Stage 계획을 만듭니다. Baked 계획은 StageDefinition에서 Blueprint·Override·Catalog·settings·material set·Prefab·manifest 소유 산출물까지 `AssetDatabase` dependency closure를 수집합니다. modular 계획은 Core를 제외하고 standalone 계획은 같은 Core 경로를 병합합니다.
+
+package shader는 `AssetDatabase.GetDependencies`만으로 누락될 수 있어 Material과 Renderer의 Shader 경로도 별도로 검사합니다. `com.unity.modules.*`는 Unity 기본 모듈로 처리하고, 그 밖의 package는 sidecar `requiredPackages`에 설치 버전을 기록합니다. MaterialSet 또는 Prefab이 Built-in·URP·HDRP·custom 파이프라인을 혼합하면 배포 전 오류로 중단합니다.
+
+Editor main UI와 Tests는 어떤 제품 Baked Stage dependency에도 허용하지 않습니다. 생성된 `.unitypackage.json`은 package 파일 SHA-256, Unity 버전, asset path, stage/source/final/override hash와 render pipeline을 인계 계약으로 보존합니다.
 
 ## Unity 6000.5 직렬화
 
