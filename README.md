@@ -9,8 +9,10 @@
 - [테스트 계획](docs/TEST_PLAN_KO.md)
 - [R8 런 상태 수동 검증](docs/R8_MANUAL_VERIFICATION_KO.md)
 - [R9 다른 프로젝트용 패키지 가이드](docs/R9_PACKAGE_GUIDE_KO.md)
+- [R9.1 UPM·Git URL 패키지 가이드](docs/R9_1_UPM_GUIDE_KO.md)
+- [릴리즈 경계 점검표](docs/RELEASE_CHECKLIST_KO.md)
 
-현재 통합 로드맵의 R0부터 R9까지 구현했습니다. 기존 생성 결과와 저장 당시 레시피는 `DungeonBlueprintAsset`으로 보존하며, 별도 `DungeonStageOverrides` 자산으로 Spawn 비활성화·추가·콘텐츠 교체·절대 Transform을 기록할 수 있습니다. `DungeonStageDefinition` 하나로 절차 생성, 저장 Blueprint RuntimeBuild 또는 검수 완료 BakedPrefab 로드를 선택하며, R7 Override는 SavedBlueprint에만 적용됩니다. R8 `DungeonRunState`는 이 정적 제작 데이터와 분리해 플레이 중 제거된 대상, 기믹 payload와 플레이어 pose를 stage ID·run seed·final Blueprint hash에 결박해 저장합니다. R9는 이 기능을 HUD 없는 Runtime Core, 선택 Lab Sample, Bake 제작 도구와 스테이지별 Baked 묶음으로 나눠 다른 Unity 프로젝트에 가져갈 수 있게 합니다.
+현재 통합 로드맵의 R0부터 R9.1까지 구현했습니다. 기존 생성 결과와 저장 당시 레시피는 `DungeonBlueprintAsset`으로 보존하며, 별도 `DungeonStageOverrides` 자산으로 Spawn 비활성화·추가·콘텐츠 교체·절대 Transform을 기록할 수 있습니다. `DungeonStageDefinition` 하나로 절차 생성, 저장 Blueprint RuntimeBuild 또는 검수 완료 BakedPrefab 로드를 선택하며, R7 Override는 SavedBlueprint에만 적용됩니다. R8 `DungeonRunState`는 이 정적 제작 데이터와 분리해 플레이 중 제거된 대상, 기믹 payload와 플레이어 pose를 stage ID·run seed·final Blueprint hash에 결박해 저장합니다. R9는 이 기능을 HUD 없는 Runtime Core, 선택 Lab Sample, Bake 제작 도구와 스테이지별 Baked 묶음으로 나눴고, R9.1은 공통 코드와 제작 도구를 UPM 로컬 경로 또는 Git URL로 설치할 수 있게 합니다.
 
 ## Stage Definition과 콘텐츠 카탈로그 (R3·R4)
 
@@ -131,6 +133,10 @@ Play HUD의 `런 상태` 탭은 현재 진행을 캡처해 슬롯에 저장하�
 
 Runtime Core에는 `RuntimeLabHUD`, `LabOrbitCamera`, `PrototypePlayerController`, 입력용 클릭 interactor와 Input System 참조가 없습니다. 따라서 제품 장면에 Lab Sample 컴포넌트를 별도로 넣지 않는 한 스테이지 빌더 HUD는 표시되지 않습니다. 설치 조합, sidecar 검증과 자동 smoke 명령은 [R9 패키지 가이드](docs/R9_PACKAGE_GUIDE_KO.md)를 참고합니다.
 
+R9.1에서는 `Tools > Rogue Dungeon Lab > R9.1 UPM 패키지 동기화`로 `UpmPackages` 아래 Core·Lab·Baking 세 package를 갱신합니다. 같은 PC에서는 `package.json`을 로컬 디스크 package로 선택하고, 저장소를 push한 뒤에는 `https://github.com/dntlr2000/LevelMaker.git?path=/UpmPackages/<package-id>#<revision>` 형식으로 commit 또는 tag를 고정해 설치할 수 있습니다. Core의 `RuntimeBuild Examples`는 Package Manager Sample로 가져옵니다. Git URL 설치 순서, 중복 설치 금지와 UPM 제작 프로젝트의 modular Baked Stage 내보내기는 [R9.1 UPM 가이드](docs/R9_1_UPM_GUIDE_KO.md)를 따릅니다.
+
+제품별 Stage 저작 자산, 소비자 전용 Binder·검증 도구와 생성된 배포 패키지는 범용 저장소에 함께 두지 않습니다. 릴리즈 전에는 [릴리즈 경계 점검표](docs/RELEASE_CHECKLIST_KO.md)와 `tools/verify-release-boundaries.ps1`로 Core·Lab·Baking 경계를 확인합니다.
+
 ## 검증 상태
 
 R5.2는 Play HUD가 settings 또는 Procedural StageDefinition recipe 원본 대신 Generator 소유 `HideAndDontSave` 복제본을 편집하도록 바꿨습니다. 새 출처는 Loader 성공 뒤에만 활성 복제본으로 승격되므로 실패한 전환은 기존 맵과 설정을 보존합니다. SavedBlueprint에서는 구조·시드 편집을 차단하고 같은 저장본 재구축만 허용합니다.
@@ -146,6 +152,8 @@ R7 통합 결과는 Unity `6000.5.3f1`에서 전체 EditMode `83/83`, PlayMode `
 R8 통합 결과는 Unity `6000.5.3f1`에서 전체 EditMode `89/89`, PlayMode `11/11` 통과입니다. canonical 상태 hash·JSON/원자 교체·불일치 정책·migration·participant·RuntimeBuild/BakedPrefab parity와 실패 rollback, 실제 Play의 절차 seed·Saved stage ID·클릭 파괴·플레이어 pose 재개를 포함합니다. `R8ManualVerificationSetup.CreateAllFromBatch`로 전용 자산과 장면을 생성·재개방했고, Windows64 Development Player 빌드는 경고 `0`개, 총 크기 `171,479,278 B`로 성공했습니다. 근거는 `Logs/R8ManualSetup.log`, `Logs/R8FullEditMode.xml`, `Logs/R8FullPlayMode.xml`, `Logs/R8PlayerBuildSmoke.log`입니다.
 
 R9 통합 결과는 Unity `6000.5.3f1`에서 전체 EditMode `95/95`, PlayMode `11/11` 통과입니다. Runtime Core(+Runtime Examples)는 Input System과 Lab Sample 없이 새 소비 프로젝트에서 Procedural·SavedBlueprint RuntimeBuild를 로드하고 Windows64 Development Player를 오류·경고 `0`개로 빌드했습니다. Bake 제작 도구와 modular Baked Stage를 가져온 별도 소비 프로젝트도 URP `17.5.0`, manifest/final hash·stable identity·비 transient Mesh 계약을 검증하고 Player 빌드에 성공했습니다. 근거는 `Logs/R9FullEditModeFinal.xml`, `Logs/R9FullPlayModeFinal.xml`, `Logs/R9ConsumerVerification/*_20260807_001715.log`와 `VERIFICATION_SUMMARY_20260807_001715.json`입니다.
+
+0.13.0 및 릴리즈 경계 분리 결과는 Unity `6000.5.3f1`에서 compile, 전체 EditMode `101/101`, PlayMode `11/11` 통과입니다. UPM 전용 계약은 `4/4`이며, `E:\CodexValidation\LevelMakerReleaseBoundary_20260904_225710\R91Consumers\Run_20260904_230148`의 Core-only·Lab·Baking 세 깨끗한 소비 프로젝트가 local `file:` package 설치에 성공했습니다. Core-only 소비자는 RuntimeBuild Sample과 Procedural·SavedBlueprint를 로드하고 HUD/Input System 없는 Windows64 Development Player를 빌드했으며, Baking 소비자는 실제 영속 Bake와 modular Stage package·sidecar를 생성했습니다. 전체 결과는 검증 사본의 `Compile.log`, `EditMode.xml`, `PlayMode.xml`과 run root의 `VERIFICATION_SUMMARY.json`에 있습니다.
 
 ### R4 수동 검증 장면
 

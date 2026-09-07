@@ -1,9 +1,24 @@
 param(
     [string]$UnityPath = 'C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Unity.exe',
-    [string]$Workspace = (Split-Path -Parent $PSScriptRoot)
+    [string]$Workspace = (Split-Path -Parent $PSScriptRoot),
+    [string]$ValidationRoot = 'E:\CodexValidation\RogueDungeonLabR9',
+    [string]$TempRoot = 'E:\CodexTemp'
 )
 
 $ErrorActionPreference = 'Stop'
+
+# Unity 검증 project·log·temp root가 금지된 C 드라이브에 있지 않은지 확인합니다.
+function Assert-NonCValidationPath {
+    param([string]$Path, [string]$Label)
+
+    $fullPath = [System.IO.Path]::GetFullPath($Path)
+    if ([string]::Equals(
+            [System.IO.Path]::GetPathRoot($fullPath),
+            'C:\',
+            [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "$Label must not be created on C drive: $fullPath"
+    }
+}
 
 # Unity를 숨김 batchmode로 실행하고 실패 종료 코드를 즉시 전달합니다.
 function Invoke-Unity {
@@ -94,7 +109,13 @@ if (-not (Test-Path -LiteralPath $UnityPath)) {
 
 $workspaceRoot = (Resolve-Path -LiteralPath $Workspace).Path
 $distribution = Join-Path $workspaceRoot 'Distribution\RogueDungeonLab\R9'
-$logsRoot = Join-Path $workspaceRoot 'Logs\R9ConsumerVerification'
+$logsRoot = [System.IO.Path]::GetFullPath($ValidationRoot)
+$tempRootFull = [System.IO.Path]::GetFullPath($TempRoot)
+Assert-NonCValidationPath -Path $logsRoot -Label 'Validation root'
+Assert-NonCValidationPath -Path $tempRootFull -Label 'Temporary root'
+New-Item -ItemType Directory -Path $tempRootFull -Force | Out-Null
+$env:TEMP = $tempRootFull
+$env:TMP = $tempRootFull
 $timestamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 $runtimeProject = Join-Path $logsRoot "RuntimeConsumer_$timestamp"
 $bakedProject = Join-Path $logsRoot "BakedConsumer_$timestamp"

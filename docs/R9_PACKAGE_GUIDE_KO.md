@@ -1,6 +1,6 @@
 # R9 다른 Unity 프로젝트용 패키지 가이드
 
-R9 배포본은 실험실 전체를 한 번에 복사하지 않고 제품 런타임, 선택 Sample, 제작 도구와 Baked 스테이지를 독립 설치 단위로 나눕니다. 모든 결과는 Unity `6000.5`용 `.unitypackage`이며 같은 이름의 `.unitypackage.json` sidecar가 SHA-256, 생성 Unity 버전, 포함 자산, 렌더 파이프라인과 추가 Unity package 버전을 기록합니다.
+R9 배포본은 실험실 전체를 한 번에 복사하지 않고 제품 런타임, 선택 Sample, 제작 도구와 Baked 스테이지를 독립 설치 단위로 나눕니다. 이 문서는 Unity `6000.5`용 legacy `.unitypackage` 경로를 설명하며, 같은 이름의 `.unitypackage.json` sidecar가 SHA-256, 생성 Unity 버전, 포함 자산, 렌더 파이프라인과 추가 Unity package 버전을 기록합니다. 반복 설치와 Git revision 고정이 필요하면 [R9.1 UPM·Git URL 가이드](R9_1_UPM_GUIDE_KO.md)를 사용합니다.
 
 ## 패키지 생성
 
@@ -31,6 +31,8 @@ CI 또는 batchmode에서는 다음 진입점을 사용합니다.
 
 `bake-authoring-standalone`과 `stage-...-standalone`은 각각 Runtime Core를 포함합니다. 같은 프로젝트에서 modular Core와 standalone을 중복 설치하지 마십시오. `.unitypackage`는 UPM registry package가 아니므로 Unity의 `Assets > Import Package > Custom Package`로 가져옵니다.
 
+Runtime Core·Lab·Baking은 R9.1에서 별도 UPM package도 제공합니다. 한 프로젝트에 legacy `Assets/RogueDungeonLab` 사본과 같은 역할의 UPM package를 동시에 설치하면 assembly와 GUID가 중복되므로 설치 방식 하나만 선택하십시오. 개별 Baked Stage와 sidecar는 UPM Core를 쓰는 프로젝트에서도 계속 이 문서의 modular `.unitypackage` 형식을 사용합니다.
+
 ## 제품 장면과 HUD 경계
 
 Runtime Core의 `RogueDungeonLab.Runtime` 어셈블리는 `UnityEditor`, Input System, `RuntimeLabHUD`, `LabOrbitCamera`, `PrototypePlayerController`와 입력용 `RogueDungeonClickInteractor`를 참조하지 않습니다. 제품 장면에는 `RogueDungeonGenerator`와 `DungeonStageDefinition`만 둘 수 있으며, Lab Sample을 설치했더라도 Sample 컴포넌트를 장면 또는 Prefab에 직접 넣지 않으면 HUD가 표시되지 않습니다.
@@ -59,7 +61,7 @@ generator.RegisterRunStatePlayer(productPlayer);
 
 ## 깨끗한 소비 프로젝트 자동 검증
 
-PowerShell 검증은 timestamp별 새 프로젝트를 `Logs/R9ConsumerVerification` 아래에 만들며 기존 프로젝트를 삭제하지 않습니다.
+PowerShell 검증은 timestamp별 새 프로젝트를 기본 `E:\CodexValidation\RogueDungeonLabR9` 아래에 만들며 기존 프로젝트를 삭제하지 않습니다. TEMP/TMP는 `E:\CodexTemp`를 사용합니다.
 
 ```powershell
 powershell.exe -ExecutionPolicy Bypass -File tools/verify-r9-packages.ps1

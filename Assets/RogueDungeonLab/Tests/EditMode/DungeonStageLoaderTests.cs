@@ -106,6 +106,85 @@ namespace RogueDungeonLab.Tests
             }
         }
 
+        // 절차 후처리가 검증·Build 전에 실행되고 불변 생성 컨텍스트를 전달받는지 검사합니다.
+        [Test]
+        public void StageLoader_ProceduralPostprocessorReceivesContextBeforeBuild()
+        {
+            RogueDungeonSettings settings = ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            DungeonStageDefinition definition = ScriptableObject.CreateInstance<DungeonStageDefinition>();
+            RecordingBlueprintPostprocessor processor = ScriptableObject.CreateInstance<RecordingBlueprintPostprocessor>();
+            GameObject parent = new GameObject("R10 Postprocess Parent");
+            try
+            {
+                settings.ApplyPreset(DungeonPreset.Compact);
+                definition.stageId = "postprocess-contract-test";
+                definition.sourceMode = DungeonStageSourceMode.Procedural;
+                definition.buildMode = DungeonStageBuildMode.RuntimeBuild;
+                definition.seedPolicy = DungeonStageSeedPolicy.RunSeed;
+                definition.generatorVersion = DungeonGeneratorVersions.StableV2;
+                definition.recipe = settings;
+                definition.blueprintPostprocessor = processor;
+                const int runSeed = 13579;
+
+                DungeonStageInstance instance = DungeonStageLoader.Load(
+                    new DungeonLoadContext(definition, parent.transform, settings)
+                    {
+                        RunSeed = runSeed,
+                        RequestId = "postprocess-request"
+                    });
+
+                Assert.That(processor.ProcessCalls, Is.EqualTo(1));
+                Assert.That(processor.LastStageId, Is.EqualTo(definition.stageId));
+                Assert.That(processor.LastSeed, Is.EqualTo(runSeed));
+                Assert.That(processor.LastRequestId, Is.EqualTo("postprocess-request"));
+                Assert.That(instance.FinalBlueprintHash, Is.EqualTo(processor.ObservedHash));
+                Assert.That(instance.ValidationReport.IsValid, Is.True);
+            }
+            finally
+            {
+                DungeonStageLoader.ClearGenerated(parent.transform);
+                Object.DestroyImmediate(parent);
+                Object.DestroyImmediate(processor);
+                Object.DestroyImmediate(definition);
+                Object.DestroyImmediate(settings);
+            }
+        }
+
+        // 후처리가 seed 같은 불변 생성 메타데이터를 바꾸면 안정 코드로 fail-closed 되는지 검사합니다.
+        [Test]
+        public void StageLoader_PostprocessorRejectsImmutableMetadataMutation()
+        {
+            RogueDungeonSettings settings = ScriptableObject.CreateInstance<RogueDungeonSettings>();
+            DungeonStageDefinition definition = ScriptableObject.CreateInstance<DungeonStageDefinition>();
+            MetadataMutatingBlueprintPostprocessor processor =
+                ScriptableObject.CreateInstance<MetadataMutatingBlueprintPostprocessor>();
+            GameObject parent = new GameObject("R10 Invalid Postprocess Parent");
+            try
+            {
+                settings.ApplyPreset(DungeonPreset.Compact);
+                definition.sourceMode = DungeonStageSourceMode.Procedural;
+                definition.buildMode = DungeonStageBuildMode.RuntimeBuild;
+                definition.recipe = settings;
+                definition.blueprintPostprocessor = processor;
+
+                DungeonStageLoadException exception = Assert.Throws<DungeonStageLoadException>(delegate
+                {
+                    DungeonStageLoader.Load(new DungeonLoadContext(definition, parent.transform, settings));
+                });
+
+                Assert.That(exception.ValidationReport.ContainsCode(
+                    DungeonStageDefinitionValidationCodes.BlueprintPostprocessFailed), Is.True);
+                Assert.That(parent.transform.Find(DungeonStageLoader.GeneratedRootName), Is.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(parent);
+                Object.DestroyImmediate(processor);
+                Object.DestroyImmediate(definition);
+                Object.DestroyImmediate(settings);
+            }
+        }
+
         // SavedBlueprint 로드가 현재 레시피·모든 시드 입력·random provider를 무시하고 저장 데이터를 깊은 복사하는지 검사합니다.
         [Test]
         public void StageLoader_SavedBlueprintDoesNotRegenerateFromRecipeOrSeed()
@@ -309,6 +388,40 @@ namespace RogueDungeonLab.Tests
                 if (parent.GetChild(i).name == DungeonStageLoader.GeneratedRootName) count++;
             }
             return count;
+        }
+    }
+
+    public sealed class RecordingBlueprintPostprocessor : ScriptableObject, IDungeonBlueprintPostprocessor
+    {
+        public int ProcessCalls { get; private set; }
+        public string LastStageId { get; private set; }
+        public int LastSeed { get; private set; }
+        public string LastRequestId { get; private set; }
+        public string ObservedHash { get; private set; }
+
+        // 호출 메타데이터와 검증 직전 hash를 기록한 뒤 유효한 Blueprint를 그대로 반환합니다.
+        public DungeonBlueprint Process(
+            DungeonBlueprint source,
+            DungeonBlueprintPostprocessContext context)
+        {
+            ProcessCalls++;
+            LastStageId = context.StageId;
+            LastSeed = context.Seed;
+            LastRequestId = context.RequestId;
+            ObservedHash = source.blueprintHash;
+            return source;
+        }
+    }
+
+    public sealed class MetadataMutatingBlueprintPostprocessor : ScriptableObject, IDungeonBlueprintPostprocessor
+    {
+        // 불변 메타데이터 위반 경로를 검증하기 위해 입력 seed를 의도적으로 바꿉니다.
+        public DungeonBlueprint Process(
+            DungeonBlueprint source,
+            DungeonBlueprintPostprocessContext context)
+        {
+            source.seed++;
+            return source;
         }
     }
 }

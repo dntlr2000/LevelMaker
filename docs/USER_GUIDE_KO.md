@@ -125,3 +125,21 @@ Baked Stage는 다음 중 하나로 설치합니다.
 2. 독립 전달물이 필요하면 `stage-<id>-standalone` 하나를 가져옵니다.
 
 가져온 뒤 `DungeonStageDefinition`을 제품 장면의 `RogueDungeonGenerator`에 연결합니다. 제품 캐릭터의 위치를 RunState에 포함하려면 Sample 플레이어 대신 `IDungeonRunStatePlayer`를 구현해 Generator에 등록합니다. 자세한 파일명, 제작 도구 조합, sidecar hash와 자동 smoke 절차는 [R9 패키지 가이드](R9_PACKAGE_GUIDE_KO.md)를 참고합니다.
+
+## R9.1 UPM 또는 Git URL로 설치
+
+반복 업데이트할 프로젝트는 원본의 `Tools > Rogue Dungeon Lab > R9.1 UPM 패키지
+동기화`를 실행한 뒤 `UpmPackages`의 package를 사용합니다.
+
+1. 제품 런타임에는 `com.dntlr2000.rogue-dungeon-lab.core`를 설치합니다.
+2. RuntimeBuild 예제가 필요하면 Package Manager의 Core `Samples`에서 가져옵니다.
+3. 실험 HUD·자유 카메라·임시 플레이어가 필요할 때만 Lab package를 추가합니다.
+4. 다른 프로젝트에서 Mesh·Prefab Bake를 할 때만 Baking package를 추가합니다.
+5. Git URL은 세 package 모두 같은 commit/tag revision으로 고정합니다.
+
+UPM Core만 설치한 제품 장면에는 Lab HUD가 표시되지 않습니다. legacy
+`Assets/RogueDungeonLab` 사본과 같은 역할의 UPM package를 중복 설치하지 마십시오.
+UPM 제작 프로젝트에서 Baked Stage를 보낼 때는 `Baked Stage 묶음` modular 출력을
+사용하고, Core 포함 standalone은 canonical 소스 저장소의 기존 R9 메뉴에서 만듭니다.
+정확한 로컬/Git manifest 예시는 [R9.1 UPM 가이드](R9_1_UPM_GUIDE_KO.md)를
+참고합니다.

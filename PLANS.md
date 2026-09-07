@@ -540,3 +540,72 @@ RuntimeBuild 또는 BakedPrefab의 비활성 staging root를 완성한 뒤 검�
 - 별도 Baked 소비 프로젝트는 URP `17.5.0`을 sidecar에서 복원하고 manifest/final hash·stable identity·저장 Mesh를 검증한 뒤 Windows64 Development Player를 오류·경고 `0`개로 빌드했다.
 - 최종 소비 빌드 폴더는 Runtime `152,943,647 B`(238 files), Baked `162,951,039 B`(279 files)다.
 - 근거는 `Logs/R9DistributionEditModeFinal.xml`, `Logs/R9FullEditModeFinal.xml`, `Logs/R9FullPlayModeFinal.xml`, `Logs/R9ConsumerVerification/*_20260807_001715.log`와 `VERIFICATION_SUMMARY_20260807_001715.json`에 남겼다.
+
+---
+
+# R9.1 실행 계획 — UPM·Git URL 배포 확장
+
+## 목표
+
+R9의 검증된 `.unitypackage` 배포 경로를 그대로 유지하면서 Runtime Core,
+선택 Lab Sample, Bake Authoring을 각각 독립적인 Unity Package Manager 패키지로
+동기화한다. 저장소를 Git에 게시한 뒤 소비 프로젝트가 `?path=` Git URL 또는
+로컬 디스크 경로로 설치할 수 있어야 하며, Core만 설치한 제품에는 Input System,
+Lab HUD와 Editor 제작 도구가 따라오지 않아야 한다.
+
+## 착수 기준
+
+- R9 Runtime Core·Lab Sample·Bake Authoring assembly 경계와 기존 공개 API가 승인되었다.
+- R9 `.unitypackage` 일곱 단위와 Runtime/Baked 소비 프로젝트 빌드가 통과했다.
+- UPM 확장은 기존 자산 GUID와 `Assets/RogueDungeonLab` 개발 원본을 변경하지 않는다.
+
+## 마일스톤
+
+### M1 — 추적 가능한 UPM 원본과 결정적 동기화
+
+- `UpmPackages` 아래 Core, Lab, Baking 세 package root와 Unity 6000.5 manifest 정의
+- Runtime, RuntimeBuild Examples, Lab, Baking/Packaging 원본을 `.meta`와 함께 결정적으로 복제
+- Core 예제는 `Samples~/RuntimeBuild`로 노출하고 package별 README·CHANGELOG·LICENSE 생성
+- 동기화 대상 경로를 엄격히 제한하고 같은 입력의 두 번째 동기화가 같은 파일 트리를 보장
+
+### M2 — UPM 설치 환경의 Bake·기존 배포 호환
+
+- `DungeonDistributionExporter`가 기존 `Assets` 원본과 설치된 UPM package 경로를 모두 탐색
+- UPM 소비 프로젝트에서는 modular Baked Stage 내보내기를 지원하고, package asset을 합칠 수 없는 standalone 경로는 명확히 차단
+- Bake 창과 Tools 메뉴에서 UPM 원본 동기화·위치 확인을 제공
+- UPM 동기화 전용 스크립트는 소비자용 Baking package에 포함하지 않음
+
+### M3 — 자동 계약·깨끗한 소비 프로젝트 검증
+
+- package name/version/dependency/sample 경계, 원본 byte parity와 동기화 결정성 EditMode 테스트
+- `E:\CodexValidation`의 Core-only, Lab, Baking 소비 프로젝트에서 로컬 UPM 설치·compile 확인
+- Core-only 프로젝트는 Input System·HUD 없이 RuntimeBuild 예제를 로드하고 Player build
+- Lab은 Input System 의존과 샘플 assembly, Baking은 Editor-only assembly와 modular 배포 계획 검증
+
+### M4 — 배포 안내·회귀
+
+- Git URL, 로컬 폴더, 임베디드 package 설치 순서와 버전 고정 방법 문서화
+- 기존 R9 `.unitypackage`, Baked Stage sidecar와 UPM의 역할 분담 명시
+- README, 아키텍처, 사용자·테스트·확장 가이드, 로드맵과 CHANGELOG 갱신
+- Unity `6000.5.3f1` 전체 EditMode·PlayMode 및 가능한 소비 Player build 재검증
+
+## 완료 기준
+
+1. 세 package manifest가 UPM 규칙을 만족하고 Git `?path=` 또는 로컬 경로로 설치된다.
+2. Core는 `UnityEditor`, Input System, Lab/Baking 타입을 참조하지 않는다.
+3. Lab은 Core와 Input System만, Baking은 Core만 명시적으로 요구한다.
+4. Core의 RuntimeBuild 예제는 Package Manager Samples에서 가져올 수 있다.
+5. 동기화 결과는 canonical 원본과 `.meta`를 byte 단위로 보존하며 재실행해도 동일하다.
+6. 기존 R9 `.unitypackage` 생성과 공개 계획 API는 계속 동작한다.
+7. UPM 소비 프로젝트의 modular Baked Stage 배포는 동작하고 지원하지 않는 standalone 조합은 내보내기 전에 설명 가능한 오류가 된다.
+8. 검증 프로젝트·캐시·로그는 `E:\CodexValidation`과 `E:\CodexTemp`에만 생성한다.
+
+## R9.1 실행 결과
+
+- `UpmPackages`에 Core·Lab·Baking `0.12.0` package와 Core RuntimeBuild Sample을 추가하고 원본 bytes·`.meta`를 보존하는 결정적 동기화기를 구현했다.
+- 기존 R9 `.unitypackage`와 공개 계획 API를 유지하면서 UPM Baking의 modular Stage export와 Core package sidecar 요구사항을 지원하고 package cache standalone 재포장을 `RDL-DIST-012`로 차단했다.
+- UPM 전용 EditMode `4/4`, 전체 EditMode `99/99`, PlayMode `11/11`이 Unity `6000.5.3f1`에서 통과했다.
+- `E:\CodexValidation\RogueDungeonLabR91\Run_20260902_193146`의 Core-only, Lab, Baking 소비 프로젝트가 local UPM 설치에 성공했다.
+- Core-only 소비 프로젝트는 Sample과 두 RuntimeBuild source를 로드하고 HUD/Input System 없는 Windows64 Development Player를 오류·경고 `0`개로 빌드했다.
+- Baking 소비 프로젝트는 실제 영속 Bake와 Core 요구사항이 포함된 modular Stage package·SHA-256 sidecar를 생성했다.
+- Git URL은 아직 commit/push되지 않은 작업 트리라 원격 설치를 실행하지 않았으며, push 뒤 실제 revision을 고정하는 절차를 문서화했다.

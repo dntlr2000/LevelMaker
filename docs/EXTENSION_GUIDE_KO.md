@@ -138,6 +138,20 @@ Baked Stage sidecar의 `requiredPackages`는 Shader가 속한 render pipeline pa
 
 패키지 API는 `DungeonDistributionExporter.PlanRuntimeCore`, `PlanRuntimeExamples`, `PlanLabSample`, `PlanBakeAuthoring`, `PlanBakedStage`로 계획과 검증 리포트를 먼저 만들고, 유효한 계획만 `Export`로 파일화합니다. CI는 원본 프로젝트의 `R9PackageVerificationSetup.ExportAllFromBatch`와 깨끗한 소비 프로젝트의 `tools/verify-r9-packages.ps1`을 사용할 수 있습니다.
 
+R9.1의 기본 재사용 경로는 `RogueDungeonUpmPackageExporter.SyncTrackedPackages`가
+생성하는 Core·Lab·Baking 세 UPM package입니다. 팀 저장소에서는 같은 Git revision의
+Core URL을 항상 직접 dependency로 두고 필요한 Lab 또는 Baking URL만 추가합니다.
+Core package의 RuntimeBuild 예제는 `Samples~/RuntimeBuild`이므로 제품 assembly에
+자동 포함되지 않습니다. 자동 소비 검증은 `tools/verify-r9.1-upm-packages.ps1`을
+사용하며 project·로그는 `E:\CodexValidation`, TEMP/TMP는 `E:\CodexTemp`에 둡니다.
+
+UPM Baking을 확장하는 프로젝트는 `DungeonStageBaker.Bake`와 modular
+`DungeonDistributionExporter.PlanBakedStage`를 호출할 수 있습니다. 설치된 UPM
+Core를 `AssetDatabase.ExportPackage`로 다시 합치는 standalone 출력은 지원하지 않고
+`RDL-DIST-012`로 차단합니다. standalone 전달물이 필요하면 canonical LevelMaker
+소스에서 기존 R9 exporter를 실행합니다. 세부 설치와 Git `?path=` URL은
+[R9.1 UPM 가이드](R9_1_UPM_GUIDE_KO.md)를 따릅니다.
+
 ## 제품화 경로
 
 - 저장 맵을 생성 코드 없이 사용: `R5.2 → R6`
@@ -146,7 +160,7 @@ Baked Stage sidecar의 `requiredPackages`는 Shader가 속한 render pipeline pa
 - 수동으로 spawn을 편집한 제작 변형: 구현된 `R6 → R7` 경로 사용
 - 실제 게임 세이브/재개: 구현된 R8 RunState와 최종 Blueprint·stable spawn ID 계약 사용
 
-구현된 `R9A`는 생성·Blueprint·Loader·RuntimeBuild와 선택 Sample의 assembly/package를 분리합니다. 구현된 `R9B`는 manifest, Bake material set, Baked Prefab과 의존 자산을 modular/standalone 묶음으로 수집합니다. 구체적인 설치 순서는 [R9 패키지 가이드](R9_PACKAGE_GUIDE_KO.md)를 따릅니다.
+구현된 `R9A`는 생성·Blueprint·Loader·RuntimeBuild와 선택 Sample의 assembly/package를 분리합니다. 구현된 `R9B`는 manifest, Bake material set, Baked Prefab과 의존 자산을 modular/standalone 묶음으로 수집합니다. R9.1은 공통 코드·제작 도구를 UPM 로컬/Git 설치로 확장합니다. legacy 파일 설치는 [R9 패키지 가이드](R9_PACKAGE_GUIDE_KO.md), 반복 설치는 [R9.1 UPM 가이드](R9_1_UPM_GUIDE_KO.md)를 따릅니다.
 
 ## 선택 backlog
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.13.0
+
+- 절차 생성 직후 검증·Build 전에 실행되는 결정적 `IDungeonBlueprintPostprocessor` 계약 추가
+- RunSeed, request ID와 런타임 후처리 override를 전달하는 StageDefinition facade 추가
+- Core·Lab·Baking UPM package를 0.13.0으로 동기화
+- 제품 전용 Stage 저작·Bake·소비 검증 자료를 범용 프로젝트 밖의 독립 참조 샘플로 분리
+- 알려진 제품 경로와 토큰의 Runtime·UPM·Build Settings 유입을 차단하는 릴리즈 경계 검사와 점검표 추가
+- Unity `6000.5.3f1` 분리 사본에서 compile, EditMode `101/101`, PlayMode `11/11` 및 Core-only·Lab·Baking UPM 소비 검증 통과
+
+## 0.12.0
+
+- Runtime Core, 선택 Lab Sample, Editor-only Baking Tools를 `UpmPackages`의 독립 UPM package로 추가
+- 기존 Runtime·RuntimeBuild Examples·Lab·Baking/Packaging 원본과 `.meta`를 byte 단위로 보존하는 결정적 동기화기와 Editor 메뉴 추가
+- Core 예제를 `Samples~/RuntimeBuild`로 노출하고 package별 Unity 6000.5 manifest·README·CHANGELOG·LICENSE 안내 생성
+- 로컬 `file:` dependency와 Git monorepo `?path=` URL, 동일 commit/tag 고정 및 중복 legacy 설치 금지 문서화
+- UPM Baking의 modular Baked Stage 내보내기와 Core package sidecar 요구사항 지원
+- 설치된 package cache를 legacy Core/Baking/standalone `.unitypackage`에 재포장하려는 경로를 `RDL-DIST-012`로 차단
+- UPM manifest·의존 경계·원본 GUID/byte parity·반복 sync hash EditMode `4/4` 통과
+- Core-only, Lab, Baking 세 Unity `6000.5.3f1` 소비 프로젝트의 local UPM 설치와 Core Windows Player·실제 Bake/modular Stage 배포 검증 성공
+- Unity `6000.5.3f1` 전체 EditMode `99/99`, PlayMode `11/11` 통과
+- 검증 project·cache·로그 기본 경로를 `E:\CodexValidation`, TEMP/TMP를 `E:\CodexTemp`로 정리
+
 ## 0.11.0
 
 - Runtime Core에서 Input System, Lab HUD·카메라·클릭 입력·임시 플레이어를 제거하고 GUID를 보존한 `RogueDungeonLab.Samples` 선택 assembly로 분리

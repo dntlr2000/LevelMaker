@@ -521,7 +521,7 @@ R5.2 뒤 시작할 수 있으며 R6 완료를 요구하지 않습니다.
 - 코어 생성·Blueprint·Loader와 실험실 HUD/임시 플레이어 의존성 분리
 - Input System 의존 코드는 선택적 Sample 또는 별도 assembly로 이동
 - 기존 `RogueDungeonLab.Runtime` 참조가 깨지지 않는 migration 경로 준비
-- UPM 구조 또는 복사 가능한 `Assets/RogueDungeonLab` 배포 구조 확정
+- 복사 가능한 legacy `.unitypackage` 배포 구조 확정
 - Procedural·SavedBlueprint RuntimeBuild용 카탈로그·Blueprint·StageDefinition 예제와 통합 가이드 작성
 - 소비 프로젝트용 최소 smoke scene과 Player build 테스트 제공
 
@@ -544,6 +544,27 @@ R6 완료 뒤 시작합니다.
 
 Unity `6000.5.3f1`의 Input System 없는 깨끗한 프로젝트에서 Core+Examples Procedural·SavedBlueprint 로드와 Windows64 Player 빌드가 오류·경고 `0`개로 성공했습니다. 별도 프로젝트에서는 sidecar의 URP `17.5.0`을 복원하고 Bake Authoring+modular Baked Stage의 manifest/final hash·stable identity·저장 Mesh를 확인한 뒤 Player 빌드에 성공했습니다. 전체 회귀는 EditMode `95/95`, PlayMode `11/11`입니다.
 
+### R9.1 — UPM·Git URL 배포 확장 (구현·통합 검증 완료)
+
+R9.1은 R9의 assembly 경계를 바꾸지 않고 Core·Lab·Baking을 각각 `UpmPackages`
+아래의 custom package로 투영합니다. `RogueDungeonUpmPackageExporter`가 canonical
+`Assets/RogueDungeonLab` 원본과 `.meta`를 결정적으로 동기화하며 RuntimeBuild 예제는
+Core의 `Samples~/RuntimeBuild`로 제공합니다.
+
+- Core-only UPM은 Input System, Lab HUD와 Editor 도구를 포함하지 않음
+- Lab은 Core+Input System, Baking은 Core만 직접 기능 dependency로 사용
+- 로컬 `file:` 경로와 Git monorepo `?path=` URL 설치 지원
+- Git custom dependency의 registry 해석을 피하기 위해 Core도 소비 manifest에 직접 기록
+- UPM Baking에서 modular Baked Stage를 내보내고 package cache standalone 재포장은
+  `RDL-DIST-012`로 차단
+- legacy `.unitypackage` 일곱 단위와 standalone 생성은 canonical 소스에서 계속 지원
+
+완료 기준: 세 local UPM package를 설치한 서로 다른 Unity `6000.5` 소비 프로젝트가
+Core RuntimeBuild Player, 선택 Lab assembly와 Editor Baking·modular Stage 배포를 각각
+성공해야 합니다. 현재 전용 EditMode `4/4`와 Core/Lab/Baking 깨끗한 소비 검증이
+통과했고 전체 회귀는 EditMode `99/99`, PlayMode `11/11`입니다. 자세한 설치·검증
+계약은 [R9.1 UPM 가이드](R9_1_UPM_GUIDE_KO.md)에 있습니다.
+
 ### R10 — 런타임 사용자 제작 맵 저장(선택)
 
 에디터 제작 맵과 별도로 최종 플레이어가 게임 안에서 만든 맵을 저장해야 할 때만 진행합니다.
@@ -561,12 +582,13 @@ Unity `6000.5.3f1`의 Input System 없는 깨끗한 프로젝트에서 Core+Exam
 - 저장 Blueprint를 생성 코드 없이 배포하려면 `R5.2 → R6`가 필수입니다.
 - 다른 프로젝트에서 RuntimeBuild만 사용하려면 구현된 `R5.2 → R9A` 경로를 사용할 수 있습니다.
 - 다른 프로젝트로 BakedPrefab까지 배포하려면 구현된 `R5.2 → R6 → R9B` 경로를 사용합니다.
+- 반복 설치·CI revision 고정이 필요하면 R9A/R9B 공통 코드를 `R9.1 UPM`으로 설치합니다.
 - `R7`은 수동 제작 변형이 필요한 제품의 authoring 단계로 구현되었고, `R8`은 실제 게임 세이브/재개가 필요한 제품의 gameplay 단계입니다. 둘은 서로 다른 데이터를 다루며 R7 Override는 정적 제작 변형, R8 RunState는 플레이 중 변화만 소유합니다.
 - `R10`과 방 의미론, 다층, NavMesh, 대형 맵 최적화, 고급 드랍 규칙, CSV/JSON 통계 내보내기는 명시적 선택 backlog입니다. 해당 요구가 확정되기 전에는 R6 범위를 넓히지 않습니다.
 
 ## 8. 현재·예정 파일 구조
 
-R5.2의 Runtime Bake 계약은 `Runtime/Baking`, R7의 비파괴 데이터·hash·검증·적용·재결합 분석은 `Runtime/Overrides`, R8의 플레이 진행 DTO·저장소·적용과 Generator facade는 `Runtime/RunState`에 둡니다. R9에서 `DungeonStageBaker`는 `Editor/Baking`, dependency 수집·내보내기는 `Editor/Packaging`, HUD·카메라·클릭 입력·임시 플레이어는 `Samples/Lab`으로 분리했습니다. 새 타입은 역할별 파일로 추가하고, 기존 대형 파일 분리는 동작 지문을 확보한 뒤 진행합니다. Unity `6000.5` 직렬화 안정성을 위해 모든 MonoBehaviour와 ScriptableObject는 타입명과 같은 연결 파일을 유지합니다.
+R5.2의 Runtime Bake 계약은 `Runtime/Baking`, R7의 비파괴 데이터·hash·검증·적용·재결합 분석은 `Runtime/Overrides`, R8의 플레이 진행 DTO·저장소·적용과 Generator facade는 `Runtime/RunState`에 둡니다. R9에서 `DungeonStageBaker`는 `Editor/Baking`, dependency 수집·내보내기는 `Editor/Packaging`, HUD·카메라·클릭 입력·임시 플레이어는 `Samples/Lab`으로 분리했습니다. R9.1의 `UpmPackages`는 이 세 원본 경계를 설치 단위로 동기화한 사본이며 직접 편집하지 않습니다. 새 타입은 역할별 파일로 추가하고, 기존 대형 파일 분리는 동작 지문을 확보한 뒤 진행합니다. Unity `6000.5` 직렬화 안정성을 위해 모든 MonoBehaviour와 ScriptableObject는 타입명과 같은 연결 파일을 유지합니다.
 
 ```text
 Assets/RogueDungeonLab/
@@ -613,7 +635,8 @@ Assets/RogueDungeonLab/
 │  │  └─ DungeonStageBaker.cs
 │  └─ Packaging/
 │     ├─ RogueDungeonLab.Editor.Packaging.asmdef
-│     └─ DungeonDistributionExporter.cs
+│     ├─ DungeonDistributionExporter.cs
+│     └─ RogueDungeonUpmPackageExporter.cs
 ├─ Examples/
 │  └─ RuntimeBuild/
 ├─ Samples/
@@ -625,6 +648,11 @@ Assets/RogueDungeonLab/
 └─ Tests/
    ├─ EditMode/
    └─ PlayMode/
+
+UpmPackages/
+├─ com.dntlr2000.rogue-dungeon-lab.core/
+├─ com.dntlr2000.rogue-dungeon-lab.lab/
+└─ com.dntlr2000.rogue-dungeon-lab.baking/
 ```
 
 실제 이동 시 기존 `.meta` GUID를 보존하고, assembly를 옮기는 직렬화 타입에는 필요한 migration attribute와 장면 재로드 검증을 함께 적용합니다.
@@ -683,11 +711,13 @@ Assets/RogueDungeonLab/
 | Bake와 논리 데이터가 어긋남 | Runtime-safe `DungeonBakeManifest`와 RuntimeBuild/BakedPrefab parity 검증 |
 | 실패한 재Bake가 정상 산출물이나 공유 자산을 손상 | stage 전용 staging/commit과 manifest `ownedArtifacts` 기반 정리 |
 | Input System 없는 프로젝트가 컴파일 실패 | R9에서 코어와 선택 Sample assembly 분리 |
+| 팀 프로젝트가 `.unitypackage`를 반복 수동 import해 버전이 어긋남 | R9.1 UPM Git URL과 동일 revision 직접 dependency 사용 |
+| UPM Core와 legacy Core를 중복 설치해 GUID·assembly 충돌 | 동일 역할 설치 방식 하나만 선택하고 전환 절차 문서화 |
 | 오래된 세이브가 다른 맵에 적용됨 | RunState의 blueprintHash 확인과 migration hook |
 
 ## 12. 완료된 구현 묶음과 다음 단계
 
-R0부터 R9까지의 절차 생성·첫 저장형 스테이지·배포용 BakedPrefab·비파괴 제작 변형·플레이 진행 재개·다른 프로젝트용 패키징 파이프라인은 구현 및 통합 검증을 완료했습니다.
+R0부터 R9.1까지의 절차 생성·첫 저장형 스테이지·배포용 BakedPrefab·비파괴 제작 변형·플레이 진행 재개·다른 프로젝트용 legacy/UPM 패키징 파이프라인은 구현 및 통합 검증을 완료했습니다.
 
 1. 현재 결과 지문을 만드는 EditMode 테스트
 2. `DungeonRecipeSnapshot`과 `DungeonGenerationRequest`
@@ -723,5 +753,7 @@ R0부터 R9까지의 절차 생성·첫 저장형 스테이지·배포용 BakedP
 32. Runtime Examples, Bake Authoring과 Baked Stage modular/standalone `.unitypackage`
 33. dependency closure, SHA-256 sidecar, render pipeline/package 탐지와 배포 차단 코드
 34. Input System 없는 Runtime 소비 프로젝트와 URP Baked 소비 프로젝트 Windows Player 빌드
+35. Runtime Core·Lab·Baking의 결정적 UPM package 동기화와 Git `?path=` 설치 계약
+36. Core/Lab/Baking local UPM 깨끗한 소비 프로젝트와 modular Baked Stage 검증
 
 다음 기본 구현 단계는 없습니다. R10의 빌드된 게임 내 사용자 제작 맵 저장은 제품 요구가 확정될 때만 선택적으로 착수합니다. 방 의미론·다층·NavMesh·대형 맵 최적화도 독립 backlog이며, R8에서 남은 실제 HUD 가독성과 Play 중 script/domain reload는 수동 점검 범위입니다.

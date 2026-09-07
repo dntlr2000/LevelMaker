@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Project Path="RogueDungeonLab.Runtime.csproj" />
+  <Project Path="RogueDungeonLab.Editor.csproj" />
+  <Project Path="RogueDungeonLab.EditModeTests.csproj" />
+  <Project Path="RogueDungeonLab.Editor.Packaging.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="RogueDungeonLab.Samples.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="RogueDungeonLab.PlayModeTests.csproj" />
+  <Project Path="RogueDungeonLab.Editor.Baking.csproj" />
+</Solution>

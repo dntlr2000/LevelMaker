@@ -1,0 +1,22 @@
+{
+  "name": "com.dntlr2000.rogue-dungeon-lab.core",
+  "version": "0.13.0",
+  "displayName": "Rogue Dungeon Lab - Runtime Core",
+  "description": "Deterministic runtime dungeon generation, saved blueprints, baked-stage loading, and run-state persistence.",
+  "unity": "6000.5",
+  "license": "See LICENSE.md",
+  "author": {
+    "name": "dntlr2000"
+  },
+  "dependencies": {
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.unity.modules.physics": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "RuntimeBuild Examples",
+      "description": "HUD-free Procedural and SavedBlueprint RuntimeBuild examples.",
+      "path": "Samples~/RuntimeBuild"
+    }
+  ]
+}

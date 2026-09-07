@@ -1,6 +1,6 @@
 # 아키텍처
 
-이 문서는 R5.2 승인 기준선, 검증 완료된 R6 Mesh·Prefab Bake, R7 비파괴 Stage Override, R8 RunState와 R9 프로젝트 간 패키징의 구현·통합 검증 경계를 설명합니다. 선택 후속 단계는 [스테이지 제작·배포 통합 로드맵](STAGE_PIPELINE_ROADMAP_KO.md)을 참고합니다.
+이 문서는 R5.2 승인 기준선, 검증 완료된 R6 Mesh·Prefab Bake, R7 비파괴 Stage Override, R8 RunState, R9 legacy 배포와 R9.1 UPM·Git URL 패키징의 구현·통합 검증 경계를 설명합니다. 선택 후속 단계는 [스테이지 제작·배포 통합 로드맵](STAGE_PIPELINE_ROADMAP_KO.md)을 참고합니다.
 
 ## 파이프라인
 
@@ -274,7 +274,7 @@ RuntimeBuild는 `DungeonSceneBuilder.Build` 직후의 비활성 root, BakedPrefa
 
 `IDungeonRunStateStore`는 `Save`, `TryLoad`, `Delete`, `Exists`만 정의합니다. 기본 JSON 구현은 영숫자·하이픈·밑줄 슬롯을 `persistentDataPath` 아래에 저장하고, 임시 파일을 UTF-8로 flush한 뒤 기존 파일이 있으면 `File.Replace`로 교체합니다. parse·canonical hash가 손상된 파일은 Loader에 전달하지 않습니다. 테스트나 제품 저장 계층은 메모리·계정·클라우드 구현을 주입할 수 있습니다.
 
-## R9 assembly와 배포 경계
+## R9·R9.1 assembly와 배포 경계
 
 R9는 기능 단위가 아니라 제품 포함 여부를 기준으로 assembly를 나눕니다.
 
@@ -293,6 +293,29 @@ R9는 기능 단위가 아니라 제품 포함 여부를 기준으로 assembly�
 package shader는 `AssetDatabase.GetDependencies`만으로 누락될 수 있어 Material과 Renderer의 Shader 경로도 별도로 검사합니다. `com.unity.modules.*`는 Unity 기본 모듈로 처리하고, 그 밖의 package는 sidecar `requiredPackages`에 설치 버전을 기록합니다. MaterialSet 또는 Prefab이 Built-in·URP·HDRP·custom 파이프라인을 혼합하면 배포 전 오류로 중단합니다.
 
 Editor main UI와 Tests는 어떤 제품 Baked Stage dependency에도 허용하지 않습니다. 생성된 `.unitypackage.json`은 package 파일 SHA-256, Unity 버전, asset path, stage/source/final/override hash와 render pipeline을 인계 계약으로 보존합니다.
+
+R9.1의 `RogueDungeonUpmPackageExporter`는 이 assembly 경계를 UPM 설치 단위로
+투영합니다. 개발의 canonical 원본은 계속 `Assets/RogueDungeonLab`에만 있고,
+`UpmPackages`는 원본 bytes와 `.meta` GUID를 보존한 결정적 배포 사본입니다.
+
+| UPM package | 포함 경로 | 의존 경계 |
+|---|---|---|
+| `com.dntlr2000.rogue-dungeon-lab.core` | `Runtime`, `Samples~/RuntimeBuild` | JSON·Physics engine module만 사용 |
+| `com.dntlr2000.rogue-dungeon-lab.lab` | Sample assembly를 package `Runtime`으로 배치 | Core + Input System + 직접 사용하는 IMGUI·Physics module |
+| `com.dntlr2000.rogue-dungeon-lab.baking` | `Editor/Baking`, `Editor/Packaging` | Core, Editor에서만 컴파일 |
+
+동기화기는 알려진 세 package 직계 경로만 재생성하고 root 문서와 package manifest도
+고정 GUID로 기록합니다. `Samples~`는 Core 코드와 컴파일되지 않으며 소비자가 Package
+Manager에서 가져올 때만 `Assets/Samples`로 복사됩니다. 저장소 유지보수용 동기화기와
+통합 실험실 `RogueDungeonLab.Editor` UI는 Baking 소비 package에 포함하지 않습니다.
+
+UPM으로 설치된 Baking의 `DungeonDistributionExporter`는 legacy `Assets` 원본이
+없을 때 `Packages/com.dntlr2000...` 경로를 인식합니다. Baked Stage dependency의
+package-cache 자산은 modular `.unitypackage`에서 제외하고 Core package ID·설치
+버전을 sidecar에 기록합니다. Unity `AssetDatabase.ExportPackage`가 설치된 package
+cache를 다시 포함할 수 없는 경계 때문에 Core/Baking 자체 재포장과 standalone
+Baked Stage는 `RDL-DIST-012`로 사전 차단하며, 기존 소스 저장소에서 만드는 R9
+standalone 경로는 계속 유지합니다.
 
 ## Unity 6000.5 직렬화
 

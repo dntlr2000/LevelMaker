@@ -1,8 +1,8 @@
 # 테스트 계획
 
-## R0·R1·R2·R3·R4·R5·R5.1·R5.2·R6·R7·R8·R9 승인 기준
+## R0·R1·R2·R3·R4·R5·R5.1·R5.2·R6·R7·R8·R9·R9.1 승인 기준
 
-R9 변경 뒤 Unity `6000.5.3f1` compile, 전체 EditMode `95/95`와 PlayMode `11/11`을 통과했습니다. R8 승인 기준이던 EditMode 89개와 PlayMode 11개도 같은 전체 실행에 포함됩니다.
+0.13.0 및 제품 Stage 분리 뒤 Unity `6000.5.3f1` compile, 전체 EditMode `101/101`와 PlayMode `11/11`을 통과했습니다. R9.1 승인 기준이던 EditMode 99개와 PlayMode 11개도 같은 전체 실행에 포함됩니다.
 
 - Compact `12345`, Balanced `-987654321`, Chaos `20260719`의 방·floor·BFS·콘텐츠 셀 SHA-256 Golden 지문
 - 같은 프리셋·시드 반복 생성 지문 일치
@@ -182,3 +182,39 @@ Windows64 Development Player는 `R8PlayerBuildSmoke.BuildFromBatch`가 R8 전용
 최종 빌드 폴더 크기는 Runtime `152,943,647 B`(238 files), Baked `162,951,039 B`(279 files)입니다. 이 수치는 기능 제한이 아니라 동일 Unity·플랫폼에서 산출물이 실제 생성됐다는 인계 기록입니다.
 
 최종 원본 프로젝트 회귀는 `Logs/R9FullEditModeFinal.xml`의 EditMode `95/95`, `Logs/R9FullPlayModeFinal.xml`의 PlayMode `11/11`입니다. 실제 다른 제품 프로젝트의 커스텀 render feature·Addressables/DI adapter, Lab Sample HUD의 다양한 해상도 육안과 Play 중 script/domain reload는 제품별 수동 확인 범위입니다.
+
+## R9.1 UPM·Git URL 소비 검증
+
+`RogueDungeonUpmPackageTests`는 Core·Lab·Baking manifest의 ID/version/Unity/dependency
+경계, Core의 `Samples~/RuntimeBuild`, canonical 원본과 `.meta`의 byte parity,
+Baking package의 저장소 전용 sync exporter 제외, 알 수 없는 삭제 대상 차단과 연속
+동기화 tree SHA-256 동일성을 검사합니다. 전용 EditMode 결과는
+`E:\CodexValidation\RogueDungeonLabR91_UpmEditMode.xml`에서 `4/4` 통과했습니다.
+
+`tools/verify-r9.1-upm-packages.ps1`은
+`E:\CodexValidation\LevelMakerReleaseBoundary_20260904_225710\R91Consumers\Run_20260904_230148` 아래에 서로 독립적인
+Unity `6000.5.3f1` 소비 프로젝트 세 개를 만들었습니다.
+
+- Core-only 프로젝트는 local UPM Core만 직접 설치하고 RuntimeBuild Sample의
+  Procedural·SavedBlueprint Definition/scene과 새 두 source를 모두 로드했습니다.
+  `RogueDungeonLab.Samples`가 없는 상태에서 HUD 없는 Windows64 Development Player를
+  오류·경고 `0`개로 빌드했습니다.
+- Lab 프로젝트는 Core·Lab `0.13.0`과 Lab이 요구한 Input System `1.19.0`의 package
+  lock을 확인하고 자유 카메라·HUD·클릭 interactor·임시 플레이어 컴포넌트를 scene에
+  직렬화했습니다.
+- Baking 프로젝트는 Core·Baking `0.13.0`만 설치해 SavedBlueprint를 영속
+  Mesh·Prefab으로 실제 Bake했습니다. modular Baked Stage `.unitypackage`와 SHA-256
+  sidecar가 생성되고 Core UPM 요구사항이 기록됐으며, package cache를 합치는 Core,
+  Bake Authoring 및 standalone Stage legacy 계획은 `RDL-DIST-012`로 차단됐습니다.
+
+근거는 해당 run root의 `CoreConsumer.log`, `LabConsumer.log`, `BakingConsumer.log`와
+`VERIFICATION_SUMMARY.json`입니다. GitHub 원격 URL 설치는 변경 commit이 아직 push되지
+않은 작업 트리에서는 재현할 수 없으므로, 로컬 `file:` dependency로 동일한 세
+`package.json`과 assembly 경계를 검증했습니다. push 후에는 문서의 `?path=` URL을
+실제 commit SHA로 고정해 CI에서 한 번 더 확인합니다.
+
+최종 분리 사본 회귀는 `E:\CodexValidation\LevelMakerReleaseBoundary_20260904_225710\EditMode.xml`의
+EditMode `101/101`, 같은 폴더 `PlayMode.xml`의 PlayMode `11/11`입니다. UPM 전용
+`4/4`도 전체 EditMode에 포함되며, 범용 UPM 세 소비 프로젝트 smoke는 위 run root의
+`VERIFICATION_SUMMARY.json`에 기록했습니다. `tools/verify-release-boundaries.ps1`도 제품
+전용 경로·토큰과 Build Settings 유입 없음으로 통과했습니다.

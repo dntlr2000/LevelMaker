@@ -135,6 +135,12 @@ namespace RogueDungeonLab.Editor
             EditorGUILayout.HelpBox(
                 "Runtime Core에는 실험실 HUD·임시 플레이어와 Input System 의존성이 없습니다. Lab Sample은 선택 설치하며, Baked Stage 묶음은 최신 manifest와 Player 의존 자산만 내보냅니다.",
                 MessageType.Info);
+            if (GUILayout.Button("R9.1 UPM 패키지 동기화", GUILayout.Height(26f)))
+                SyncUpmDistributionPackages();
+            EditorGUILayout.LabelField(
+                "Core·Lab·Baking을 UpmPackages에 갱신합니다. Git URL 또는 로컬 Package Manager 설치에 사용하세요.",
+                EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.Space(4f);
             EditorGUILayout.BeginHorizontal();
             _stageDistributionFolder = EditorGUILayout.TextField(
                 "출력 폴더",
@@ -195,6 +201,31 @@ namespace RogueDungeonLab.Editor
             EditorGUILayout.LabelField(
                 "각 .unitypackage 옆 JSON에는 Unity 버전, 요구 package, 포함 경로와 SHA-256이 기록됩니다.",
                 EditorStyles.wordWrappedMiniLabel);
+        }
+
+        // 개발 원본에서 R9.1 Core·Lab·Baking UPM package를 동기화하고 위치를 표시합니다.
+        private static void SyncUpmDistributionPackages()
+        {
+            try
+            {
+                DungeonUpmPackageSyncResult result =
+                    RogueDungeonUpmPackageExporter.SyncTrackedPackages();
+                string corePath =
+                    RogueDungeonUpmPackageExporter.GetAbsolutePackagePath(
+                        RogueDungeonUpmPackageExporter.CorePackageName);
+                string root = Path.GetDirectoryName(corePath);
+                EditorUtility.RevealInFinder(root);
+                EditorUtility.DisplayDialog(
+                    "R9.1 UPM 동기화 완료",
+                    result.packages.Count + "개 패키지, " +
+                    result.CountFiles() + "개 파일\n버전 " + result.version +
+                    "\n\n" + root,
+                    "확인");
+            }
+            catch (Exception exception)
+            {
+                ShowAuthoringFailure("R9.1 UPM 동기화 실패", exception);
+            }
         }
 
         // 선택 계획을 검증하고 고정 package ID 이름으로 .unitypackage와 sidecar를 생성합니다.

@@ -1,0 +1,17 @@
+{
+  "name": "com.dntlr2000.rogue-dungeon-lab.lab",
+  "version": "0.13.0",
+  "displayName": "Rogue Dungeon Lab - Lab Sample",
+  "description": "Optional in-game lab HUD, free camera, click interaction, and prototype player controls.",
+  "unity": "6000.5",
+  "license": "See LICENSE.md",
+  "author": {
+    "name": "dntlr2000"
+  },
+  "dependencies": {
+    "com.dntlr2000.rogue-dungeon-lab.core": "0.13.0",
+    "com.unity.inputsystem": "1.19.0",
+    "com.unity.modules.imgui": "1.0.0",
+    "com.unity.modules.physics": "1.0.0"
+  }
+}

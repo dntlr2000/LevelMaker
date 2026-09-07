@@ -1,0 +1,16 @@
+{
+  "name": "com.dntlr2000.rogue-dungeon-lab.baking",
+  "version": "0.13.0",
+  "displayName": "Rogue Dungeon Lab - Baking Tools",
+  "description": "Editor-only persistent mesh and prefab baking plus modular baked-stage distribution tools.",
+  "unity": "6000.5",
+  "license": "See LICENSE.md",
+  "author": {
+    "name": "dntlr2000"
+  },
+  "dependencies": {
+    "com.dntlr2000.rogue-dungeon-lab.core": "0.13.0",
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.unity.modules.physics": "1.0.0"
+  }
+}
