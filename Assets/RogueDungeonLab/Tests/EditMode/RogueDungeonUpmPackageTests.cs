@@ -121,6 +121,18 @@ namespace RogueDungeonLab.Tests
                 Is.False);
         }
 
+        [Test]
+        public void LabPackage_ContainsPortableArenaEditorWithoutBakingDependency()
+        {
+            string labRoot = GetPackageRoot(RogueDungeonUpmPackageExporter.LabPackageName);
+            string source = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Assets/RogueDungeonLab/Editor/FpsArenaWindow.cs");
+            AssertFilesEqual(source, Path.Combine(labRoot, "Editor", "FpsArenaWindow.cs"));
+            AssertFilesEqual(source + ".meta", Path.Combine(labRoot, "Editor", "FpsArenaWindow.cs.meta"));
+            string assembly = File.ReadAllText(Path.Combine(labRoot,"Editor","RogueDungeonLab.Arena.Editor.asmdef"));
+            StringAssert.Contains("RogueDungeonLab.Runtime",assembly); StringAssert.Contains("RogueDungeonLab.Samples",assembly); StringAssert.Contains("Editor",assembly);
+            StringAssert.DoesNotContain("RogueDungeonLab.Editor.Baking",assembly); StringAssert.DoesNotContain("RogueDungeonLab.Editor.Packaging",assembly);
+        }
+
         // 같은 개발 원본을 연속 동기화해 package 파일 수와 tree hash가 같음을 확인합니다.
         [Test]
         public void SyncTrackedPackages_IsDeterministicAcrossRepeatedRuns()

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.14.0
+
+- Flexible FPS Arena V2: seeded stairs, varied cover footprints/shapes, independent enemy/gimmick/item densities, actual prefab catalog and initialization hooks.
+- Preserve saved V1 recipes/hashes until explicit upgrade; add portable Lab Editor authoring tabs.
+
 ## 0.13.0
 
 - 절차 생성 직후 검증·Build 전에 실행되는 결정적 `IDungeonBlueprintPostprocessor` 계약 추가

@@ -324,3 +324,29 @@ standalone 경로는 계속 유지합니다.
 드랍 정의는 항목 정규화 후 해시를 계산합니다. 내부 정규화를 사용자 편집으로 오인해 첫 통계 표본을 초기화하지 않습니다.
 
 R5.1 자산 회귀는 Blueprint·선택 레시피와 StageDefinition을 프로젝트에 저장한 뒤 강제 재임포트해 중첩 데이터와 자산 참조가 유지되는지 검사합니다. 설정 적용·Undo, 기존 snapshot 없는 자산, 손상 snapshot 차단과 StableV2 동일 hash 재생성도 자동 검증합니다. 실제 Unity 프로세스 완전 종료·재시작은 수동 검증으로 별도 유지합니다.
+
+## FPS Arena V1 독립 다층 경로
+
+`FpsArenaSettings/FpsArenaRecipe → FpsArenaPlanner → FpsArenaLayout → FpsArenaSceneBuilder → FpsArenaGenerator`는 다층 셀/계단/예약 영역/콘텐츠 ID를 소유합니다. 기존 2D Blueprint 계약과 생성 버전을 변경하지 않습니다. 형상과 계단은 설정에 의해, 콘텐츠는 범주/층별 Stable PRNG로 결정됩니다. 단층 slab opening과 계단 링크를 검증한 뒤 모든 비점유 셀의 reachability를 확인합니다. Runtime Core에는 입력 의존성이 없으며 `FpsArenaPlayer`는 선택 Lab assembly에 위치합니다. 자세한 기능/제약은 FPS 아레나 가이드에 있습니다.
+
+## FPS Arena V2
+
+Arena는 기존 2D Blueprint/Stage/Bake/RunState 생성 경로와 독립적입니다. `FpsArenaRecipe.generatorVersion`을 통해 LegacyV1과 FlexibleV2를 분기하며 V1 hash에는 원래 14개 필드만 정확한 순서로 직렬화합니다. V2는 PCG 구조·범주별 stream, footprint-safe 다셀 엄폐, four-category 밀도, 정렬된 key/가중치의 asset-free catalog snapshot을 hash에 포함합니다. 모든 계단 opening을 만든 뒤 floor-local BFS로 착지점에서 protected circulation까지 동선을 예약합니다. Scene Builder는 key로 실제 Prefab을 staging root에 생성하고 uniform bounds fit으로 authored 종횡비를 보존하며 `IFpsArenaContentInitializer`를 비활성 상태에서 호출합니다. Generator는 last-built recipe/seed/catalog snapshot을 장면에 저장하므로 입력 catalog 변경이 저장된 geometry metadata를 바꾸지 않습니다. 제품 AI·픽업·기믹 상태 및 NavMesh는 제품 코드의 책임입니다.
+
+내부 벽은 별도 `FpsArenaWall`/`FpsArenaLayout.Walls` 구조물이며 기존 콘텐츠 enum·catalog 범주를 변경하지 않습니다. V2의 계단·착지 접근로 예약 이후 전용 `WallStreamV2`로 배치하고, 콘텐츠 배치의 점유 집합에 벽 solid footprint를 합칩니다. 벽 전체 외곽의 1셀 우회 띠, 긴 벽의 열린 출입구 및 양쪽 1셀 접근 공간을 보장합니다. 후보 벽과 후속 엄폐를 수락하기 전 실제 차단 셀의 전체 BFS 연결성을 검사합니다. 두께는 최대 1m로 최소 2m 셀 안에 들어가고 높이는 층 간 높이 − 0.25m 이하입니다. Scene Builder는 출입구를 제외한 연속 구간마다 BoxCollider를 생성합니다.
+
+`internalWalls`는 기본 OFF입니다. OFF V2는 변경 전 필드 순서의 `FpsArenaV2RecipeSnapshot`만 hash 입력으로 직렬화하고 벽 바이트를 쓰지 않으므로 기존 배치·ID·hash를 정확히 유지합니다. ON은 벽 설정·구조·출입구·예약 공간을 hash에 포함합니다. LegacyV1은 벽 설정을 무시하고 원래 snapshot/hash를 유지합니다. 저장된 built recipe로 벽 DTO와 구조를 재구성하며 설정 자산의 현재 입력과 저장 geometry를 분리하는 기존 계약을 유지합니다.
+
+### 방 개수 기반 구획
+
+`partitionRooms`는 이전 `internalWalls`와 별도 opt-in이다. 활성화하면 층별 같은 `roomsPerFloor` 목표로 clipped BSP 영역을 나눈다. 셀을 벽 점유로 제거하는 대신 공유 셀 경계에 연속 `FpsArenaRoomWall`과 열린 `FpsArenaRoomDoor`를 만든다. 모든 solid 경계와 문을 닫은 전체 경계를 각각 edge set으로 보관하며 `CanTraverse`가 실제 통과 가능 경계를 판단한다. `Rooms`, `RoomConnections`, `RoomReports`, `RoomAt`은 실제 방 구조/그래프/요청 및 미달 이유를 제공한다. `CountClosedRooms`의 독립 flood 결과가 실제 방 수와 일치해야 한다.
+
+구획은 최소 실제 footprint 폭·면적과 floor-local 연결성, 계단 개구부/착지/측면 가드, 스폰 및 기존 출입구 접근 공간을 존중한다. 방 내부 anchor에서 모든 문 lane·스폰·계단 lane까지 경로를 예약하고 벽 양쪽 셀을 콘텐츠에서 제외한다. 콘텐츠의 전체 footprint는 한 방 안에 있어야 한다. 방 구획 모드에서는 기존 열린 아레나의 십자 spine을 방별 예약 경로로 대체한다. 시드 가변 계단 stream은 유지하고 별도 room stream으로 구획을 결정한다.
+
+방 구획이 OFF이면 이전 V2 OFF snapshot 또는 `FpsArenaWallRecipeSnapshot`을 사용하므로 기존 벽 조각을 포함한 저장 결과의 hash를 유지한다. ON에서는 room 설정·경계·문·방·연결·보고서와 예약 영역이 hash 입력에 포함된다. 저장된 built recipe에서 동일 구조를 복원하고 현재 설정 입력과 분리하는 기존 Generator 계약은 유지한다. 런타임은 UnityEditor를 참조하지 않는다.
+
+### 계단 방향
+
+`FpsArenaStair.direction`은 +Z/+X/−Z/−X cardinal 방향이다. 기존 x/z는 항상 footprint 최소 좌표이며 `Cell`, `Forward`, `LaneStep`, `BottomLane/TopLane`, 회전된 `ProtectedBounds`를 모든 기하·경로 코드에서 사용한다. 두 lane 모두 층간 그래프 간선으로 사용한다. 방향 모드는 기존 앞/뒤 band 대신 각 회전의 양층 바닥과 1셀 바깥 고리, 스폰/기존 계단 예약, 같은 층 계단 분리를 통과한 후보만 stair stream으로 shuffle한다. 한 장면에서 네 방향을 강제하지 않는다. 방 BSP 방식은 그대로이며 계단 보호 사각형과 방별 랜딩 경로만 이 좌표계로 일반화했다.
+
+`randomizeStairDirections=false`인 legacy JSON과 마지막 built snapshot은 기존 동작/hash를 유지한다. room mode에는 방향 필드 추가 전의 `FpsArenaRoomRecipeSnapshot`을 사용한다. 새 V2 factory/preset 및 새 편집 입력 기본값은 ON이며, ON hash에는 전체 recipe와 `seeded-stair-directions-v1` 방향 bytes를 포함한다. Unity가 기존 자산의 누락된 새 필드를 현재 편집 입력 초기값으로 채울 수 있으므로 저장 geometry 복원은 built snapshot으로 검증한다. 편집 입력 OFF는 이전 동작을 재생성한다.

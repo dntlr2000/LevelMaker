@@ -174,3 +174,7 @@ Core를 `AssetDatabase.ExportPackage`로 다시 합치는 standalone 출력은 �
 6. guaranteed, independent Bernoulli, weighted group, luck, pity 드랍 규칙
 7. GenerationReport와 통계의 CSV/JSON 내보내기
 8. R10의 빌드된 게임 내 사용자 제작 맵 저장·공유
+
+## 범용 다층 FPS Arena 연동
+
+`FpsArenaRecipe.CreateFlexible()` → `FpsArenaPlanner.Generate(recipe, seed, catalog)` → `FpsArenaSceneBuilder.Build(layout, parent, catalog)`를 사용합니다. scene builder는 비활성 후보를 반환하며 `FpsArenaGenerator.Generate()`는 성공한 후보만 활성화/교체합니다. 기존 V1은 `recipe.Upgraded()`의 새 복사본으로 명시적으로 전환합니다. 콘텐츠는 Cover/Enemy/Gimmick/Item으로 구분하며 configured prefab이 실제 instance로 생성됩니다. initializer context는 stable identity와 seed/layout/record를 전달합니다. custom materials는 prototype color 복원에서 제외합니다. catalog bounds는 authored collider/renderer 전체를 포함해야 하며 동작 중 크기 변화와 외부 physics 이동은 제품에서 안전성을 검증해야 합니다. 단층 DungeonBlueprint 저장/Bake/RunState에 Arena를 혼합하지 않습니다.

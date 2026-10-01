@@ -57,6 +57,7 @@ namespace RogueDungeonLab.Editor
         {
             if(_generator==null)FindBindings();
             Header();
+            if(GUILayout.Button("FPS 아레나 제작 모드 열기")) FpsArenaWindow.Open();
             if(_generator==null)
             {
                 EditorGUILayout.HelpBox("Generator가 없습니다.",MessageType.Info);

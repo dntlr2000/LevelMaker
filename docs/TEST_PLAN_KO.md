@@ -218,3 +218,40 @@ EditMode `101/101`, 같은 폴더 `PlayMode.xml`의 PlayMode `11/11`입니다. U
 `4/4`도 전체 EditMode에 포함되며, 범용 UPM 세 소비 프로젝트 smoke는 위 run root의
 `VERIFICATION_SUMMARY.json`에 기록했습니다. `tools/verify-release-boundaries.ps1`도 제품
 전용 경로·토큰과 Build Settings 유입 없음으로 통과했습니다.
+
+## FPS Arena V1 추가 검증
+
+`FpsArenaTests`와 `FpsArenaTraversalTests`를 추가했습니다. 상세 항목과 클라우드/Unity 실행 경계는 [FPS 아레나 가이드](FPS_ARENA_GUIDE_KO.md)를 참고합니다. 기존 101 EditMode/11 PlayMode 기준선은 이번 변경 후 재실행 결과가 아닙니다. Cloud 정적 sweep 성공만으로 compile, Physics traversal, scene reload 또는 기존 전체 회귀 성공을 선언하지 않습니다.
+
+## Flexible FPS Arena V2 검증
+
+- EditMode `FpsArenaFlexibleTests`: validated V1 golden61f019…fe7b0와 missing-version migration, same-seed/stair variation, extreme shapes/landings, zero/max independent category densities, cover shape/size/full-footprint connectivity, catalog reorder/actual prefab/initializer, bad mapping rollback, authored material/uniform fit, catalog snapshot scene restore, serialization/normalization
+- `FpsArenaEditorFlexibleTests`: explicit upgrade/Undo, shared settings isolation, bounds measurement, actual prefab generation through editor
+- PlayMode `FpsArenaTraversalTests.FlexibleSeededStairs_ClimbDescendBothLanesOnAllFloors`: two seeds, 20×20 ellipse, four floors, maximum height/minimum cell, every stair/both lanes ascent and descent
+- UPM tests: portable Lab Editor byte/GUID parity and Runtime+Samples-only Editor assembly, repeated official sync determinism, clean Core/Lab consumer compilation
+- Cloud static/model checks are not Unity execution. Unity6000.5.3f1 compile, focused/full EditMode/PlayMode, scene/domain reload, actual UI and Physics remain to be run on an isolated local validation copy
+
+## FPS Arena 내부 벽 로컬 회귀
+
+- `FpsArenaWallTests`: 벽 OFF의 변경 전 Unity hash 36개, 전용 stream/구조 안정성, 144개 극단 형상·층·시드·최대 콘텐츠 밀도의 연결성/겹침, 실제 벽 및 네 범주 프리팹 Collider Bounds, 출입구 캡슐 공간, 정규화, 설정 SerializedObject/Undo/저장/재임포트/장면 재열기.
+- `FpsArenaWallTraversalTests`: 실제 CharacterController 출입구/벽 끝 우회/solid 차단, 4층 모든 열린 이웃 셀의 Physics CapsuleCast.
+- `FpsArenaTraversalTests`의 V2 계단은 내부 벽 ON 상태로 양쪽 lane/모든 층의 실제 상승·하강을 검증한다.
+- `tools/ArenaWallsUnityValidation.cs`: 격리 검증 사본에서 GPU 렌더, 새 프로세스 저장 장면 복원, 제작 창 6개 실제 OnGUI, Play 중 RequestScriptReload/도메인 복원과 Edit 복귀를 확인한다. 검증 helper는 제품 assembly에 포함하지 않는다.
+- 전체 테스트 XML, 실제 PNG, 원본 컴파일 로그와 보호/롤백 기록은 `E:\CodexValidation\ArenaWalls_20261001\Evidence` 및 내부 벽 검증 보고서를 참고한다.
+
+## FPS Arena 방 개수 구획 회귀
+
+- `FpsArenaRoomTests`: 이전 OFF/벽 조각 모드의 변경 전 Unity hash 24개, 요청 1/2/3/4/6/8/12개와 닫힌 문 flood 영역 수 일치, 방 연결 그래프, 216개 외곽·층·방 수·시드 프로필, 전체 콘텐츠 연결성/방 내부 footprint, 불가능 요청의 원인, 실제 경계 Collider·문 폭·자산 Undo/저장/재열기/built snapshot.
+- `FpsArenaRoomTraversalTests`: 실제 CharacterController의 모든 문 lane와 4층 계단 양쪽 lane 이동, solid 구획벽 차단, 모든 열린/닫힌 이웃 경계의 실제 Physics CapsuleCast 비교.
+- `tools/ArenaRoomsUnityValidation.cs`: 층별 정확히 4개 방인 2층 예제, GPU 화면·방 그래프, 6개 실제 제작 탭과 결과 UI, 새 Unity 프로세스 재열기, Play 중 script/domain reload·Edit 복귀를 검증한다.
+- 문을 모두 막았을 때 실제 바닥 연결 영역 수가 보고한 방 수와 일치하고, 열린 문 상태에서는 전체 비점유 바닥과 방 그래프가 연결돼야 한다. 벽 개수를 방 개수로 대신 세지 않는다.
+
+## FPS Arena 계단 방향 회귀
+
+- 방향 OFF에서 room 변경 전 18개 + 기존 wall/OFF 60개 Unity golden hash 유지와 accepted room scene 복원.
+- 같은 시드/input 불변 및 24개 시드의 각 층 네 방향 다양성, 콘텐츠 밀도를 바꿔도 계단 방향/위치 불변.
+- 3형상 × 4크기 × 2층 구성 × 1/2계단 × 열린/벽조각/방구획 × 2시드 = 288프로필. 양 lane 착지·회전된 개구부·콘텐츠 전체 장애물 연결성.
+- 실제 발판/난간 Transform, flight 내부 외부 Collider 침입 방지, 양 lane 랜딩 capsule 여유.
+- 3형상 × 4시드 × 2극단 riser/slope profile, 4층의 144계단/두 lane CharacterController 상승·하강과 수평 도착 위치.
+- 방향 옵션 SerializedObject/Undo/저장, 입력과 마지막 built snapshot 분리, 실제 새 프로세스 저장 복원·Play domain reload·6탭 GUI event.
+- 최종 전체 EditMode/PlayMode, 실제 원본 compile, 4시드 GPU 생성 화면 및 64시드 방향 histogram.

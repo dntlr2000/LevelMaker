@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbbb8ae417758519d8b973b6e71bab3, type: 3}
+  m_Name: WallSettings
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.FpsArenaSettings
+  seed: 73125
+  recipe:
+    width: 32
+    depth: 32
+    shape: 2
+    floors: 2
+    cellSize: 3
+    floorHeight: 4
+    stairsPerFloor: 2
+    coverPerFloor: 16
+    obstaclesPerFloor: 8
+    itemsPerFloor: 6
+    coverHeight: 1.1
+    obstacleHeight: 2.2
+    spacingCells: 1
+    generatorVersion: 2
+    coverDensity: 0.035
+    enemyDensity: 0.02
+    gimmickDensity: 0.01
+    itemDensity: 0.015
+    maxContentPerCategoryPerFloor: 100
+    coverMinWidthCells: 1
+    coverMaxWidthCells: 3
+    coverMinDepthCells: 1
+    coverMaxDepthCells: 2
+    coverMinHeight: 0.7
+    coverMaxHeight: 1.4
+    coverShapes: 7
+    internalWalls: 1
+    wallDensity: 0.2
+    wallMinLengthCells: 6
+    wallMaxLengthCells: 12
+    wallHeight: 3
+    wallThickness: 0.35
+    wallDoorWidthCells: 2
+    maxWallRunsPerFloor: 20
+  contentCatalog: {fileID: 0}

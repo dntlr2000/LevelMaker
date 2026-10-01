@@ -609,3 +609,79 @@ Lab HUD와 Editor 제작 도구가 따라오지 않아야 한다.
 - Core-only 소비 프로젝트는 Sample과 두 RuntimeBuild source를 로드하고 HUD/Input System 없는 Windows64 Development Player를 오류·경고 `0`개로 빌드했다.
 - Baking 소비 프로젝트는 실제 영속 Bake와 Core 요구사항이 포함된 modular Stage package·SHA-256 sidecar를 생성했다.
 - Git URL은 아직 commit/push되지 않은 작업 트리라 원격 설치를 실행하지 않았으며, push 뒤 실제 revision을 고정하는 절차를 문서화했다.
+
+# FPS Arena V1 확장 계획
+
+- 기존 LegacyV1/StableV2 및 2D Blueprint 계약은 그대로 유지한다.
+- M1: 별도 Arena recipe/layout, 3D 셀, 계단 연결, 결정적 배치/검증/hash
+- M2: 층별 바닥·개구부·계단·가드와 충돌 가능한 엄폐/장애물, 아이템 표식
+- M3: 한국어 전용 FPS Arena 창/Inspector, 프리셋과 생성/저장 및 기존 Lab 진입점
+- M4: EditMode 계약/형상/연결/배치 회귀, 사용 문서와 로컬 Unity 검증 인계
+- 클라우드에서는 Unity 실행을 추정하지 않는다. 별도 검증 사본에서 실제 compile/EditMode/PlayMode를 실행한다.
+
+## FPS Arena V1 클라우드 구현 결과
+
+- M1–M3 구현: 독립적인 다층 recipe/layout/hash, 예약 통로/스폰/개구부, 두 lane 계단, 안전한 콘텐츠 간격, stage-local scene build, 한국어 창/Inspector/프리셋과 FPS 테스트 장면/캐릭터
+- 저장 장면과 domain reload를 위한 마지막 생성 metadata 및 색상 복원 추가
+- M4 테스트 작성: 9개 EditMode와 1개 PlayMode(양 lane 계단 상승/하강, 두 극단 profile). Unity 실행은 로컬 검증 사본에서 진행해야 함
+- 독립적인 1,215,000셀 형상/계단 sweep, riser/slope/headroom 수치, Runtime 경계, asmdef, UPM byte parity 및 기존 생성/Blueprint/Loading hash 정적 검사 통과
+- 기존 Runtime 생성/저장 파이프라인 소스 변경 없음. 실제 compile/Physics/Undo/scene reload/full regression 통과를 주장하지 않음
+
+# FPS Arena V2 실행 계획과 클라우드 구현
+
+- M1: explicit V1/V2 recipe dispatch, original recipe hash snapshot, seeded valid stair openings and both-lane landings, BFS-protected landing routes
+- M2: independent cover/enemy/gimmick/item density placement, whole-footprint spacing/clearance, box/cylinder/corner cover and dimension ranges
+- M3: weighted stable prefab catalog/snapshot, real instances, conservative uniform authored-bounds fitting, initializer context, custom-material preservation, built-metadata snapshot restore/rollback
+- M4: six Korean authoring tabs and Undoable explicit upgrade, portable Lab UPM Editor at0.14.0, canonical runtime/metadata parity
+- M5: focused Unity tests authored; independent seeded model2520 profiles and24/24 distinct staircase arrangements passed in cloud. Compile/EditMode/PlayMode/Physics/UI and clean consumer installs are pending actual isolated Unity validation, not claimed passed
+
+# FPS Arena 내부 벽 로컬 구현 계획 (2026-10-01)
+
+- 현재 미커밋 V2 및 사용자 자산을 SHA-256 목록과 함께 `E:\CodexValidation\ArenaWalls_20261001\Rollback`에 백업한다. git commit/push/reset과 사용자 Unity 프로세스 종료는 하지 않는다.
+- M1: V2 전용 opt-in 내부 벽 밀도·길이·높이·두께·출입구 폭·층별 상한, 별도 결정적 wall stream과 구조 DTO를 추가한다. OFF 및 LegacyV1의 기존 hash/배치를 보존한다.
+- M2: 보호된 계단/스폰/동선을 피하고 출입구와 우회 통로를 확보한다. 벽 점유 셀과 콘텐츠 footprint의 겹침을 막고 실제 BoxCollider를 생성한다.
+- M3: 기존 6개 탭을 보존하고 지형·계단 탭에 한국어 벽 제어를 추가한다. 설정 저장/재열기, Undo, 생성 metadata 복원을 검증한다.
+- M4: 벽 OFF의 변경 전 hash 기준선, 여러 형상/층/시드의 연결성, 실제 Physics/CharacterController 통로·계단, 전체 EditMode/PlayMode와 렌더된 생성 화면을 Unity 6000.5.3f1에서 검증한다.
+- M5: canonical 원본과 UPM 대응 파일만 동기화하고 사용 문서/테스트 보고서를 갱신한다. 검증 사본·캐시는 복구 가능한 보관 파일로 정리하고 증거와 롤백 원본은 보존한다.
+
+## FPS Arena 내부 벽 실행 결과
+
+- V2 opt-in 내부 벽·출입구·길이/밀도/높이/두께/폭/상한, 전용 시드 stream, 계단/스폰/동선 보호, 콘텐츠 겹침 방지와 실제 BoxCollider를 원본에 직접 적용했다.
+- 기존 V1/V2 벽 OFF의 변경 전 Unity hash 36개 일치, 최대 밀도·3형상/4크기/3층 수/4시드 144조합의 전체 콘텐츠 연결성/무겹침을 검증했다.
+- Unity 6000.5.3f1 원본 직접 compile 오류 0, 최종 전체 EditMode 139/139, PlayMode 15/15 통과. 네 범주 실제 프리팹 Collider Bounds와 출입구·우회·solid 차단·4층 계단의 실제 CharacterController/Physics를 포함한다.
+- 실제 GPU 렌더·6개 제작 탭의 실제 GUI·새 Unity 프로세스 장면 복원·Play 중 script/domain reload 및 Edit 복귀 오류 0을 확인했다.
+- 원본/Core/Lab source·GUID parity, 기존 사용자 편집 보존 확인. `Assets/FpsArenaWallsExample/InternalWalls.unity`와 한국어 사용 문서·검증 보고서를 적용했다.
+- 로그/XML/PNG와 정확한 원본 롤백은 `E:\CodexValidation\ArenaWalls_20261001`에 보존한다. 생성한 검증 사본/캐시는 `E:\CodexTemp\ArenaWalls_20261001_ValidationProject.zip`으로 복구 가능하게 정리한다. 마우스 수동 조작, standalone Player 및 새 UPM 소비 설치는 이번 작업에서 실행하지 않았다.
+
+# FPS Arena 방 개수 기반 구획 구현 (2026-10-01)
+
+- 현재 내부 벽/사용자 편집을 새 `E:\CodexValidation\ArenaRooms_20261001\Rollback`에 백업한다. 원본 직접 적용, git commit/push/reset 및 사용자 Unity 강제 종료 금지.
+- M1: 층별 동일 방 개수·최소 크기/면적·문 폭·벽 치수 중심의 명시적 방 구획 모드. 기존 벽 조각 모드는 설정/해시 호환으로 보존한다.
+- M2: 셀 사이 경계에 외곽/기존 벽까지 이어지는 BSP 구획벽과 출입구를 생성한다. 닫힌 문 상태의 바닥 연결 영역 수를 실제 방 수로 검증하고 열린 문 그래프/계단은 전체 도달 가능해야 한다.
+- M3: 최소 크기·계단·스폰·기존 문 보호로 요청 수에 못 미치면 실제 수와 원인을 UI/report로 알린다. 콘텐츠는 한 방 안에 배치하고 문/벽/계단/방별 연결 동선을 보호한다.
+- M4: 다양한 외곽·층·시드·방 수, 방문 그래프, 실제 문 폭/Collider/CharacterController, 저장/Undo/재열기/domain reload, OFF 및 이전 벽 모드 해시를 실제 Unity로 검증한다.
+- M5: 방 구획 예제·실제 화면·최종 보고서와 UPM 대응 파일을 적용한다. 증거/롤백을 남기고 만든 사본/캐시는 복구 가능한 보관 파일로 정리한다.
+
+## FPS Arena 방 개수 구획 완료 결과
+
+- 독립 opt-in BSP 방 구획, 연속 경계 Collider, 출입구와 층별 연결 tree, 방 중심점·면적·actual/request report를 구현했다. 블록 엄폐물과 콘텐츠는 한 방 안에 배치하며 벽·문·계단·예약 이동로를 피한다.
+- Unity 6000.5.3f1 원본 컴파일 오류 0, 전체 EditMode 146/146 및 PlayMode 17/17 통과. V1/V2·이전 벽 모드 24개 해시 유지, 216개 다층/형상/시드/방 수 프로필의 실제 닫힌 방 수와 콘텐츠 장애물 연결성 검증 통과.
+- CharacterController 문 통과·벽 차단·4층 모든 계단 lane 및 Physics 인접 통로, SerializedObject/Undo/저장/재열기, Play 중 domain reload 후 Edit 복귀 오류 0을 확인했다.
+- `Assets/FpsArenaRoomsExample/RoomPartitions.unity`와 RoomSettings를 원본에 직접 적용했다. 2층 각각 4방, 문 6개, 벽 구간 12개. GPU 층별 화면과 graph overlay, 6탭 GUI 이벤트를 검사했다. 숨김 Editor 창 데스크톱 캡처는 증거에서 제외한다.
+- 보고서는 `docs/FPS_ARENA_ROOMS_VERIFICATION_KO.md`, 증거/정확한 롤백은 `E:\CodexValidation\ArenaRooms_20261001`, 복구용 사본 압축은 `E:\CodexTemp\ArenaRooms_20261001_ValidationProject.zip`에 보존한다. 수동 키 입력·standalone Player·새 UPM 소비 설치는 수행하지 않았다.
+
+# FPS Arena 계단 방향 수정 (2026-10-01)
+
+- M1: 최신 원본 797파일을 `E:\CodexValidation\ArenaStairDirections_20261001\Rollback`에 SHA-256 검증 백업. 수용된 방 결과와 다른 미커밋 편집을 보존한다.
+- M2: +Z 진행/X 폭 고정을 cardinal 진행축·폭축으로 일반화하고 유효한 양층 바닥/개구부/스폰/기존 계단 후보에서 시드 방향 선택. 방 BSP 알고리즘은 유지하고 계단 보호 bounds/방별 착지 경로만 회전 대응한다.
+- M3: 기존 저장 recipe는 방향 옵션 OFF로 원래 결과/해시 복원. 새 V2 recipe/preset에는 기본 ON, 한국어 옵션 및 실제/유효 방향 결과 추가. 공개 시그니처·root 이름·패키지 의존성 보존.
+- M4: 이전 room 18개와 wall/OFF 60개 hash, 다층/좁은 형상/다양한 시드, 난간/천장/벽/콘텐츠 비겹침, 실제 CharacterController 두 lane 상승/하강, 저장/Undo/재열기·컴파일·전체 회귀 및 여러 시드 GPU 화면 검사.
+- M5: 실제 적용 목록·검증/한계 보고서, 정확한 롤백과 원본 보존 감사. 임시 검증 프로젝트/캐시는 CRC/SHA-256 검증 archive 후 원래 사본만 정리한다.
+
+## FPS Arena 계단 방향 완료 결과
+
+- 모든 기하/개구부/보호 영역/층간 link를 진행·폭축으로 일반화했다. 유효한 회전 후보의 seeded shuffle로 상승 방향을 선택하며 기존 방 BSP는 유지했다.
+- 원본 Unity compile 오류 0, 전체 EditMode 151/151과 PlayMode 18/18 통과. 기존 hash 78개와 수용된 원본 8방 geometry 복원, 288구조 프로필 및 144실제 계단의 두 lane 상승/하강을 검증했다.
+- 64시드 384계단에서 매 층 네 방향 관측. 4시드의 실제 3층/층별 4방 GPU 화면, 저장 복원·Play 중 domain reload·6탭 GUI event 오류 0을 확인했다.
+- 원본 예제 장면/설정 자산 bytes와 다른 사용자 편집을 보존한다. 새 V2 편집 입력은 방향 옵션 기본 ON, 마지막 built snapshot과 명시적 OFF는 이전 결과를 유지한다.
+- 적용 목록/검증/한계는 `docs/FPS_ARENA_STAIR_DIRECTIONS_VERIFICATION_KO.md`, 증거와 797파일 정확한 백업은 `E:\CodexValidation\ArenaStairDirections_20261001`에 보존한다. 임시 프로젝트/캐시는 CRC/SHA-256 검증 archive로 정리한다. 수동 입력/standalone/신규 UPM 소비 설치는 수행하지 않았다.

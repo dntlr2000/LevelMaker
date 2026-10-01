@@ -37,7 +37,7 @@ namespace RogueDungeonLab.Editor
 
     public static class RogueDungeonUpmPackageExporter
     {
-        public const string PackageVersion = "0.13.0";
+        public const string PackageVersion = "0.14.0";
         public const string PackagesRoot = "UpmPackages";
         public const string CorePackageName =
             "com.dntlr2000.rogue-dungeon-lab.core";
@@ -164,6 +164,7 @@ namespace RogueDungeonLab.Editor
                 LabSource,
                 Path.Combine(packageRoot, "Runtime"),
                 null);
+            SyncArenaAuthoring(packageRoot);
             WritePackageManifest(
                 packageRoot,
                 BuildLabManifest(),
@@ -175,6 +176,18 @@ namespace RogueDungeonLab.Editor
                 "8bdd69b2cd634b48950b9203d6f0f53e",
                 "5880ff32d1d84eb0bc7bafc951b45675");
             return CreateSyncEntry(LabPackageName, packageRoot);
+        }
+
+        // Only the self-contained FPS editor is included, without legacy Lab/Bake editor dependencies.
+        private static void SyncArenaAuthoring(string packageRoot)
+        {
+            string editorRoot = Path.Combine(packageRoot, "Editor"); Directory.CreateDirectory(editorRoot);
+            string source = ResolveProjectPath("Assets/RogueDungeonLab/Editor/FpsArenaWindow.cs");
+            File.Copy(source, Path.Combine(editorRoot, "FpsArenaWindow.cs"), true);
+            File.Copy(source + ".meta", Path.Combine(editorRoot, "FpsArenaWindow.cs.meta"), true);
+            WriteUtf8File(editorRoot + ".meta", "fileFormatVersion: 2\nguid: 7f956a588f484c2db5eb04387d0bbf5d\nfolderAsset: yes\nDefaultImporter:\n  externalObjects: {}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n");
+            WriteUtf8File(Path.Combine(editorRoot, "RogueDungeonLab.Arena.Editor.asmdef"), "{\n  \"name\": \"RogueDungeonLab.Arena.Editor\",\n  \"rootNamespace\": \"RogueDungeonLab.Editor\",\n  \"references\": [\n    \"RogueDungeonLab.Runtime\",\n    \"RogueDungeonLab.Samples\"\n  ],\n  \"includePlatforms\": [\n    \"Editor\"\n  ],\n  \"excludePlatforms\": [],\n  \"allowUnsafeCode\": false,\n  \"overrideReferences\": false,\n  \"precompiledReferences\": [],\n  \"autoReferenced\": true,\n  \"defineConstraints\": [],\n  \"versionDefines\": [],\n  \"noEngineReferences\": false\n}\n");
+            WriteUtf8File(Path.Combine(editorRoot, "RogueDungeonLab.Arena.Editor.asmdef.meta"), "fileFormatVersion: 2\nguid: 0fb335f5717f4fd3b14ab9b43bc4698c\nAssemblyDefinitionImporter:\n  externalObjects: {}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n");
         }
 
         // Baker와 기존 stage 배포 도구를 Editor-only Baking package로 복제합니다.
@@ -459,7 +472,7 @@ namespace RogueDungeonLab.Editor
         private static string BuildCoreReadme()
         {
             return "# Rogue Dungeon Lab - Runtime Core\n\n" +
-                   "결정적 절차 생성, 저장 Blueprint RuntimeBuild, BakedPrefab 로드와 RunState를 제공하는 제품 런타임입니다. 0.13.0부터 절차 생성과 검증·Build 사이에 결정적 `IDungeonBlueprintPostprocessor`를 적용할 수 있습니다. Lab HUD, 임시 플레이어, Input System 및 Editor Baker는 포함하지 않습니다.\n\n" +
+                   "결정적 절차 생성, 저장 Blueprint RuntimeBuild, BakedPrefab 로드와 RunState를 제공하는 제품 런타임입니다. 0.14.0은 시드 가변 다층 FPS Arena, 엄폐 형태·크기 범위, 독립 콘텐츠 밀도와 Prefab catalog/초기화 계약도 제공합니다. 기존 Arena V1 저장 결과는 명시적 업그레이드 전까지 보존합니다. 0.13.0부터 절차 생성과 검증·Build 사이에 결정적 `IDungeonBlueprintPostprocessor`를 적용할 수 있습니다. Lab HUD, 임시 플레이어, Input System 및 Editor Baker는 포함하지 않습니다.\n\n" +
                    "Package Manager의 Samples에서 `RuntimeBuild Examples`를 Import하면 HUD 없는 Procedural·SavedBlueprint 예제 장면을 확인할 수 있습니다. 자세한 설치 조합은 원본 저장소의 `docs/R9_1_UPM_GUIDE_KO.md`를 참고하세요.";
         }
 
@@ -467,7 +480,7 @@ namespace RogueDungeonLab.Editor
         private static string BuildLabReadme()
         {
             return "# Rogue Dungeon Lab - Lab Sample\n\n" +
-                   "실험용 인게임 HUD, 자유 카메라, 클릭 상호작용과 임시 플레이어를 제공하는 선택 package입니다. Runtime Core와 Input System을 요구합니다.\n\n" +
+                   "실험용 인게임 HUD, 자유 카메라, 클릭 상호작용과 임시 플레이어를 제공하는 선택 package입니다. Runtime Core와 Input System을 요구합니다. 0.14.0에는 Editor-only FPS 아레나 제작 창(지형·엄폐·적·특수 기믹·아이템·프리팹 6개 탭)도 포함됩니다. `Tools > Rogue Dungeon Lab > FPS 아레나 제작`에서 시작합니다.\n\n" +
                    "제품 장면에서 Lab 컴포넌트를 배치하지 않으면 빌더 HUD는 표시되지 않습니다. Core-only 제품에는 이 package를 설치하지 않아도 됩니다.";
         }
 
@@ -483,6 +496,7 @@ namespace RogueDungeonLab.Editor
         private static string BuildPackageChangelog()
         {
             return "# Changelog\n\n" +
+                   "## 0.14.0\n\n- Flexible FPS Arena V2: seeded stairs, varied cover footprints/shapes, independent enemy/gimmick/item densities, actual prefab catalog and initialization hooks.\n- Preserve saved V1 recipes/hashes until explicit upgrade; add portable Lab Editor authoring tabs.\n\n" +
                    "## 0.13.0\n\n" +
                    "- 절차 생성 직후 검증·Build 전에 실행되는 결정적 `IDungeonBlueprintPostprocessor` 계약 추가\n" +
                    "- RunSeed, request ID와 런타임 후처리 override를 전달하는 StageDefinition facade 추가\n" +

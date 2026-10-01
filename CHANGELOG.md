@@ -1,5 +1,28 @@
 # Changelog
 
+## FPS Arena 계단 방향 수정 (로컬 작업, 2026-10-01)
+
+- 계단의 +Z 상승/X 폭 고정을 진행축·폭축으로 일반화하고 유효한 네 방향 후보를 시드로 선택
+- 실제 발판/개구부 난간, 양층 바닥 구멍, 착지/방문/콘텐츠 보호 영역과 층간 연결을 같은 회전 기준으로 처리
+- 새 V2 recipe/preset에 기본 ON인 방향 옵션과 실제/유효 방향 결과 추가; 저장된 마지막 방 geometry와 옵션 OFF의 기존 hash/API 보존
+- 기존 room/wall/OFF 78개 해시, 좁은 지도·다층·다시드, 실제 Collider/CharacterController 및 여러 시드 생성 화면 회귀 추가
+
+## FPS Arena 방 개수 기반 구획 (로컬 작업, 2026-10-01)
+
+- 층별 방 개수·최소 폭/면적·문 폭·구획벽 치수 중심의 명시적 방 구획 모드 추가
+- 외곽/기존 구획벽까지 이어지는 BSP 경계와 출입구, 실제 방 영역·방 연결 그래프·방별 면적·요청/실제 개수 및 미달 원인 표시
+- 문을 모두 막은 실제 바닥 연결 영역 수로 방 개수를 검증하고 열린 문·계단의 방문 동선과 콘텐츠의 방 내부 배치를 보호
+- 기존 OFF 및 저장된 벽 조각 모드의 schema/hash를 유지하며 UI에서 이전 설정을 호환 항목으로 분리
+- 방 구획 예제와 실제 Physics/CharacterController·저장·GUI·도메인 복원·다형상/층/방 수/시드 회귀 추가
+
+## FPS Arena 내부 벽 (로컬 작업, 2026-10-01)
+
+- V2 opt-in 내부 벽과 열린 출입구, 밀도·길이·높이·두께·출입구 폭·층별 개수 설정 추가
+- 전용 seeded stream, 계단/스폰 보호, 벽·다셀 콘텐츠 사이 간격과 전체 이동 연결성 검증, 실제 solid BoxCollider 생성
+- 기존 6개 한국어 제작 탭을 유지하고 지형·계단에 벽 설정 및 내부 벽 FPS 예제 장면 메뉴 추가
+- 벽 OFF의 변경 전 V1/V2 36개 Unity 해시, 다층·다형상·다시드 144개 고밀도 조합, 설정 Undo/저장/재열기 회귀 추가
+- Runtime Core 및 Lab Editor UPM 대응 파일에 원본 bytes/GUID 유지
+
 ## 0.13.0
 
 - 절차 생성 직후 검증·Build 전에 실행되는 결정적 `IDungeonBlueprintPostprocessor` 계약 추가
@@ -195,3 +218,12 @@
 - One-click editor setup and live regeneration
 - Click destruction, weighted drops, Monte Carlo sampling, Wilson intervals
 - Codex instructions, skill, prompts, architecture and test docs
+
+## FPS Arena V2 / UPM 0.14.0 (클라우드 구현, Unity 검증 대기)
+
+- Seed-dependent stairs with full landings/headroom and protected BFS routes
+- Cover footprint/width/depth/height/shape ranges; independent actual enemy/gimmick/item densities
+- Weighted key-based prefab catalog, actual instance creation, uniform fit and initialization hook
+- Six Korean authoring tabs and explicit Undoable V1 upgrade; preserve saved V1 golden recipe/hash
+- Saved built catalog snapshot, staging rollback and custom prefab material preservation
+- Portable Editor-only FPS authoring in optional Lab UPM package; runtime source/meta byte parity

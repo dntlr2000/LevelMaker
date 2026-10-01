@@ -160,3 +160,7 @@ powershell.exe -ExecutionPolicy Bypass -File tools/verify-r9.1-upm-packages.ps1
 
 패키지 자체의 manifest 경계, 원본 byte parity, GUID와 반복 동기화 tree hash는
 `RogueDungeonUpmPackageTests` EditMode 테스트가 담당합니다.
+
+## FPS Arena V2 — 0.14.0
+
+Core0.14.0는 V1 보존/명시적 V2 업그레이드, seeded 다층 계단·가변 엄폐·독립 밀도와 prefab runtime 계약을 제공합니다. Lab0.14.0를 추가하면 기존 FPS 테스트 캐릭터와 Editor-only6탭 제작 창을 함께 설치합니다. 창의 원본bytes/meta는 공식 UPM 동기화 때 복제되고 package 전용 Editor asmdef는 Runtime/Samples만 참조합니다. 기존 프로젝트의 Assets 원본과 동일 코드의 UPM을 동시에 설치하지 마세요. Baking은 기존 별도 제작 도구 패키지 역할을 유지합니다. 깨끗한0.14.0 소비 프로젝트 compile/실제 UI 검증은 로컬 검증 단계입니다.

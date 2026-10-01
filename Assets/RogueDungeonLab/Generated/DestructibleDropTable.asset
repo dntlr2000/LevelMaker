@@ -33,7 +33,7 @@ MonoBehaviour:
     markerColor: {r: 0.9, g: 0.2, b: 0.35, a: 1}
   - itemId: Nothing
     weight: 20
-    minQuantity: 1
-    maxQuantity: 1
+    minQuantity: 0
+    maxQuantity: 0
     representsNoDrop: 1
     markerColor: {r: 0, g: 0, b: 0, a: 0}

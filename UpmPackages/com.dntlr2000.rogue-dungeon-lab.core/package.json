@@ -1,6 +1,6 @@
 {
   "name": "com.dntlr2000.rogue-dungeon-lab.core",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "displayName": "Rogue Dungeon Lab - Runtime Core",
   "description": "Deterministic runtime dungeon generation, saved blueprints, baked-stage loading, and run-state persistence.",
   "unity": "6000.5",

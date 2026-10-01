@@ -120,7 +120,7 @@ namespace RogueDungeonLab.Editor
         public const string InputSystemPackageId = "com.unity.inputsystem";
         public const string RuntimeCoreUpmPackageId =
             "com.dntlr2000.rogue-dungeon-lab.core";
-        public const string RuntimeCoreUpmPackageVersion = "0.13.0";
+        public const string RuntimeCoreUpmPackageVersion = "0.14.0";
         public const string LabSampleUpmPackageId =
             "com.dntlr2000.rogue-dungeon-lab.lab";
         public const string BakingUpmPackageId =

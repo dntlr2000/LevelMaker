@@ -1,0 +1,184 @@
+{
+    "cases": [
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "785980b229af9cff2a345dc75e5943b96475291fad37e0652899de54c9017b64"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "07302ec06a389f451a7b5ba65c617f66274e356b54bfbdac2f1b129bf5c66e2e"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "95686af58a4c56a40ce36e2787f7445e8161982d77c6a7c5defb744ef787cd7c"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "1c4257be3837a9f9f6dbd6b95c2ff761ae12e7643e94f37cd062bcb8382b0be3"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "9f0e2b9041f78cb8e1aa14a7f3cbbcea4bdc72fa65ff6bd5b218f29e615370f8"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "6d108575fa795e75197e8b5f9635de1318392f22cf62a93028dfaf7d73cc4650"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "97a379e7b6633db2a3a240b8a30add12aa1bcec5a82ebecd2679c67c45f2e712"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "d0f96daf6a5184517cc74e3e79479ffee2218e6ef87f7a2b30f8b88cf8aac38e"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "5c34485e0d05296d66a248d35d0045e207e0839cc18b379e3df096ae57c338c2"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "63289b47848732a00791e0426f1ba3a32884150623e15e58f967846c5f763604"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "3da28061876f5101bd2a94b54e92c97fd9d046a22b1f7cc4a483586d653788b5"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "c89e0af24fbc4be170345ca7526c8cacfbd2a95245be9fc2abb990f0366fada1"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "a88f7ad21ec430152e9cabc565bbfbe9967a2191f531be4e7cf140800b61c976"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "57b8e7100f9ef581a4d577a7ad2d3f58d20b725cb91aa2b091c58d542eecfb01"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "d405c939fe78696b92fdc0b0b101a96317dccc79c89452dabd4ddb6adc07211a"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "1290749faaf41d5e25fd9237cfb61c82893063524d85d3ab61b388d0a97e1e79"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "5327cd7cf3cdbdc9a571d2fc68ee72ae539aa853fc8d092193275d744b0ed257"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":1,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "094a6f0ed855f05d1300cd8a3552432cf7cfe1e0a5c4861f2ce11bb0d44b116e"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "33697b5d36e803177d93315d3a67b8eef8d5085a6a25d8e75dada41c46c97709"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "06e44e4e4d06c9e7d57b4c00751dab818e499902202498668837e23a112ed3fa"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "e35391fe181de6866d203217a933f0d354ad8c8f90acbbeb9ffd6c072a0a9428"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "dd571e5face2d93991ed308bae1e3ea7f550e91a6476bdb2c876191269dfb85a"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "e5f60f691ccbf1887a6cde75011144f2088aa5d9bf785d985861da4de413439a"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":0,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "1f9597a7632ff740faf51ed998b428bae395bd97f0abd2773c05b53bdba0ee6a"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "12734d4fdce60c891e88e4d9de8f7a680236c54e30e4c5e8dec5991a1bf08918"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "595043b0c5444ad7c92b510b981802096f98b291ce6c9d6ce8a87b6cffc10462"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "d1bb93aae2c46c207b7bea3c734d819a913dcaa2fa543ce8be9c2b83d96a2f79"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "3d3f31b0db2ea2064e90a2ba4d1540a3f9359fd65561380d0c3cc7fb1c35684c"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "64c35560bc179fa245d8ce44cb192750a3bddb58a42b60cc6407bd0026038de9"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":1,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "e2f98ad0cbc1cb3dc687689e7c3695630c5e97bb4f3af50692e3623bab2e0d85"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "bc6ff9c3c13e029e1d80ad53445ce91d8fdea0655b051e7584ce427c52d7f965"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "d21b70eef4ede59a758a6c894a1f164215674c80d9387707268b6ad12e7bea32"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":1,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "bb0aac884004f7bf75077a6db79205a35663709239e174d35f627dc8ca7a693f"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 73125,
+            "hash": "45dcb2803fb2ba4dd65a197e701763b277aa73daf3012c1079910ce733b40b35"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": -7,
+            "hash": "2aab465624331004242fb7e172494fdf7c176a2f6ed57e5db69a5a38ffe15530"
+        },
+        {
+            "recipeJson": "{\"width\":28,\"depth\":28,\"shape\":2,\"floors\":4,\"cellSize\":3.0,\"floorHeight\":4.0,\"stairsPerFloor\":2,\"coverPerFloor\":16,\"obstaclesPerFloor\":8,\"itemsPerFloor\":6,\"coverHeight\":1.100000023841858,\"obstacleHeight\":2.200000047683716,\"spacingCells\":2,\"generatorVersion\":2,\"coverDensity\":0.03500000014901161,\"enemyDensity\":0.019999999552965165,\"gimmickDensity\":0.009999999776482582,\"itemDensity\":0.014999999664723874,\"maxContentPerCategoryPerFloor\":100,\"coverMinWidthCells\":1,\"coverMaxWidthCells\":3,\"coverMinDepthCells\":1,\"coverMaxDepthCells\":2,\"coverMinHeight\":0.699999988079071,\"coverMaxHeight\":1.399999976158142,\"coverShapes\":7}",
+            "seed": 2147483647,
+            "hash": "ee26b4b3cec7cc5ece81867205689595ab7a3c0cf7e0d8ddc5038d80cebc800c"
+        }
+    ]
+}
