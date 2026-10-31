@@ -1,5 +1,13 @@
 # 아키텍처
 
+## 수동 다층 스테이지 (0.15.0)
+
+`FpsArenaStageAsset`은 생성 레시피와 분리된 `FpsArenaStageData`(바닥 셀·스폰·계단·벽·콘텐츠)를 저장한다. `FpsArenaGenerator.manualStage`가 연결되면 planner를 호출하지 않고 저장 데이터의 깊은 복사 → 수동 검증 → 기존 SceneBuilder를 사용한다. 수동 배치 해시는 목록 순서를 정규화하고 Prefab 직접 참조와 생성 시드를 포함하지 않는다. 첫 스폰은 시작 위치이므로 스폰 순서는 유지한다.
+
+기존 procedural 경로는 변경하지 않는다. `IsAuthored`가 명시된 layout에서만 수동 검증/해시/외곽 가드를 사용한다. 마지막 적용 결과는 Generator의 `builtFromManual`과 `builtManualStage`에 직렬화하여 현재 편집 중인 자산과 분리한다. 로드·검증 실패는 기존 생성 루트를 보존한다.
+
+`FpsArenaStageWindow`와 `FpsArenaStageAuthoring`은 Editor 경계에서 자산 복사, Undo, SerializedObject, dirty 및 저장을 맡는다. 수동 Build는 좌표·계단 개구부·겹침·콘텐츠 연결 검사를 통과해야 하지만 전체 도달성은 차단하지 않는다. `FpsArenaManualValidation.GetConnectivityWarning`은 필수 검사를 통과한 layout에서 시작 스폰 기준 격자 BFS의 미도달 셀 수를 반환하며, 제작 창은 이를 적용 가능한 경고로 표시한다. 의도적으로 격리한 구역·층도 저장, 장면 적용, Runtime 로드와 마지막 적용 데이터 복원이 가능하다. 이 격자 검사는 점프·낙하·동적 문·텔레포트를 반영하는 실제 이동 판정이 아니며, 절차 생성 layout의 기존 연결성 필수 검사는 유지한다. 콘텐츠는 기존 contentKey와 `IFpsArenaContentInitializer`를 사용하고 `manualCatalogOverride`로 호스트별 Prefab 매핑을 주입한다. Core는 Runtime 데이터/검증, Lab는 자체 완결적인 제작 UI를 포함한다. 단층 Blueprint/Bake/RunState 경계는 그대로다.
+
 이 문서는 R5.2 승인 기준선, 검증 완료된 R6 Mesh·Prefab Bake, R7 비파괴 Stage Override, R8 RunState, R9 legacy 배포와 R9.1 UPM·Git URL 패키징의 구현·통합 검증 경계를 설명합니다. 선택 후속 단계는 [스테이지 제작·배포 통합 로드맵](STAGE_PIPELINE_ROADMAP_KO.md)을 참고합니다.
 
 ## 파이프라인

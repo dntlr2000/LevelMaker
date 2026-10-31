@@ -128,6 +128,12 @@ namespace RogueDungeonLab.Tests
             string source = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Assets/RogueDungeonLab/Editor/FpsArenaWindow.cs");
             AssertFilesEqual(source, Path.Combine(labRoot, "Editor", "FpsArenaWindow.cs"));
             AssertFilesEqual(source + ".meta", Path.Combine(labRoot, "Editor", "FpsArenaWindow.cs.meta"));
+            foreach (string file in new[] { "FpsArenaStageWindow.cs", "FpsArenaStageAuthoring.cs" })
+            {
+                string manualSource = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Assets/RogueDungeonLab/Editor/" + file);
+                AssertFilesEqual(manualSource, Path.Combine(labRoot, "Editor", file));
+                AssertFilesEqual(manualSource + ".meta", Path.Combine(labRoot, "Editor", file + ".meta"));
+            }
             string assembly = File.ReadAllText(Path.Combine(labRoot,"Editor","RogueDungeonLab.Arena.Editor.asmdef"));
             StringAssert.Contains("RogueDungeonLab.Runtime",assembly); StringAssert.Contains("RogueDungeonLab.Samples",assembly); StringAssert.Contains("Editor",assembly);
             StringAssert.DoesNotContain("RogueDungeonLab.Editor.Baking",assembly); StringAssert.DoesNotContain("RogueDungeonLab.Editor.Packaging",assembly);

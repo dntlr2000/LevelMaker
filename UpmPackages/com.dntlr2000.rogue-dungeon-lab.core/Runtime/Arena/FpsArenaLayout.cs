@@ -106,6 +106,7 @@ namespace RogueDungeonLab
         { int n = 0; foreach (bool f in Floors) if (f) n++; return n; }
         public void Validate()
         {
+            if (IsAuthored) { FpsArenaManualValidation.Validate(this); return; }
             foreach (var s in Stairs)
             {
                 if ((int)s.direction < 0 || (int)s.direction > 3 || (s.direction != FpsArenaStairDirection.Forward && !Recipe.randomizeStairDirections)) throw new InvalidOperationException("Arena stair direction is invalid for this recipe.");
@@ -149,6 +150,7 @@ namespace RogueDungeonLab
         private static bool FinitePositive(float value) { return value > 0 && !float.IsNaN(value) && !float.IsInfinity(value); }
         public string ComputeHash()
         {
+            if (IsAuthored) return FpsArenaStageData.Capture(this).ComputeHash();
             using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
             {

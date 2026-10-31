@@ -23,6 +23,7 @@ namespace RogueDungeonLab.Editor
         private void OnGUI()
         {
             EditorGUILayout.LabelField("FPS 아레나 제작", EditorStyles.boldLabel);
+            if (GUILayout.Button("빈 맵 또는 생성 결과를 직접 설계")) FpsArenaStageWindow.Open();
             EditorGUILayout.HelpBox("지형·엄폐·적·기믹·아이템을 따로 조절하고 실제 게임 프리팹을 연결합니다. 기존 로그라이크 제작 경로는 그대로 유지됩니다.", MessageType.Info);
             if (GUILayout.Button("새 FPS 테스트 장면 만들기")) CreateTestScene();
             if (GUILayout.Button("방 구획 FPS 예제 장면 만들기")) CreateTestScene(false, true);
@@ -53,6 +54,19 @@ namespace RogueDungeonLab.Editor
         internal static void DrawSettings(FpsArenaGenerator generator, int tab = -1)
         {
             var so = new SerializedObject(generator); so.Update();
+            EditorGUILayout.PropertyField(so.FindProperty("manualStage"), new GUIContent("수동 스테이지", "연결하면 시드를 사용하지 않고 저장한 배치를 로드합니다. 비우면 기존 절차 생성으로 돌아갑니다."));
+            if (so.ApplyModifiedProperties()) EditorUtility.SetDirty(generator);
+            if (generator.manualStage != null)
+            {
+                so.Update();
+                EditorGUILayout.PropertyField(so.FindProperty("manualCatalogOverride"), new GUIContent("호스트 카탈로그 교체", "비우면 스테이지의 카탈로그를 사용합니다. 같은 키로 다른 프로젝트의 프리팹을 연결할 수 있습니다."));
+                EditorGUILayout.PropertyField(so.FindProperty("generateOnPlay"), new GUIContent("Play 시 로드"));
+                if (so.ApplyModifiedProperties()) EditorUtility.SetDirty(generator);
+                if (GUILayout.Button("연결된 스테이지 직접 편집")) FpsArenaStageWindow.Open(generator.manualStage);
+                EditorGUILayout.HelpBox("수동 배치를 사용합니다. 아래 생성 버튼은 저장된 배치를 그대로 로드합니다.", MessageType.Info);
+                return;
+            }
+            so.Update();
             EditorGUILayout.PropertyField(so.FindProperty("settings"), new GUIContent("공유 설정 자산", "연결하면 시드·레시피·카탈로그를 해당 자산에서 읽고 편집합니다."));
             EditorGUILayout.PropertyField(so.FindProperty("generateOnPlay"), new GUIContent("Play 시 생성"));
             if (so.ApplyModifiedProperties()) EditorUtility.SetDirty(generator);
@@ -478,6 +492,11 @@ namespace RogueDungeonLab.Editor
         internal static void DrawResult(FpsArenaLayout layout, int tab = -1)
         {
             if (layout == null) return;
+            if (layout.IsAuthored)
+            {
+                EditorGUILayout.HelpBox("저장된 수동 배치 · " + layout.Recipe.floors + "층 · 콘텐츠 " + layout.Content.Count + "개 · 바닥 " + layout.FloorCount() + "셀\n시드와 밀도 설정을 사용하지 않습니다.", MessageType.Info);
+                return;
+            }
             EditorGUILayout.Space(); EditorGUILayout.LabelField("마지막 생성 결과", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("구조", "V" + layout.GeneratorVersion + " · " + layout.Recipe.floors + "층 · 계단 " + layout.Stairs.Count + " · 바닥 " + layout.FloorCount() + "셀");
             if (tab < 0 || tab == GeometryTab)

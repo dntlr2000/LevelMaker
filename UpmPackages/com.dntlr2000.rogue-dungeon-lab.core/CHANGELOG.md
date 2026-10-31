@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.15.0
+
+- Saved manual multi-floor stages, grid authoring, Undo/Redo, validation and host catalog overrides. Existing procedural layouts remain unchanged.
+
 ## 0.14.0
 
 - Flexible FPS Arena V2: seeded stairs, varied cover footprints/shapes, independent enemy/gimmick/item densities, actual prefab catalog and initialization hooks.

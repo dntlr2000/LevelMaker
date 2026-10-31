@@ -37,7 +37,7 @@ namespace RogueDungeonLab.Editor
 
     public static class RogueDungeonUpmPackageExporter
     {
-        public const string PackageVersion = "0.14.0";
+        public const string PackageVersion = "0.15.0";
         public const string PackagesRoot = "UpmPackages";
         public const string CorePackageName =
             "com.dntlr2000.rogue-dungeon-lab.core";
@@ -182,9 +182,12 @@ namespace RogueDungeonLab.Editor
         private static void SyncArenaAuthoring(string packageRoot)
         {
             string editorRoot = Path.Combine(packageRoot, "Editor"); Directory.CreateDirectory(editorRoot);
-            string source = ResolveProjectPath("Assets/RogueDungeonLab/Editor/FpsArenaWindow.cs");
-            File.Copy(source, Path.Combine(editorRoot, "FpsArenaWindow.cs"), true);
-            File.Copy(source + ".meta", Path.Combine(editorRoot, "FpsArenaWindow.cs.meta"), true);
+            foreach (string file in new[] { "FpsArenaWindow.cs", "FpsArenaStageWindow.cs", "FpsArenaStageAuthoring.cs" })
+            {
+                string source = ResolveProjectPath("Assets/RogueDungeonLab/Editor/" + file);
+                File.Copy(source, Path.Combine(editorRoot, file), true);
+                File.Copy(source + ".meta", Path.Combine(editorRoot, file + ".meta"), true);
+            }
             WriteUtf8File(editorRoot + ".meta", "fileFormatVersion: 2\nguid: 7f956a588f484c2db5eb04387d0bbf5d\nfolderAsset: yes\nDefaultImporter:\n  externalObjects: {}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n");
             WriteUtf8File(Path.Combine(editorRoot, "RogueDungeonLab.Arena.Editor.asmdef"), "{\n  \"name\": \"RogueDungeonLab.Arena.Editor\",\n  \"rootNamespace\": \"RogueDungeonLab.Editor\",\n  \"references\": [\n    \"RogueDungeonLab.Runtime\",\n    \"RogueDungeonLab.Samples\"\n  ],\n  \"includePlatforms\": [\n    \"Editor\"\n  ],\n  \"excludePlatforms\": [],\n  \"allowUnsafeCode\": false,\n  \"overrideReferences\": false,\n  \"precompiledReferences\": [],\n  \"autoReferenced\": true,\n  \"defineConstraints\": [],\n  \"versionDefines\": [],\n  \"noEngineReferences\": false\n}\n");
             WriteUtf8File(Path.Combine(editorRoot, "RogueDungeonLab.Arena.Editor.asmdef.meta"), "fileFormatVersion: 2\nguid: 0fb335f5717f4fd3b14ab9b43bc4698c\nAssemblyDefinitionImporter:\n  externalObjects: {}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n");
@@ -481,6 +484,8 @@ namespace RogueDungeonLab.Editor
         {
             return "# Rogue Dungeon Lab - Lab Sample\n\n" +
                    "실험용 인게임 HUD, 자유 카메라, 클릭 상호작용과 임시 플레이어를 제공하는 선택 package입니다. Runtime Core와 Input System을 요구합니다. 0.14.0에는 Editor-only FPS 아레나 제작 창(지형·엄폐·적·특수 기믹·아이템·프리팹 6개 탭)도 포함됩니다. `Tools > Rogue Dungeon Lab > FPS 아레나 제작`에서 시작합니다.\n\n" +
+                   "0.15.0: `Tools > Rogue Dungeon Lab > 스테이지 직접 설계`에서 빈 판을 만들거나 생성 결과를 복사합니다. 층별 격자에서 바닥·벽·문·계단·시작 스폰·구조물·적·기믹·아이템을 편집하고 저장합니다. 선택 도구로 콘텐츠를 드래그하고 Ctrl+Z/Redo로 되돌립니다. 검사 후 장면에 적용하고 테스트 플레이어를 연결한 뒤 Play로 확인하세요. 초안은 연결 오류가 있어도 저장되지만 장면 적용은 검사를 통과해야 합니다.\n\n" +
+                   "다른 프로젝트의 프리팹은 `프로젝트 프리팹 등록·교체`에서 같은 콘텐츠 키로 등록하세요. 카탈로그를 복제하여 Generator의 `호스트 카탈로그 교체`에 연결하면 스테이지 자산을 수정하지 않고 교체됩니다. `IFpsArenaContentInitializer`는 기존 게임 시스템 연결용 hook입니다.\n\n" +
                    "제품 장면에서 Lab 컴포넌트를 배치하지 않으면 빌더 HUD는 표시되지 않습니다. Core-only 제품에는 이 package를 설치하지 않아도 됩니다.";
         }
 
@@ -496,6 +501,7 @@ namespace RogueDungeonLab.Editor
         private static string BuildPackageChangelog()
         {
             return "# Changelog\n\n" +
+                   "## 0.15.0\n\n- Saved manual multi-floor stages, grid authoring, Undo/Redo, validation and host catalog overrides. Existing procedural layouts remain unchanged.\n\n" +
                    "## 0.14.0\n\n- Flexible FPS Arena V2: seeded stairs, varied cover footprints/shapes, independent enemy/gimmick/item densities, actual prefab catalog and initialization hooks.\n- Preserve saved V1 recipes/hashes until explicit upgrade; add portable Lab Editor authoring tabs.\n\n" +
                    "## 0.13.0\n\n" +
                    "- 절차 생성 직후 검증·Build 전에 실행되는 결정적 `IDungeonBlueprintPostprocessor` 계약 추가\n" +

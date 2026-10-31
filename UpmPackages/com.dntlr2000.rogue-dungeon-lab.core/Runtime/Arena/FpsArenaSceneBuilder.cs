@@ -33,7 +33,7 @@ namespace RogueDungeonLab
                     }
                     for (int z = 0; z < r.depth; z++) for (int x = 0; x < r.width; x++)
                     {
-                        if (!FpsArenaPlanner.InShape(r, x, z)) continue;
+                        if (l.IsAuthored ? !l.Floors[x, f, z] : !FpsArenaPlanner.InShape(r, x, z)) continue;
                         Vector3 p = l.Position(new Vector3Int(x, f, z));
                         Boundary(l, floor.transform, p, x, z, 1, 0); Boundary(l, floor.transform, p, x, z, -1, 0);
                         Boundary(l, floor.transform, p, x, z, 0, 1); Boundary(l, floor.transform, p, x, z, 0, -1);
@@ -125,7 +125,7 @@ namespace RogueDungeonLab
                 instance.transform.localRotation = Quaternion.identity; instance.transform.localScale = scale;
                 instance.transform.localPosition = offset;
             }
-            else if (p.kind == FpsArenaContentKind.Cover)
+            else if (p.kind == FpsArenaContentKind.Cover || p.kind == FpsArenaContentKind.Obstacle)
             {
                 Color color = new Color(.3f, .6f, .45f);
                 if (p.coverShape == FpsArenaCoverShape.Cylinder)
@@ -159,7 +159,14 @@ namespace RogueDungeonLab
         private static bool FinitePositive(float value) { return value > 0 && Finite(value); }
         private static void Boundary(FpsArenaLayout l, Transform parent, Vector3 p, int x, int z, int dx, int dz)
         {
-            if (FpsArenaPlanner.InShape(l.Recipe, x + dx, z + dz)) return;
+            if (l.IsAuthored)
+            {
+                var next = new Vector3Int(x + dx, Mathf.RoundToInt(p.y / l.Recipe.floorHeight), z + dz);
+                if (l.HasFloor(next)) return;
+                // Stair openings already have side guards; keep the upper landing open.
+                foreach (var stair in l.Stairs) if ((next.y == stair.lowerFloor || next.y == stair.lowerFloor + 1) && next.x >= stair.x && next.x < stair.x + stair.FootprintWidth && next.z >= stair.z && next.z < stair.z + stair.FootprintDepth) return;
+            }
+            else if (FpsArenaPlanner.InShape(l.Recipe, x + dx, z + dz)) return;
             float size = l.Recipe.cellSize;
             Box("외곽가드", parent, p + new Vector3(dx * size * .5f, .75f, dz * size * .5f), new Vector3(dx == 0 ? size : .15f, 1.5f, dz == 0 ? size : .15f), new Color(.4f, .43f, .48f));
         }

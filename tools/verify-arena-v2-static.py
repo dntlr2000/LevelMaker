@@ -29,7 +29,7 @@ for p in arena.glob('*'):
  if p.is_file():assert p.read_bytes()==(core/'Runtime/Arena'/p.name).read_bytes(),p
 for suffix in ('','.meta'):assert (ROOT/('Assets/RogueDungeonLab/Editor/FpsArenaWindow.cs'+suffix)).read_bytes()==(lab/('Editor/FpsArenaWindow.cs'+suffix)).read_bytes()
 asm=json.loads((lab/'Editor/RogueDungeonLab.Arena.Editor.asmdef').read_text());assert asm['references']==['RogueDungeonLab.Runtime','RogueDungeonLab.Samples'] and asm['includePlatforms']==['Editor']
-for pkg in [core,lab,baking]:assert json.loads((pkg/'package.json').read_text())['version']=='0.14.0'
-checks.append('Core Runtime/GUID and portable Lab Editor/GUID byte parity, Editor-only package boundary and version0.14.0')
+for pkg in [core,lab,baking]:assert json.loads((pkg/'package.json').read_text())['version']=='0.15.0'
+checks.append('Core Runtime/GUID and portable Lab Editor/GUID byte parity, Editor-only package boundary and version 0.15.0')
 for check in checks:print('PASS',check)
 print('NOT RUN C# compiler / Unity EditMode, PlayMode, Physics, UI, domain reload, consumer installs')
