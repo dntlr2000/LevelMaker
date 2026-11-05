@@ -20,8 +20,14 @@ namespace RogueDungeonLab
         public float height, thickness;
         public Vector3Int Step { get { return alongX ? Vector3Int.right : new Vector3Int(0,0,1); } }
         public Vector3Int Normal { get { return alongX ? new Vector3Int(0,0,1) : Vector3Int.right; } }
+        // 단면 경계는 실제 바닥 쪽에서 계산해 서쪽/남쪽도 기존 외곽 가드 좌표와 일치시킨다.
         public Vector3 Position(FpsArenaLayout l)
-        { return l.Position(cell) + (Vector3)Normal * (l.Recipe.cellSize * .5f) + (Vector3)Step * ((lengthCells - 1) * l.Recipe.cellSize * .5f); }
+        {
+            Vector3 center = !l.HasFloor(cell) && l.HasFloor(cell + Normal)
+                ? l.Position(cell + Normal) - (Vector3)Normal * (l.Recipe.cellSize * .5f)
+                : l.Position(cell) + (Vector3)Normal * (l.Recipe.cellSize * .5f);
+            return center + (Vector3)Step * ((lengthCells - 1) * l.Recipe.cellSize * .5f);
+        }
     }
     [Serializable] public sealed class FpsArenaRoomDoor
     {

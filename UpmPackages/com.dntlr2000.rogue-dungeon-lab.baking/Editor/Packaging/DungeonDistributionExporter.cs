@@ -120,7 +120,7 @@ namespace RogueDungeonLab.Editor
         public const string InputSystemPackageId = "com.unity.inputsystem";
         public const string RuntimeCoreUpmPackageId =
             "com.dntlr2000.rogue-dungeon-lab.core";
-        public const string RuntimeCoreUpmPackageVersion = "0.15.0";
+        public const string RuntimeCoreUpmPackageVersion = "0.17.0";
         public const string LabSampleUpmPackageId =
             "com.dntlr2000.rogue-dungeon-lab.lab";
         public const string BakingUpmPackageId =
@@ -166,7 +166,7 @@ namespace RogueDungeonLab.Editor
             // Standalone editor files compile in the consumer's default Editor assembly.
             // Do not include the development-only Editor asmdef/Bake tools.
             if (sourceFolder == LabSampleFolder)
-                foreach (string file in new[] { "FpsArenaWindow.cs", "FpsArenaStageWindow.cs", "FpsArenaStageAuthoring.cs" })
+                foreach (string file in new[] { "FpsArenaWindow.cs", "FpsArenaStageWindow.cs", "FpsArenaStageAuthoring.cs", "FpsArenaStageSizing.cs", "FpsArenaStageWindowSizing.cs" })
                     paths.Add("Assets/RogueDungeonLab/Editor/" + file);
             ValidateUnityPackageExportSources(report, paths);
             ValidateNonEmpty(report, paths);

@@ -13,11 +13,13 @@ namespace RogueDungeonLab
             if (source == null) throw new ArgumentNullException(nameof(source));
             return GenerateSnapshot(source, seed, source.Normalized().generatorVersion == FpsArenaGeneratorVersion.FlexibleV2 && catalog != null ? catalog.Snapshot() : null);
         }
+        // 기존 난수 기반 계획/해시를 마친 뒤 순수 파생 외곽벽 레코드만 덧붙인다.
         public static FpsArenaLayout GenerateSnapshot(FpsArenaRecipe source, int seed, FpsArenaCatalogSnapshot snapshot)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            if (source.Normalized().generatorVersion != FpsArenaGeneratorVersion.FlexibleV2) return GenerateLegacy(source, seed);
-            return GenerateFlexible(source, seed, snapshot);
+            var layout = source.Normalized().generatorVersion != FpsArenaGeneratorVersion.FlexibleV2 ? GenerateLegacy(source, seed) : GenerateFlexible(source, seed, snapshot);
+            FpsArenaBoundaryWalls.PopulateProcedural(layout);
+            return layout;
         }
         private const ulong ContentStream = 0x4152454E415F5631UL;
         private static FpsArenaLayout GenerateLegacy(FpsArenaRecipe source, int seed)

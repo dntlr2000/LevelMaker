@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace RogueDungeonLab.Editor
 {
-    public sealed class FpsArenaStageWindow : EditorWindow
+    public sealed partial class FpsArenaStageWindow : EditorWindow
     {
         private static readonly string[] Tools = { "선택·이동", "바닥 칠하기", "바닥 지우기", "벽 그리기", "문 뚫기", "시작 스폰", "콘텐츠 배치", "계단 배치", "오브젝트 삭제" };
         private static readonly FpsArenaContentKind[] Kinds = { FpsArenaContentKind.Cover, FpsArenaContentKind.Enemy, FpsArenaContentKind.Gimmick, FpsArenaContentKind.Item };
@@ -24,7 +24,7 @@ namespace RogueDungeonLab.Editor
         private bool needsValidation = true, catalogExpanded;
         private HashSet<Vector3Int> floorCells = new HashSet<Vector3Int>();
         private Vector3Int lastPaint = new Vector3Int(-1, -1, -1), dragStart, dragEnd;
-        private bool dragging, dragMove;
+        private bool dragging, dragMove, lastPaintAlongX;
         private int strokeGroup;
         private GUIStyle cellLabel;
 
@@ -46,11 +46,13 @@ namespace RogueDungeonLab.Editor
         private void OnDisable() { Undo.undoRedoPerformed -= Invalidate; }
         private void OnFocus() { Invalidate(); }
         private void OnProjectChange() { Invalidate(); }
-        private void Invalidate() { needsValidation = true; Repaint(); }
+        // 자산/Undo 변경 후 검사와 규격 후보만 무효화하며 미적용 입력은 유지한다.
+        private void Invalidate() { needsValidation = true; resizePreview = null; Repaint(); }
         private void Run(Action action)
         { try { action(); message = ""; Invalidate(); } catch (Exception e) { message = e.Message; Repaint(); } }
         private void Change(string label, Action<FpsArenaStageData> edit) { Run(() => FpsArenaStageAuthoring.Edit(stage, label, edit)); }
 
+        // 구형 자산은 명시적으로 변환한 뒤 편집하며 Play 중 원본 자산 변경을 막는다.
         private void OnGUI()
         {
             if (cellLabel == null) cellLabel = new GUIStyle(EditorStyles.miniBoldLabel) { alignment = TextAnchor.MiddleCenter, normal = { textColor = Color.white } };
@@ -65,10 +67,22 @@ namespace RogueDungeonLab.Editor
                     DrawNewSize(); return;
                 }
                 if (stage.data == null) { EditorGUILayout.HelpBox("스테이지 데이터가 없습니다.", MessageType.Error); return; }
-                Check();
+                if (stage.data.version == 1)
+                {
+                    EditorGUILayout.HelpBox("구형 v1 자산입니다. 기존 외곽 가드를 편집 가능한 벽으로 변환하면 격자 편집을 계속할 수 있습니다. 기존 외형은 유지되지만 수동 배치 해시는 v2로 바뀝니다. 변환은 Undo 가능하며 자동 저장하지 않습니다.", MessageType.Info);
+                    if (GUILayout.Button("편집형 벽으로 변환 (Undo 가능)")) Run(() => FpsArenaStageAuthoring.UpgradeWalls(stage));
+                    if (stage.data.version == 1) { if (!string.IsNullOrEmpty(message)) EditorGUILayout.HelpBox(message, MessageType.Error); return; }
+                }
+                SyncSizingState(); Check();
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    using (new EditorGUILayout.VerticalScope(GUILayout.Width(265))) { sideScroll = EditorGUILayout.BeginScrollView(sideScroll); DrawSidebar(); EditorGUILayout.EndScrollView(); }
+                    using (new EditorGUILayout.VerticalScope(GUILayout.Width(300)))
+                    {
+                        sideScroll = EditorGUILayout.BeginScrollView(sideScroll);
+                        float previousLabelWidth = EditorGUIUtility.labelWidth; EditorGUIUtility.labelWidth = 115;
+                        DrawSidebar(); EditorGUIUtility.labelWidth = previousLabelWidth;
+                        EditorGUILayout.EndScrollView();
+                    }
                     using (new EditorGUILayout.VerticalScope()) { DrawCanvas(); }
                 }
             }
@@ -105,16 +119,23 @@ namespace RogueDungeonLab.Editor
             string path = EditorUtility.SaveFilePanelInProject("생성 결과 복사", "ManualStage", "asset", "원본 생성 결과를 보존하고 복사합니다.");
             if (!string.IsNullOrEmpty(path)) Run(() => { stage = FpsArenaStageAuthoring.CreateAsset(path, FpsArenaStageData.Capture(generator.CurrentLayout), generator.ActiveCatalog); floor = 0; selectedId = ""; selectedStair = -1; });
         }
+        // 새 자산의 셀/층간 실제 규격을 현재 맵 설정과 구분하여 입력한다.
         private void DrawNewSize()
         {
-            EditorGUILayout.LabelField("새 스테이지 크기", EditorStyles.boldLabel);
+            if (stage != null) { newSizeExpanded = EditorGUILayout.Foldout(newSizeExpanded, "새 스테이지 설정", true); if (!newSizeExpanded) return; }
+            else EditorGUILayout.LabelField("새 스테이지 설정", EditorStyles.boldLabel);
             newWidth = EditorGUILayout.IntSlider("가로 (셀)", newWidth, 8, 64); newDepth = EditorGUILayout.IntSlider("세로 (셀)", newDepth, 8, 64); newFloors = EditorGUILayout.IntSlider("층 수", newFloors, 1, 4);
+            newCellSize = EditorGUILayout.Slider("셀 크기 (m)", newCellSize, 2, 5);
+            newFloorHeight = EditorGUILayout.Slider("층간 높이 (m)", newFloorHeight, 3, 6);
+            EditorGUILayout.LabelField($"실제 면적: {newWidth * newCellSize:0.##} × {newDepth * newCellSize:0.##}m", EditorStyles.wordWrappedMiniLabel);
+            if (GUILayout.Button("이 설정으로 새 빈 스테이지")) Create(false);
         }
+        // 새 규격 또는 기존 데이터/제작 기본값 사본으로 별도 자산을 만들며 기존 맵은 덮어쓰지 않는다.
         private void Create(bool copy)
         {
             string path = EditorUtility.SaveFilePanelInProject(copy ? "스테이지 사본 저장" : "새 수동 스테이지", "ManualStage", "asset", "스테이지 원본을 저장할 위치를 선택하세요.");
             if (string.IsNullOrEmpty(path)) return;
-            Run(() => { stage = FpsArenaStageAuthoring.CreateAsset(path, copy ? stage.data : FpsArenaStageData.Create(newWidth, newDepth, newFloors), copy ? stage.contentCatalog : null); floor = 0; selectedId = ""; selectedStair = -1; Selection.activeObject = stage; });
+            Run(() => { var source = stage; stage = FpsArenaStageAuthoring.CreateAsset(path, copy ? source.data : FpsArenaStageData.Create(newWidth, newDepth, newFloors, newCellSize, newFloorHeight), copy ? source.contentCatalog : null, copy ? source.wallDefaults : null); floor = 0; selectedId = ""; selectedStair = -1; Selection.activeObject = stage; });
         }
         // 필수 오류와 비차단 연결성 경고를 분리하고 재검사 시 이전 결과를 비운다.
         private void Check()
@@ -128,6 +149,7 @@ namespace RogueDungeonLab.Editor
         // 필수 오류만 장면 적용을 잠그고 연결성 부족은 별도 경고로 안내한다.
         private void DrawSidebar()
         {
+            DrawCurrentSize();
             tool = GUILayout.SelectionGrid(tool, Tools, 2, GUILayout.Height(125));
             EditorGUILayout.Space();
             if (tool == 6)
@@ -142,8 +164,11 @@ namespace RogueDungeonLab.Editor
                 direction = EditorGUILayout.Popup("올라가는 방향", direction, new[] { "위쪽 (+Z)", "오른쪽 (+X)", "아래쪽 (−Z)", "왼쪽 (−X)" });
                 EditorGUILayout.HelpBox("폭 2셀·길이 4셀 계단입니다. 상층 바닥을 자동으로 뚫고, 계단 삭제 시 복원합니다.", MessageType.None);
             }
-            if (tool == 3 || tool == 4) EditorGUILayout.HelpBox("셀의 위쪽/오른쪽 경계 가까이를 클릭·드래그하세요. 문 뚫기는 해당 벽 구간을 지워 열린 통로를 만듭니다.", MessageType.None);
+            if (tool == 3 || tool == 4) EditorGUILayout.HelpBox("셀의 상·하·좌·우 경계 가까이를 클릭·드래그하세요. 외곽에도 벽을 놓거나 문 뚫기로 열린 구간을 만들 수 있습니다.", MessageType.None);
+            if (GUILayout.Button("벽 자동 배치 (전체 층)")) Run(() => FpsArenaStageAuthoring.AutoPlaceBoundaryWalls(stage));
+            EditorGUILayout.HelpBox("전체 층의 외곽과 내부 구멍에서 빈 경계만 채웁니다. 계단은 제외하며 기존 벽은 유지합니다. 삭제한 벽은 이 버튼을 다시 누를 때만 채워집니다.", MessageType.None);
             DrawSelection();
+            DrawWallDefaults(); DrawWallBatch();
             EditorGUILayout.Space(); EditorGUILayout.LabelField("검사와 장면", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(string.IsNullOrEmpty(validation) ? "계단·겹침·콘텐츠 연결 필수 검사 통과" : validation, string.IsNullOrEmpty(validation) ? MessageType.Info : MessageType.Error);
             if (!string.IsNullOrEmpty(connectivityWarning)) EditorGUILayout.HelpBox(connectivityWarning, MessageType.Warning);
@@ -218,6 +243,7 @@ namespace RogueDungeonLab.Editor
             else if (stage.data.partitions.Exists(w => w.id == selectedId) || stage.data.walls.Exists(w => w.id == selectedId))
             {
                 EditorGUILayout.LabelField("벽 선택됨", EditorStyles.boldLabel);
+                DrawSelectedWallDimensions();
                 var wall = stage.data.walls.Find(w => w.id == selectedId);
                 if (wall != null)
                 {
@@ -230,6 +256,7 @@ namespace RogueDungeonLab.Editor
             }
         }
 
+        // 네 외곽선이 잘리거나 클릭 불가능해지지 않도록 격자에 편집 여백을 둔다.
         private void DrawCanvas()
         {
             using (new EditorGUILayout.HorizontalScope())
@@ -237,11 +264,12 @@ namespace RogueDungeonLab.Editor
                 string[] floors = new string[stage.data.floors]; for (int i = 0; i < floors.Length; i++) floors[i] = (i + 1) + "층";
                 floor = EditorGUILayout.Popup(Mathf.Clamp(floor, 0, floors.Length - 1), floors, GUILayout.Width(80));
                 GUILayout.Label("확대", GUILayout.Width(30)); zoom = GUILayout.HorizontalSlider(zoom, 14, 42);
-                if (GUILayout.Button("맞춤", GUILayout.Width(48))) zoom = Mathf.Clamp((position.width - 315) / stage.data.width, 14, 42);
+                if (GUILayout.Button("맞춤", GUILayout.Width(48))) zoom = Mathf.Clamp((position.width - 350) / stage.data.width, 14, 42);
             }
             EditorGUILayout.LabelField("드래그: 칠하기/콘텐츠 이동 · Ctrl+Z: 취소 · Delete: 선택 삭제 · 색상: 녹색 구조물 / 빨강 적 / 보라 기믹 / 청록 아이템", EditorStyles.wordWrappedMiniLabel);
             gridScroll = EditorGUILayout.BeginScrollView(gridScroll, GUILayout.ExpandHeight(true));
-            Rect area = GUILayoutUtility.GetRect(stage.data.width * zoom, stage.data.depth * zoom, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
+            Rect padded = GUILayoutUtility.GetRect(stage.data.width * zoom + 16, stage.data.depth * zoom + 16, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
+            Rect area = new Rect(padded.x + 8, padded.y + 8, stage.data.width * zoom, stage.data.depth * zoom);
             EditorGUI.DrawRect(area, new Color(.1f, .12f, .15f));
             for (int z = 0; z < stage.data.depth; z++) for (int x = 0; x < stage.data.width; x++)
             {
@@ -275,13 +303,16 @@ namespace RogueDungeonLab.Editor
         }
         private Rect CellRect(Rect area, Vector3Int cell) { return new Rect(area.x + cell.x * zoom, area.y + (stage.data.depth - 1 - cell.z) * zoom, zoom, zoom); }
         private static Rect Inset(Rect r, float inset) { return new Rect(r.x + inset, r.y + inset, r.width - 2 * inset, r.height - 2 * inset); }
+        // 외곽의 여백에서도 벽 경계를 선택/칠할 수 있으며 콘텐츠 이동은 기존 격자 안으로 제한한다.
         private void HandleInput(Rect area)
         {
             var e = Event.current;
             int control = GUIUtility.GetControlID(FocusType.Passive);
             if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Delete && !EditorGUIUtility.editingTextField) { DeleteSelection(); e.Use(); return; }
             Vector3Int cell = new Vector3Int(Mathf.FloorToInt((e.mousePosition.x - area.x) / zoom), floor, stage.data.depth - 1 - Mathf.FloorToInt((e.mousePosition.y - area.y) / zoom));
-            if (e.type == EventType.MouseDown && e.button == 0 && area.Contains(e.mousePosition))
+            Rect interaction = (tool == 0 || tool == 3 || tool == 4 || tool == 8) ? Inset(area, -8) : area;
+            if (interaction.Contains(e.mousePosition)) { cell.x = Mathf.Clamp(cell.x, 0, stage.data.width - 1); cell.z = Mathf.Clamp(cell.z, 0, stage.data.depth - 1); }
+            if (e.type == EventType.MouseDown && e.button == 0 && interaction.Contains(e.mousePosition))
             {
                 GUIUtility.hotControl = control; GUIUtility.keyboardControl = 0; dragging = true; lastPaint = new Vector3Int(-1, -1, -1); dragStart = dragEnd = cell;
                 Undo.IncrementCurrentGroup(); strokeGroup = Undo.GetCurrentGroup();
@@ -291,7 +322,7 @@ namespace RogueDungeonLab.Editor
             }
             else if (e.type == EventType.MouseDrag && dragging)
             {
-                if (area.Contains(e.mousePosition)) { dragEnd = cell; if (tool != 0 && tool != 6 && tool != 7) Paint(cell, area, e.mousePosition); }
+                if (interaction.Contains(e.mousePosition)) { if (area.Contains(e.mousePosition)) dragEnd = cell; if (tool != 0 && tool != 6 && tool != 7) Paint(cell, area, e.mousePosition); }
                 e.Use(); Repaint();
             }
             else if (e.type == EventType.MouseUp && dragging)
@@ -300,27 +331,40 @@ namespace RogueDungeonLab.Editor
                 dragging = false; GUIUtility.hotControl = 0; Undo.CollapseUndoOperations(strokeGroup); e.Use();
             }
         }
-        private bool AlongX(Rect area, Vector3Int cell, Vector2 point) { var r = CellRect(area, cell); return point.y - r.y < r.xMax - point.x; }
+        // 그리기와 같은 셀 사각형으로 네 경계를 정규화한다.
+        private void WallEdge(Rect area, Vector3Int cell, Vector2 point, out Vector3Int anchor, out bool alongX)
+        { var r = CellRect(area, cell); FpsArenaStageAuthoring.ResolveWallEdge(cell, new Vector2((point.x - r.x) / r.width, (point.y - r.y) / r.height), out anchor, out alongX); }
+
+        // 경계 가까이에서는 벽 선택을 우선하여 콘텐츠 옆의 외곽벽도 삭제할 수 있게 한다.
         private void Select(Vector3Int cell, Rect area, Vector2 point)
         {
             selectedStair = -1; selectedId = "";
+            WallEdge(area, cell, point, out var anchor, out bool alongX);
+            var wall = stage.data.partitions.Find(w => FpsArenaStageAuthoring.IsWallOnEdge(w, anchor, alongX));
+            var rect = CellRect(area, cell);
+            float edgeDistance = Mathf.Min(Mathf.Abs(point.x - rect.x), Mathf.Abs(point.x - rect.xMax), Mathf.Abs(point.y - rect.y), Mathf.Abs(point.y - rect.yMax));
+            if (wall != null && edgeDistance <= Mathf.Min(7, zoom * .25f)) { selectedId = wall.id; return; }
             var content = stage.data.content.Find(p => FpsArenaStageAuthoring.Covers(p, cell));
             if (content != null) { selectedId = content.id; return; }
             for (int i = 0; i < stage.data.stairs.Count; i++)
             { var s = stage.data.stairs[i]; if ((floor == s.lowerFloor || floor == s.lowerFloor + 1) && cell.x >= s.x && cell.x < s.x + s.FootprintWidth && cell.z >= s.z && cell.z < s.z + s.FootprintDepth) { selectedStair = i; return; } }
-            var wall = stage.data.partitions.Find(w => w.cell == cell && w.alongX == AlongX(area, cell, point));
             if (wall != null) { selectedId = wall.id; return; }
             foreach (var w in stage.data.walls) foreach (var c in w.Footprint()) if (c == cell) { selectedId = w.id; return; }
         }
+        // 벽 드래그는 셀이 아닌 정규 경계별로 중복을 막아 같은 셀의 다른 면도 편집한다.
         private void Paint(Vector3Int cell, Rect area, Vector2 point)
         {
-            if (lastPaint == cell || !stage.data.Contains(cell)) return; lastPaint = cell;
+            WallEdge(area, cell, point, out var anchor, out bool alongX);
+            bool wallTool = tool == 3 || tool == 4 || tool == 8;
+            Vector3Int paintCell = wallTool ? anchor : cell;
+            if ((lastPaint == paintCell && (!wallTool || lastPaintAlongX == alongX)) || !stage.data.Contains(cell)) return;
+            lastPaint = paintCell; lastPaintAlongX = alongX;
             if (tool == 8) { Select(cell, area, point); DeleteSelection(); return; }
             Change("스테이지 " + Tools[tool], d =>
             {
                 if (tool == 1 && !d.floorCells.Contains(cell)) d.floorCells.Add(cell);
                 if (tool == 2) d.floorCells.Remove(cell);
-                if (tool == 3 || tool == 4) FpsArenaStageAuthoring.SetWall(d, cell, AlongX(area, cell, point), tool == 3);
+                if (tool == 3 || tool == 4) FpsArenaStageAuthoring.SetWall(d, anchor, alongX, tool == 3, stage.GetWallDefaults());
                 if (tool == 5) { if (d.spawns.Count == 0) d.spawns.Add(cell); else d.spawns[0] = cell; }
                 if (tool == 6)
                 {

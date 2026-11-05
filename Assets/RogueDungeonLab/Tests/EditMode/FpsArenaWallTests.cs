@@ -48,7 +48,8 @@ namespace RogueDungeonLab.Tests
             CollectionAssert.AreEqual(a.Stairs.Select(s => JsonUtility.ToJson(s)), off.Stairs.Select(s => JsonUtility.ToJson(s)));
             Assert.AreNotEqual(a.Hash, FpsArenaPlanner.Generate(WallRecipe(), 71).Hash);
         }
-        [Test]
+        // 144개 극단 프로필은 현재 환경에서 약 189초가 필요하므로 입력/검사는 유지하고 이 대량 검사만 5분을 허용한다.
+        [Test, Timeout(300000)]
         public void WallsAndMaximumContent_144ExtremeMultiFloorSeedProfilesRemainConnectedAndDisjoint()
         {
             int profiles = 0;

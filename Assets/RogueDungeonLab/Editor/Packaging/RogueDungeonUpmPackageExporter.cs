@@ -37,7 +37,7 @@ namespace RogueDungeonLab.Editor
 
     public static class RogueDungeonUpmPackageExporter
     {
-        public const string PackageVersion = "0.15.0";
+        public const string PackageVersion = "0.17.0";
         public const string PackagesRoot = "UpmPackages";
         public const string CorePackageName =
             "com.dntlr2000.rogue-dungeon-lab.core";
@@ -182,7 +182,7 @@ namespace RogueDungeonLab.Editor
         private static void SyncArenaAuthoring(string packageRoot)
         {
             string editorRoot = Path.Combine(packageRoot, "Editor"); Directory.CreateDirectory(editorRoot);
-            foreach (string file in new[] { "FpsArenaWindow.cs", "FpsArenaStageWindow.cs", "FpsArenaStageAuthoring.cs" })
+            foreach (string file in new[] { "FpsArenaWindow.cs", "FpsArenaStageWindow.cs", "FpsArenaStageAuthoring.cs", "FpsArenaStageSizing.cs", "FpsArenaStageWindowSizing.cs" })
             {
                 string source = ResolveProjectPath("Assets/RogueDungeonLab/Editor/" + file);
                 File.Copy(source, Path.Combine(editorRoot, file), true);
@@ -476,7 +476,7 @@ namespace RogueDungeonLab.Editor
         {
             return "# Rogue Dungeon Lab - Runtime Core\n\n" +
                    "결정적 절차 생성, 저장 Blueprint RuntimeBuild, BakedPrefab 로드와 RunState를 제공하는 제품 런타임입니다. 0.14.0은 시드 가변 다층 FPS Arena, 엄폐 형태·크기 범위, 독립 콘텐츠 밀도와 Prefab catalog/초기화 계약도 제공합니다. 기존 Arena V1 저장 결과는 명시적 업그레이드 전까지 보존합니다. 0.13.0부터 절차 생성과 검증·Build 사이에 결정적 `IDungeonBlueprintPostprocessor`를 적용할 수 있습니다. Lab HUD, 임시 플레이어, Input System 및 Editor Baker는 포함하지 않습니다.\n\n" +
-                   "Package Manager의 Samples에서 `RuntimeBuild Examples`를 Import하면 HUD 없는 Procedural·SavedBlueprint 예제 장면을 확인할 수 있습니다. 자세한 설치 조합은 원본 저장소의 `docs/R9_1_UPM_GUIDE_KO.md`를 참고하세요.";
+                   "0.17.0은 명시적 셀/층간 규격의 수동 맵 생성과 배치 해시에서 제외된 제작용 벽 기본값을 지원합니다. 0.16.0의 명시적 외곽벽·수동 v2·비파괴 v1 읽기 호환과 기존 절차 시드 배치/해시는 유지합니다. Package Manager의 Samples에서 `RuntimeBuild Examples`를 Import하면 HUD 없는 Procedural·SavedBlueprint 예제 장면을 확인할 수 있습니다. 자세한 설치 조합은 원본 저장소의 `docs/R9_1_UPM_GUIDE_KO.md`를 참고하세요.";
         }
 
         // Lab package가 선택 기능이며 제품 UI와 분리됨을 설명합니다.
@@ -484,7 +484,9 @@ namespace RogueDungeonLab.Editor
         {
             return "# Rogue Dungeon Lab - Lab Sample\n\n" +
                    "실험용 인게임 HUD, 자유 카메라, 클릭 상호작용과 임시 플레이어를 제공하는 선택 package입니다. Runtime Core와 Input System을 요구합니다. 0.14.0에는 Editor-only FPS 아레나 제작 창(지형·엄폐·적·특수 기믹·아이템·프리팹 6개 탭)도 포함됩니다. `Tools > Rogue Dungeon Lab > FPS 아레나 제작`에서 시작합니다.\n\n" +
-                   "0.15.0: `Tools > Rogue Dungeon Lab > 스테이지 직접 설계`에서 빈 판을 만들거나 생성 결과를 복사합니다. 층별 격자에서 바닥·벽·문·계단·시작 스폰·구조물·적·기믹·아이템을 편집하고 저장합니다. 선택 도구로 콘텐츠를 드래그하고 Ctrl+Z/Redo로 되돌립니다. 검사 후 장면에 적용하고 테스트 플레이어를 연결한 뒤 Play로 확인하세요. 초안은 연결 오류가 있어도 저장되지만 장면 적용은 검사를 통과해야 합니다.\n\n" +
+                   "0.17.0: 직접 설계 창에서 새 맵/현재 맵의 셀 크기·층간 높이·가로·세로·층 수를 편집합니다. 확대는 새 영역에 바닥만 추가하고 범위 밖 데이터가 있는 축소는 사유를 표시하며 보류합니다. 벽 높이·두께를 개별/현재 층/전체 층에 적용하고 내부·외곽 배치 기본값을 별도로 저장합니다. 기존 치수·ID를 자동 변경/삭제하지 않으며 각 적용은 Undo를 지원합니다. 자산 저장과 장면 적용은 별도로 실행합니다.\n\n" +
+                   "0.16.0: 새 수동 스테이지는 외곽벽 없이 시작합니다. `벽 자동 배치 (전체 층)`은 전체 층의 외곽과 내부 구멍에서 빈 경계만 채우며 계단은 제외합니다. 네 방향 경계에서 벽/문/선택/삭제를 사용하고, 삭제한 외곽은 저장·로드로 복구되지 않습니다. v1 자산은 `편집형 벽으로 변환 (Undo 가능)` 후 편집합니다. 기존 외곽 규격과 절차 시드/해시는 유지합니다.\n\n" +
+                   "0.15.0: `Tools > Rogue Dungeon Lab > 스테이지 직접 설계`에서 빈 판을 만들거나 생성 결과를 복사합니다. 층별 격자에서 바닥·벽·문·계단·시작 스폰·구조물·적·기믹·아이템을 편집하고 저장합니다. 선택 도구로 콘텐츠를 드래그하고 Ctrl+Z/Redo로 되돌립니다. 검사 후 장면에 적용하고 테스트 플레이어를 연결한 뒤 Play로 확인하세요. 전체 연결성 부족은 경고만 표시하고 좌표·계단·겹침·프리팹 연결의 필수 오류만 적용을 차단합니다.\n\n" +
                    "다른 프로젝트의 프리팹은 `프로젝트 프리팹 등록·교체`에서 같은 콘텐츠 키로 등록하세요. 카탈로그를 복제하여 Generator의 `호스트 카탈로그 교체`에 연결하면 스테이지 자산을 수정하지 않고 교체됩니다. `IFpsArenaContentInitializer`는 기존 게임 시스템 연결용 hook입니다.\n\n" +
                    "제품 장면에서 Lab 컴포넌트를 배치하지 않으면 빌더 HUD는 표시되지 않습니다. Core-only 제품에는 이 package를 설치하지 않아도 됩니다.";
         }
@@ -501,6 +503,8 @@ namespace RogueDungeonLab.Editor
         private static string BuildPackageChangelog()
         {
             return "# Changelog\n\n" +
+                   "## 0.17.0\n\n- Manual stage dimensions UI with atomic Undo, additive floor expansion and non-destructive shrink checks. Per-wall/floor/all-floor dimensions, persisted interior/boundary brush defaults excluded from layout hashes, and portable Lab authoring services. Existing procedural output and v2/v1 compatibility preserved.\n\n" +
+                   "## 0.16.0\n\n- Editable FPS boundary walls; v2 manual stages start without implicit guards. All-floor boundary auto placement includes holes, excludes stairs, supports four-sided editing and Undo. Non-mutating v1 compatibility and preserved procedural hashes/geometry.\n\n" +
                    "## 0.15.0\n\n- Saved manual multi-floor stages, grid authoring, Undo/Redo, validation and host catalog overrides. Existing procedural layouts remain unchanged.\n\n" +
                    "## 0.14.0\n\n- Flexible FPS Arena V2: seeded stairs, varied cover footprints/shapes, independent enemy/gimmick/item densities, actual prefab catalog and initialization hooks.\n- Preserve saved V1 recipes/hashes until explicit upgrade; add portable Lab Editor authoring tabs.\n\n" +
                    "## 0.13.0\n\n" +

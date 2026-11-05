@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.17.0
+
+- Manual stage dimensions UI with atomic Undo, additive floor expansion and non-destructive shrink checks. Per-wall/floor/all-floor dimensions, persisted interior/boundary brush defaults excluded from layout hashes, and portable Lab authoring services. Existing procedural output and v2/v1 compatibility preserved.
+
+## 0.16.0
+
+- Editable FPS boundary walls; v2 manual stages start without implicit guards. All-floor boundary auto placement includes holes, excludes stairs, supports four-sided editing and Undo. Non-mutating v1 compatibility and preserved procedural hashes/geometry.
+
 ## 0.15.0
 
 - Saved manual multi-floor stages, grid authoring, Undo/Redo, validation and host catalog overrides. Existing procedural layouts remain unchanged.

@@ -104,6 +104,7 @@ namespace RogueDungeonLab
         { if (HasFloor(c) && (SolidRoomEdges.Count == 0 || CanTraverse(from,c)) && !blocked.Contains(c) && seen.Add(c)) queue.Enqueue(c); }
         public int FloorCount()
         { int n = 0; foreach (bool f in Floors) if (f) n++; return n; }
+        // 수동 필수 검사와 기존 절차 연결성을 유지하며 명시적 외곽벽도 검증한다.
         public void Validate()
         {
             if (IsAuthored) { FpsArenaManualValidation.Validate(this); return; }
@@ -146,6 +147,7 @@ namespace RogueDungeonLab
             var blocked = BlockedCells();
             if (ReachableCount(blocked) != FloorCount() - blocked.Count) throw new InvalidOperationException("Arena has unreachable floor cells.");
             ValidateRooms();
+            FpsArenaBoundaryWalls.Validate(this);
         }
         private static bool FinitePositive(float value) { return value > 0 && !float.IsNaN(value) && !float.IsInfinity(value); }
         public string ComputeHash()

@@ -3,7 +3,7 @@ from pathlib import Path
 import re,json,hashlib
 ROOT=Path(__file__).resolve().parents[1]
 checks=[]
-for path in list((ROOT/'Assets/RogueDungeonLab/Runtime/Arena').glob('*.cs'))+[ROOT/'Assets/RogueDungeonLab/Editor/FpsArenaWindow.cs',ROOT/'Assets/RogueDungeonLab/Editor/Packaging/RogueDungeonUpmPackageExporter.cs',ROOT/'Assets/RogueDungeonLab/Tests/EditMode/FpsArenaFlexibleTests.cs',ROOT/'Assets/RogueDungeonLab/Tests/EditMode/FpsArenaEditorFlexibleTests.cs',ROOT/'Assets/RogueDungeonLab/Tests/PlayMode/FpsArenaTraversalTests.cs']:
+for path in list((ROOT/'Assets/RogueDungeonLab/Runtime/Arena').glob('*.cs'))+list((ROOT/'Assets/RogueDungeonLab/Editor').glob('FpsArena*.cs'))+[ROOT/'Assets/RogueDungeonLab/Editor/Packaging/RogueDungeonUpmPackageExporter.cs',ROOT/'Assets/RogueDungeonLab/Tests/EditMode/FpsArenaFlexibleTests.cs',ROOT/'Assets/RogueDungeonLab/Tests/EditMode/FpsArenaEditorFlexibleTests.cs',ROOT/'Assets/RogueDungeonLab/Tests/EditMode/FpsArenaBoundaryWallTests.cs',ROOT/'Assets/RogueDungeonLab/Tests/PlayMode/FpsArenaBoundaryWallPlayModeTests.cs',ROOT/'Assets/RogueDungeonLab/Tests/PlayMode/FpsArenaTraversalTests.cs',ROOT/'Assets/RogueDungeonLab/Tests/EditMode/FpsArenaStageSizingTests.cs',ROOT/'Assets/RogueDungeonLab/Tests/PlayMode/FpsArenaStageSizingPlayModeTests.cs']:
  source=path.read_text();clean=re.sub(r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"', '', source,flags=re.S);stack=[]
  for ch in clean:
   if ch in '{([':stack.append(ch)
@@ -27,9 +27,16 @@ checks.append('exact V1 14-field hash snapshot order and validated golden test')
 core=ROOT/'UpmPackages/com.dntlr2000.rogue-dungeon-lab.core';lab=ROOT/'UpmPackages/com.dntlr2000.rogue-dungeon-lab.lab';baking=ROOT/'UpmPackages/com.dntlr2000.rogue-dungeon-lab.baking'
 for p in arena.glob('*'):
  if p.is_file():assert p.read_bytes()==(core/'Runtime/Arena'/p.name).read_bytes(),p
+ if p.is_file() and p.suffix=='.meta':assert re.search(r'^guid: [0-9a-f]{32}$',p.read_text(),re.M),p
 for suffix in ('','.meta'):assert (ROOT/('Assets/RogueDungeonLab/Editor/FpsArenaWindow.cs'+suffix)).read_bytes()==(lab/('Editor/FpsArenaWindow.cs'+suffix)).read_bytes()
 asm=json.loads((lab/'Editor/RogueDungeonLab.Arena.Editor.asmdef').read_text());assert asm['references']==['RogueDungeonLab.Runtime','RogueDungeonLab.Samples'] and asm['includePlatforms']==['Editor']
-for pkg in [core,lab,baking]:assert json.loads((pkg/'package.json').read_text())['version']=='0.15.0'
-checks.append('Core Runtime/GUID and portable Lab Editor/GUID byte parity, Editor-only package boundary and version 0.15.0')
+for pkg in [core,lab,baking]:assert json.loads((pkg/'package.json').read_text())['version']=='0.17.0'
+boundary=(arena/'FpsArenaBoundaryWalls.cs').read_text();manual=(arena/'FpsArenaStageAsset.cs').read_text()
+assert 'PopulateProcedural(layout)' in (arena/'FpsArenaPlanner.cs').read_text() and 'BoundaryWalls' in builder
+assert 'private static void Boundary(' not in builder and 'Box("외곽가드"' not in builder
+assert 'CurrentVersion = 2' in manual and 'AddMissingBoundaryWalls' in manual and 'IsStairSpace' in boundary
+for name in ['FpsArenaStageAuthoring.cs','FpsArenaStageWindow.cs','FpsArenaStageSizing.cs','FpsArenaStageWindowSizing.cs']:
+ for suffix in ('','.meta'):assert (ROOT/('Assets/RogueDungeonLab/Editor/'+name+suffix)).read_bytes()==(lab/('Editor/'+name+suffix)).read_bytes()
+checks.append('Core Runtime/GUID and portable Lab Editor/GUID byte parity, explicit boundaries, manual v2 and version 0.17.0')
 for check in checks:print('PASS',check)
 print('NOT RUN C# compiler / Unity EditMode, PlayMode, Physics, UI, domain reload, consumer installs')

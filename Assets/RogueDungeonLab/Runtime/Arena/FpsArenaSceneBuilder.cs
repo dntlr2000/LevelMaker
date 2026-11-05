@@ -7,6 +7,7 @@ namespace RogueDungeonLab
     {
         public static GameObject Build(FpsArenaLayout l, Transform parent)
         { return Build(l, parent, null); }
+        // 검증된 벽 레코드만 구축하며 암묵적인 외곽 가드를 생성하지 않는다.
         public static GameObject Build(FpsArenaLayout l, Transform parent, FpsArenaContentCatalog catalog)
         {
             if (l == null) throw new ArgumentNullException(nameof(l));
@@ -31,13 +32,6 @@ namespace RogueDungeonLab
                             Box("바닥", floor.transform, p - Vector3.up * .1f, new Vector3((x - start) * r.cellSize, .2f, r.cellSize), new Color(.24f + f * .06f, .30f, .36f));
                         }
                     }
-                    for (int z = 0; z < r.depth; z++) for (int x = 0; x < r.width; x++)
-                    {
-                        if (l.IsAuthored ? !l.Floors[x, f, z] : !FpsArenaPlanner.InShape(r, x, z)) continue;
-                        Vector3 p = l.Position(new Vector3Int(x, f, z));
-                        Boundary(l, floor.transform, p, x, z, 1, 0); Boundary(l, floor.transform, p, x, z, -1, 0);
-                        Boundary(l, floor.transform, p, x, z, 0, 1); Boundary(l, floor.transform, p, x, z, 0, -1);
-                    }
                 }
                 foreach (var s in l.Stairs)
                 {
@@ -58,11 +52,8 @@ namespace RogueDungeonLab
                         Box("개구부_측면가드", group.transform, origin + new Vector3(-r.cellSize * .5f + side * width, r.floorHeight + .6f, (s.length - 1) * r.cellSize * .5f), new Vector3(.12f, 1.2f, length), new Color(.8f, .65f, .18f));
                     Box("개구부_하단가드", group.transform, origin + new Vector3((s.width - 1) * r.cellSize * .5f, r.floorHeight + .6f, -r.cellSize * .5f), new Vector3(width, 1.2f, .12f), new Color(.8f, .65f, .18f));
                 }
-                foreach(var wall in l.RoomWalls)
-                {
-                    Vector3 size = wall.alongX ? new Vector3(wall.lengthCells*r.cellSize,wall.height,wall.thickness) : new Vector3(wall.thickness,wall.height,wall.lengthCells*r.cellSize);
-                    Box(wall.id,root.transform,wall.Position(l)+Vector3.up*wall.height*.5f,size,new Color(.55f,.49f,.39f));
-                }
+                foreach (var wall in l.RoomWalls) BuildWall(l, wall, root.transform, new Color(.55f, .49f, .39f));
+                foreach (var wall in l.BoundaryWalls) BuildWall(l, wall, root.transform, FpsArenaBoundaryWalls.WallColor);
                 foreach(var room in l.Rooms)
                 {
                     var marker=new GameObject("방_"+(room.floor+1)+"_"+(room.index+1)); marker.transform.SetParent(root.transform,false); marker.transform.localPosition=l.Position(room.anchor);
@@ -157,18 +148,12 @@ namespace RogueDungeonLab
         }
         private static bool Finite(float value) { return !float.IsNaN(value) && !float.IsInfinity(value); }
         private static bool FinitePositive(float value) { return value > 0 && Finite(value); }
-        private static void Boundary(FpsArenaLayout l, Transform parent, Vector3 p, int x, int z, int dx, int dz)
+        // 내부/외곽에 같은 BoxCollider와 기하 생성 경로를 사용한다.
+        private static void BuildWall(FpsArenaLayout layout, FpsArenaRoomWall wall, Transform parent, Color color)
         {
-            if (l.IsAuthored)
-            {
-                var next = new Vector3Int(x + dx, Mathf.RoundToInt(p.y / l.Recipe.floorHeight), z + dz);
-                if (l.HasFloor(next)) return;
-                // Stair openings already have side guards; keep the upper landing open.
-                foreach (var stair in l.Stairs) if ((next.y == stair.lowerFloor || next.y == stair.lowerFloor + 1) && next.x >= stair.x && next.x < stair.x + stair.FootprintWidth && next.z >= stair.z && next.z < stair.z + stair.FootprintDepth) return;
-            }
-            else if (FpsArenaPlanner.InShape(l.Recipe, x + dx, z + dz)) return;
-            float size = l.Recipe.cellSize;
-            Box("외곽가드", parent, p + new Vector3(dx * size * .5f, .75f, dz * size * .5f), new Vector3(dx == 0 ? size : .15f, 1.5f, dz == 0 ? size : .15f), new Color(.4f, .43f, .48f));
+            float cellSize = layout.Recipe.cellSize;
+            Vector3 size = wall.alongX ? new Vector3(wall.lengthCells * cellSize, wall.height, wall.thickness) : new Vector3(wall.thickness, wall.height, wall.lengthCells * cellSize);
+            Box(wall.id, parent, wall.Position(layout) + Vector3.up * wall.height * .5f, size, color);
         }
         private static GameObject Box(string name, Transform parent, Vector3 position, Vector3 scale, Color color)
         {

@@ -1,0 +1,646 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae496150042e323468071ce8a69d4a15, type: 3}
+  m_Name: ManualStage_Test2
+  m_EditorClassIdentifier: RogueDungeonLab.Runtime::RogueDungeonLab.FpsArenaStageAsset
+  data:
+    version: 2
+    width: 8
+    depth: 8
+    floors: 2
+    cellSize: 3
+    floorHeight: 4
+    floorCells:
+    - {x: 0, y: 0, z: 0}
+    - {x: 1, y: 0, z: 0}
+    - {x: 2, y: 0, z: 0}
+    - {x: 3, y: 0, z: 0}
+    - {x: 4, y: 0, z: 0}
+    - {x: 5, y: 0, z: 0}
+    - {x: 6, y: 0, z: 0}
+    - {x: 7, y: 0, z: 0}
+    - {x: 0, y: 0, z: 1}
+    - {x: 1, y: 0, z: 1}
+    - {x: 4, y: 0, z: 1}
+    - {x: 5, y: 0, z: 1}
+    - {x: 6, y: 0, z: 1}
+    - {x: 7, y: 0, z: 1}
+    - {x: 0, y: 0, z: 2}
+    - {x: 1, y: 0, z: 2}
+    - {x: 4, y: 0, z: 2}
+    - {x: 5, y: 0, z: 2}
+    - {x: 6, y: 0, z: 2}
+    - {x: 7, y: 0, z: 2}
+    - {x: 0, y: 0, z: 3}
+    - {x: 1, y: 0, z: 3}
+    - {x: 2, y: 0, z: 3}
+    - {x: 3, y: 0, z: 3}
+    - {x: 4, y: 0, z: 3}
+    - {x: 6, y: 0, z: 3}
+    - {x: 7, y: 0, z: 3}
+    - {x: 0, y: 0, z: 4}
+    - {x: 1, y: 0, z: 4}
+    - {x: 4, y: 0, z: 4}
+    - {x: 6, y: 0, z: 4}
+    - {x: 7, y: 0, z: 4}
+    - {x: 0, y: 0, z: 5}
+    - {x: 1, y: 0, z: 5}
+    - {x: 2, y: 0, z: 5}
+    - {x: 7, y: 0, z: 5}
+    - {x: 0, y: 0, z: 6}
+    - {x: 1, y: 0, z: 6}
+    - {x: 2, y: 0, z: 6}
+    - {x: 7, y: 0, z: 6}
+    - {x: 0, y: 0, z: 7}
+    - {x: 1, y: 0, z: 7}
+    - {x: 2, y: 0, z: 7}
+    - {x: 3, y: 0, z: 7}
+    - {x: 4, y: 0, z: 7}
+    - {x: 5, y: 0, z: 7}
+    - {x: 6, y: 0, z: 7}
+    - {x: 7, y: 0, z: 7}
+    - {x: 0, y: 1, z: 0}
+    - {x: 1, y: 1, z: 0}
+    - {x: 2, y: 1, z: 0}
+    - {x: 3, y: 1, z: 0}
+    - {x: 4, y: 1, z: 0}
+    - {x: 5, y: 1, z: 0}
+    - {x: 6, y: 1, z: 0}
+    - {x: 7, y: 1, z: 0}
+    - {x: 0, y: 1, z: 1}
+    - {x: 1, y: 1, z: 1}
+    - {x: 2, y: 1, z: 1}
+    - {x: 3, y: 1, z: 1}
+    - {x: 4, y: 1, z: 1}
+    - {x: 5, y: 1, z: 1}
+    - {x: 6, y: 1, z: 1}
+    - {x: 7, y: 1, z: 1}
+    - {x: 0, y: 1, z: 2}
+    - {x: 1, y: 1, z: 2}
+    - {x: 2, y: 1, z: 2}
+    - {x: 3, y: 1, z: 2}
+    - {x: 4, y: 1, z: 2}
+    - {x: 5, y: 1, z: 2}
+    - {x: 6, y: 1, z: 2}
+    - {x: 7, y: 1, z: 2}
+    - {x: 0, y: 1, z: 3}
+    - {x: 1, y: 1, z: 3}
+    - {x: 2, y: 1, z: 3}
+    - {x: 3, y: 1, z: 3}
+    - {x: 4, y: 1, z: 3}
+    - {x: 5, y: 1, z: 3}
+    - {x: 6, y: 1, z: 3}
+    - {x: 7, y: 1, z: 3}
+    - {x: 0, y: 1, z: 4}
+    - {x: 1, y: 1, z: 4}
+    - {x: 2, y: 1, z: 4}
+    - {x: 3, y: 1, z: 4}
+    - {x: 4, y: 1, z: 4}
+    - {x: 5, y: 1, z: 4}
+    - {x: 6, y: 1, z: 4}
+    - {x: 7, y: 1, z: 4}
+    - {x: 0, y: 1, z: 5}
+    - {x: 1, y: 1, z: 5}
+    - {x: 2, y: 1, z: 5}
+    - {x: 7, y: 1, z: 5}
+    - {x: 0, y: 1, z: 6}
+    - {x: 1, y: 1, z: 6}
+    - {x: 2, y: 1, z: 6}
+    - {x: 7, y: 1, z: 6}
+    - {x: 0, y: 1, z: 7}
+    - {x: 1, y: 1, z: 7}
+    - {x: 2, y: 1, z: 7}
+    - {x: 3, y: 1, z: 7}
+    - {x: 4, y: 1, z: 7}
+    - {x: 5, y: 1, z: 7}
+    - {x: 6, y: 1, z: 7}
+    - {x: 7, y: 1, z: 7}
+    - {x: 5, y: 0, z: 4}
+    spawns:
+    - {x: 1, y: 0, z: 1}
+    stairs:
+    - lowerFloor: 0
+      x: 3
+      z: 5
+      width: 2
+      length: 4
+      direction: 3
+    walls: []
+    partitions:
+    - id: arena:boundary:v1:0:-1:0:x
+      cell: {x: -1, y: 0, z: 0}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:0:-1:z
+      cell: {x: 0, y: 0, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:1:-1:z
+      cell: {x: 1, y: 0, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:2:-1:z
+      cell: {x: 2, y: 0, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:3:-1:z
+      cell: {x: 3, y: 0, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:4:-1:z
+      cell: {x: 4, y: 0, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:5:-1:z
+      cell: {x: 5, y: 0, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:6:-1:z
+      cell: {x: 6, y: 0, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:0:x
+      cell: {x: 7, y: 0, z: 0}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:-1:z
+      cell: {x: 7, y: 0, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:-1:1:x
+      cell: {x: -1, y: 0, z: 1}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:1:x
+      cell: {x: 7, y: 0, z: 1}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:-1:2:x
+      cell: {x: -1, y: 0, z: 2}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:2:x
+      cell: {x: 7, y: 0, z: 2}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:-1:3:x
+      cell: {x: -1, y: 0, z: 3}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:3:x
+      cell: {x: 7, y: 0, z: 3}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:-1:4:x
+      cell: {x: -1, y: 0, z: 4}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:4:x
+      cell: {x: 7, y: 0, z: 4}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:-1:5:x
+      cell: {x: -1, y: 0, z: 5}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:5:x
+      cell: {x: 7, y: 0, z: 5}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:-1:6:x
+      cell: {x: -1, y: 0, z: 6}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:6:x
+      cell: {x: 7, y: 0, z: 6}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:-1:7:x
+      cell: {x: -1, y: 0, z: 7}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:0:7:z
+      cell: {x: 0, y: 0, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:1:7:z
+      cell: {x: 1, y: 0, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:2:7:z
+      cell: {x: 2, y: 0, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:3:7:z
+      cell: {x: 3, y: 0, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:4:7:z
+      cell: {x: 4, y: 0, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:5:7:z
+      cell: {x: 5, y: 0, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:6:7:z
+      cell: {x: 6, y: 0, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:7:x
+      cell: {x: 7, y: 0, z: 7}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:7:7:z
+      cell: {x: 7, y: 0, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:c35b930c813b4c0bab56763082014421
+      cell: {x: 3, y: 0, z: 2}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:87cd7896c2f3445f968501a47210ffa4
+      cell: {x: 2, y: 0, z: 2}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:f8f15ef2ebdf467d927b4a9d8c469e53
+      cell: {x: 1, y: 0, z: 2}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:a8f50157ca1a46cebd322b5f8c709140
+      cell: {x: 3, y: 0, z: 2}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:459f233535f64727ba8e3ea0d574dda3
+      cell: {x: 3, y: 0, z: 1}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:3b8bffcbb9aa408b9366c87b48352ca1
+      cell: {x: 3, y: 0, z: 0}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:1eb345fc92314d98a4e0b7006cb7c32b
+      cell: {x: 2, y: 0, z: 0}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:24a86a9931b3465b950d33a45856d169
+      cell: {x: 1, y: 0, z: 1}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:f344ff02f69c4135914a98abd834eb08
+      cell: {x: 4, y: 0, z: 1}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:ff5f4733de2643c3b72f89cd63002dcb
+      cell: {x: 5, y: 0, z: 1}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: wall:da14ab9480174743a61c078f96af1513
+      cell: {x: 5, y: 0, z: 0}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:5:2:z
+      cell: {x: 5, y: 0, z: 2}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:2:3:z
+      cell: {x: 2, y: 0, z: 3}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:3:3:z
+      cell: {x: 3, y: 0, z: 3}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:4:3:x
+      cell: {x: 4, y: 0, z: 3}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:5:3:x
+      cell: {x: 5, y: 0, z: 3}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:1:4:x
+      cell: {x: 1, y: 0, z: 4}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:3:4:x
+      cell: {x: 3, y: 0, z: 4}
+      alongX: 0
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:0:2:4:z
+      cell: {x: 2, y: 0, z: 4}
+      alongX: 1
+      lengthCells: 1
+      height: 3.9
+      thickness: 0.25
+    - id: arena:boundary:v1:1:-1:0:x
+      cell: {x: -1, y: 1, z: 0}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:0:-1:z
+      cell: {x: 0, y: 1, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:1:-1:z
+      cell: {x: 1, y: 1, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:2:-1:z
+      cell: {x: 2, y: 1, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:3:-1:z
+      cell: {x: 3, y: 1, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:4:-1:z
+      cell: {x: 4, y: 1, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:5:-1:z
+      cell: {x: 5, y: 1, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:6:-1:z
+      cell: {x: 6, y: 1, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:0:x
+      cell: {x: 7, y: 1, z: 0}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:-1:z
+      cell: {x: 7, y: 1, z: -1}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:-1:1:x
+      cell: {x: -1, y: 1, z: 1}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:1:x
+      cell: {x: 7, y: 1, z: 1}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:-1:2:x
+      cell: {x: -1, y: 1, z: 2}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:2:x
+      cell: {x: 7, y: 1, z: 2}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:-1:3:x
+      cell: {x: -1, y: 1, z: 3}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:3:x
+      cell: {x: 7, y: 1, z: 3}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:-1:4:x
+      cell: {x: -1, y: 1, z: 4}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:4:x
+      cell: {x: 7, y: 1, z: 4}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:-1:5:x
+      cell: {x: -1, y: 1, z: 5}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:5:x
+      cell: {x: 7, y: 1, z: 5}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:-1:6:x
+      cell: {x: -1, y: 1, z: 6}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:6:x
+      cell: {x: 7, y: 1, z: 6}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:-1:7:x
+      cell: {x: -1, y: 1, z: 7}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:0:7:z
+      cell: {x: 0, y: 1, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:1:7:z
+      cell: {x: 1, y: 1, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:2:7:z
+      cell: {x: 2, y: 1, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:3:7:z
+      cell: {x: 3, y: 1, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:4:7:z
+      cell: {x: 4, y: 1, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:5:7:z
+      cell: {x: 5, y: 1, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:6:7:z
+      cell: {x: 6, y: 1, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:7:x
+      cell: {x: 7, y: 1, z: 7}
+      alongX: 0
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    - id: arena:boundary:v1:1:7:7:z
+      cell: {x: 7, y: 1, z: 7}
+      alongX: 1
+      lengthCells: 1
+      height: 2.5
+      thickness: 0.25
+    content: []
+  contentCatalog: {fileID: 0}
+  authoringNote: 
+  wallDefaults:
+    rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

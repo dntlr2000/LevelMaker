@@ -1,10 +1,16 @@
 # 아키텍처
 
-## 수동 다층 스테이지 (0.15.0)
+## 수동 다층 스테이지 (0.17.0)
 
 `FpsArenaStageAsset`은 생성 레시피와 분리된 `FpsArenaStageData`(바닥 셀·스폰·계단·벽·콘텐츠)를 저장한다. `FpsArenaGenerator.manualStage`가 연결되면 planner를 호출하지 않고 저장 데이터의 깊은 복사 → 수동 검증 → 기존 SceneBuilder를 사용한다. 수동 배치 해시는 목록 순서를 정규화하고 Prefab 직접 참조와 생성 시드를 포함하지 않는다. 첫 스폰은 시작 위치이므로 스폰 순서는 유지한다.
 
-기존 procedural 경로는 변경하지 않는다. `IsAuthored`가 명시된 layout에서만 수동 검증/해시/외곽 가드를 사용한다. 마지막 적용 결과는 Generator의 `builtFromManual`과 `builtManualStage`에 직렬화하여 현재 편집 중인 자산과 분리한다. 로드·검증 실패는 기존 생성 루트를 보존한다.
+0.17.0은 `FpsArenaStageAuthoring.PreviewResize/ResizeStage`로 후보 규격을 검사하고 원자적으로 반영한다. 기존 셀 좌표·미터 치수는 유지하며 새 격자 범위에만 바닥을 추가한다. 범위 밖 바닥·스폰·계단·벽·콘텐츠와 새 규격을 초과하는 실제 치수는 목록으로 안내하고 삭제/자동 보정 없이 거부한다. 연결성은 계속 경고이며 카탈로그 연결은 기존 장면 적용 단계에서 검사한다. 벽 치수 개별/필터별 일괄 변경도 기존 Undo 편집 서비스를 사용한다.
+
+`FpsArenaWallAuthoringDefaults`는 StageAsset의 선택적 SerializeReference 메타데이터다. null은 기존 내부 자동 높이/0.25m 및 외곽1.5m/0.15m로 읽고 조회 시 초기화/dirty/자동 저장하지 않는다. 기본값은 앞으로 편집기로 만드는 벽에만 적용되며 `FpsArenaStageData`와 배치 해시에 포함되지 않는다. 런타임은 저장된 벽 레코드만 구축한다. `다른 이름으로 저장`은 메타데이터를 깊은 복사한다. 저장 형식은 계속 v2이며 기존 v1 명시적 변환 흐름을 유지한다.
+
+기존 procedural 배치/해시 경로는 변경하지 않는다. 계산이 끝난 후 난수 없이 만든 파생 `BoundaryWalls`는 방 구획/예약 영역 및 기존 절차 해시에서 제외한다. SceneBuilder는 이 명시적 레코드와 내부 경계벽에 공통 구축 함수를 사용하며 가드를 다시 생성하지 않는다. 서쪽/남쪽은 음수 기준 셀을 허용하고 실제 바닥 측 기준으로 위치를 계산하여 이전 1.5m/0.15m geometry와 색상/Collider를 유지한다.
+
+수동 자산 v2는 모든 내부/외곽벽을 `partitions`에 저장하며 새 자산은 외곽벽 없이 시작한다. `ToLayout`은 두 바닥 사이 벽을 RoomWalls로, 한쪽 바닥 경계벽을 BoundaryWalls로 분류한다. 전체 층/내부 구멍 자동 배치는 빈 경계만 채우며 계단 footprint를 제외하고 기존 ID/치수를 보존한다. v1은 원본을 건드리지 않는 `Normalized()`로 기존 가드를 명시적 v2 레코드에 더해 읽는다. 편집기는 사용자 요청의 Undo 가능한 변환 후 편집하며 자동 저장하지 않는다. 수동 해시는 정규화 v2의 모든 벽을 포함하므로 구형 해시와 달라질 수 있다. 마지막 적용 결과는 Generator의 `builtFromManual`과 `builtManualStage`에 직렬화하여 현재 편집 중인 자산과 분리한다. 로드·검증 실패는 기존 생성 루트를 보존한다.
 
 `FpsArenaStageWindow`와 `FpsArenaStageAuthoring`은 Editor 경계에서 자산 복사, Undo, SerializedObject, dirty 및 저장을 맡는다. 수동 Build는 좌표·계단 개구부·겹침·콘텐츠 연결 검사를 통과해야 하지만 전체 도달성은 차단하지 않는다. `FpsArenaManualValidation.GetConnectivityWarning`은 필수 검사를 통과한 layout에서 시작 스폰 기준 격자 BFS의 미도달 셀 수를 반환하며, 제작 창은 이를 적용 가능한 경고로 표시한다. 의도적으로 격리한 구역·층도 저장, 장면 적용, Runtime 로드와 마지막 적용 데이터 복원이 가능하다. 이 격자 검사는 점프·낙하·동적 문·텔레포트를 반영하는 실제 이동 판정이 아니며, 절차 생성 layout의 기존 연결성 필수 검사는 유지한다. 콘텐츠는 기존 contentKey와 `IFpsArenaContentInitializer`를 사용하고 `manualCatalogOverride`로 호스트별 Prefab 매핑을 주입한다. Core는 Runtime 데이터/검증, Lab는 자체 완결적인 제작 UI를 포함한다. 단층 Blueprint/Bake/RunState 경계는 그대로다.
 
